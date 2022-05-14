@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import * as React from 'react';
 
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
@@ -64,8 +65,8 @@ const styles = StyleSheet.create({
   },
 
   tabs: {
-    width: '40%',
-    height: '30%', //use device height true useContext to define height
+    width: wp('40%'),
+    height: hp('25%'),
     marginHorizontal: '5%',
     marginVertical: '10%',
     backgroundColor: '#fff',
