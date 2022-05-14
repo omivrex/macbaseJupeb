@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Header from '../components/Header.compoenent';
 import HomeScreen from "../components/HomeScreen.component";
 
 const Stack = createNativeStackNavigator();
@@ -9,7 +10,7 @@ const HomeStack = () => {
         <Stack.Screen
             name="HomeScreen"
             component={HomeScreen}
-            options={{ title: 'Dashboard' }}
+            options={{ title: 'Dashboard', header: ()=> <Header title='Dashboard'/>}}
         />
         {/* <Stack.Screen name="Profile" component={ProfileScreen} /> */}
     </Stack.Navigator>
