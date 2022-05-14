@@ -4,13 +4,13 @@ import HomeScreen from "../components/HomeScreen.component";
 
 const Stack = createNativeStackNavigator();
 
-const HomeStack = () => {
+const HomeStack = ({navigation}) => {
   return (
     <Stack.Navigator>
         <Stack.Screen
             name="HomeScreen"
             component={HomeScreen}
-            options={{ title: 'Dashboard', header: ()=> <Header title='Dashboard'/>}}
+            options={{ title: 'Dashboard', header: ()=> <Header navigation={navigation} title='Dashboard'/>}}
         />
         {/* <Stack.Screen name="Profile" component={ProfileScreen} /> */}
     </Stack.Navigator>
