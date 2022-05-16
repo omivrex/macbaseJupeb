@@ -16,7 +16,7 @@ import { Entypo } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import NavigationContext from '../context/Nav.context';
 const HomeScreen = () => {
-  const NavContext = useContext(NavigationContext);
+  const navigation = useContext(NavigationContext);
   return (
     <SafeAreaView>
       <View style={styles.container}>
@@ -24,25 +24,25 @@ const HomeScreen = () => {
         </View>
         <ScrollView style={styles.scrollView}>
           <View style={styles.tabContainer}>
-            <TouchableHighlight onPress={()=> NavContext.navigate('Past questions')} style={styles.tabs}>
+            <TouchableHighlight onPress={()=> navigation.navigate('Past questions')} style={styles.tabs}>
               <View>
                 <FontAwesome5 style={{alignSelf: 'center', marginVertical: hp('2%')}} name="book" size={40} color="#b4b42b" />
                 <Text style={styles.tabTexts}>Past Questions</Text>
               </View>
             </TouchableHighlight>
-            <TouchableHighlight onPress={()=> NavContext.navigate("CBT test")} style={styles.tabs}>
+            <TouchableHighlight onPress={()=> navigation.navigate("CBT test")} style={styles.tabs}>
               <View>
                 <MaterialIcons style={{alignSelf: 'center', marginVertical: hp('2%')}} name="computer" size={40} color="#b4b42b" />
                 <Text style={styles.tabTexts}>CBT test</Text>
               </View>
             </TouchableHighlight>
-            <TouchableHighlight onPress={()=> NavContext.navigate("Learning tools")} style={styles.tabs}>
+            <TouchableHighlight onPress={()=> navigation.navigate("Learning tools")} style={styles.tabs}>
               <View>
                 <FontAwesome5 style={{alignSelf: 'center', marginVertical: hp('2%')}} name="tools" size={40} color="#b4b42b" />
                 <Text style={styles.tabTexts}>Learning Tools</Text>
               </View>
             </TouchableHighlight>
-            <TouchableHighlight onPress={()=> NavContext.navigate("GP Calculator")} style={styles.tabs}>
+            <TouchableHighlight onPress={()=> navigation.navigate("GP Calculator")} style={styles.tabs}>
               <View>
                 <FontAwesome style={{alignSelf: 'center', marginVertical: hp('2%')}} name="calculator" size={40} color="#b4b42b" />
                 <Text style={styles.tabTexts}>GP Calculator</Text>
@@ -55,7 +55,7 @@ const HomeScreen = () => {
               <Text style={styles.tabTexts}>Newsfeed</Text>
             </View>
           </TouchableHighlight>
-          <TouchableHighlight onPress={()=> NavContext.navigate("Frequently asked questions")} style={[styles.tabs, {width: wp('85%')}]}>
+          <TouchableHighlight onPress={()=> navigation.navigate("Frequently asked questions")} style={[styles.tabs, {width: wp('85%')}]}>
             <View>
               <MaterialCommunityIcons style={{alignSelf: 'center', marginVertical: hp('2%')}} name="frequently-asked-questions" size={40} color="#b4b42b" />
               <Text style={styles.tabTexts}>Freqeuntly Asked Questions</Text>
