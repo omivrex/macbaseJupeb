@@ -1,3 +1,4 @@
+import {useContext, useState, useEffect} from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -6,7 +7,6 @@ import {
   SafeAreaView,
   ScrollView
 } from 'react-native';
-import {useContext} from 'react';
 
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -17,11 +17,32 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import NavigationContext from '../context/Nav.context';
 const HomeScreen = () => {
   const navigation = useContext(NavigationContext);
+  const [greeting, setgreeting] = useState('');
+  
+  useEffect(() => {
+    const hour = new Date().getHours()
+    if (hour<= 12) {
+      setgreeting('Good Morning!')
+    } else if (hour>=12 && hour<=16) {
+      setgreeting('Good Afternoon!')
+    } else {
+      setgreeting('Good Evening!')
+    }
+  }, []);
+
   return (
     <SafeAreaView>
       <View style={styles.container}>
         <View style={styles.curve}>
         </View>
+        <Text style={{
+          color: '#fff',
+          paddingVertical: '2%',
+          fontSize: hp('3%'),
+          backgroundColor: '#1c1c74',
+          width: '100%',
+          textAlign: 'center'
+        }}>{greeting}</Text>
         <ScrollView style={styles.scrollView}>
           <View style={styles.tabContainer}>
             <TouchableHighlight onPress={()=> navigation.navigate('Past questions')} style={styles.tabs}>
