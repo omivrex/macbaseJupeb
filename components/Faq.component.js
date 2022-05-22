@@ -43,11 +43,11 @@ const FaqScreen = () => {
     },
     
     listItem: {
-      width: '95%',
+      width: '97%',
       paddingVertical: hp(2.5),
-      left: '2.5%',
+      left: '5%',
       marginVertical: hp('3%'),
-      // paddingHorizontal: '10%',
+      borderRadius: 10,
       shadowColor: "#000",
       shadowOpacity: 0.25,
       shadowRadius: 4.84,
@@ -66,41 +66,41 @@ const FaqScreen = () => {
         </View>
           <View style={styles.contentList}>
             <ScrollView>
-              <TouchableHighlight>
+              <TouchableHighlight underlayColor={'#000'}>
                 <View style={styles.listItem}>
-                  <Text style={{width: '90%', fontWeight: 'bold'}}>
+                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     Will ASUU Strike Affect JAMB? IJMB? or JUPEB?
                   </Text>
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight>
+              <TouchableHighlight underlayColor={'#000'}>
                 <View style={styles.listItem}>
-                  <Text style={{width: '90%', fontWeight: 'bold'}}>
+                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     What does this app contain?
                   </Text>
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight>
+              <TouchableHighlight underlayColor={'#000'}>
                 <View style={styles.listItem}>
-                  <Text style={{width: '90%', fontWeight: 'bold'}}>
+                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     How do I keep track of my Progress?
                   </Text>
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight>
+              <TouchableHighlight underlayColor={'#000'}>
                 <View style={styles.listItem}>
-                  <Text style={{width: '90%', fontWeight: 'bold'}}>
+                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     Can I access this app on multiple devices?
                   </Text>
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight>
+              <TouchableHighlight underlayColor={'#000'}>
                 <View style={styles.listItem}>
-                  <Text style={{width: '90%', fontWeight: 'bold'}}>
+                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     Do I need Internet access to use the app?
                   </Text>
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
