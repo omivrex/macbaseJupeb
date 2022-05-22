@@ -22,7 +22,7 @@ const HomeStack = ({navigation}) => {
           <Stack.Screen name="CBT test" component={Cbt} />
           <Stack.Screen name="Learning tools" component={LTools} />
           <Stack.Screen name="GP Calculator" component={Gp} />
-          <Stack.Screen name="Frequently asked questions" component={Faq} />
+          <Stack.Screen name="FAQs" component={Faq} />
       </Stack.Navigator>
     </NavigationContext.Provider>
   )

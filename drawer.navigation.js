@@ -30,7 +30,7 @@ const DrawerNav = () => {
         <Drawer.Screen name="CBT test" component={Cbt} />
         <Drawer.Screen name="Learning tools" component={LTools} />
         <Drawer.Screen name="GP Calculator" component={Gp} />
-        <Drawer.Screen name="Frequently asked questions" component={Faq} />
+        <Drawer.Screen name="FAQs" component={Faq} />
         <Drawer.Screen name="Help" component={Help} />
         <Drawer.Screen name="About" component={About} />
     </Drawer.Navigator>
