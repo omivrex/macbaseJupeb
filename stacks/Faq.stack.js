@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Header from '../components/Header.compoenent';
+import Header from '../components/Header.component';
 import FaqScreen from '../components/Faq.component';
 import Faq1 from '../components/Faq1.component';
 import Faq2 from '../components/Faq2.component';

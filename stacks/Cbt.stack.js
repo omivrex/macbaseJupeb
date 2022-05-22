@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Header from '../components/Header.compoenent';
+import Header from '../components/Header.component';
 import CbtScreen from '../components/Cbt.component';
 
 const Stack = createNativeStackNavigator();

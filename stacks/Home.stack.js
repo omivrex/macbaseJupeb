@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NavigationContext from '../context/Nav.context';
-import Header from '../components/Header.compoenent';
+import Header from '../components/Header.component';
 import HomeScreen from "../components/HomeScreen.component";
 import PQ from './Pq.stack';
 import Cbt from './Cbt.stack';
