@@ -4,6 +4,7 @@ import Cbt from './stacks/Cbt.stack';
 import Faq from './stacks/Faq.stack';
 import Gp from './stacks/Gp.stack';
 import Help from './stacks/Help.stack';
+import About from './stacks/About.stack';
 import HomeStack from './stacks/Home.stack';
 import LTools from './stacks/LTools.stack';
 import PQ from './stacks/Pq.stack';
@@ -31,6 +32,7 @@ const DrawerNav = () => {
         <Drawer.Screen name="GP Calculator" component={Gp} />
         <Drawer.Screen name="Frequently asked questions" component={Faq} />
         <Drawer.Screen name="Help" component={Help} />
+        <Drawer.Screen name="About" component={About} />
     </Drawer.Navigator>
   )
 }
