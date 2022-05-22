@@ -11,9 +11,11 @@ import {useContext} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import ColorContext from '../context/Colors.context';
 import { AntDesign } from '@expo/vector-icons';  
+import NavigationContext from '../context/Nav.context';
 
 const FaqScreen = () => {
   const colors = useContext(ColorContext)
+  const navigation = useContext(NavigationContext);
 
   const styles = StyleSheet.create({
     container: {
@@ -66,7 +68,7 @@ const FaqScreen = () => {
         </View>
           <View style={styles.contentList}>
             <ScrollView>
-              <TouchableHighlight underlayColor={'#000'}>
+              <TouchableHighlight onPress={()=> navigation.navigate('Faq1')} underlayColor={'#000'}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     Will ASUU Strike Affect JAMB? IJMB? or JUPEB?
@@ -74,7 +76,7 @@ const FaqScreen = () => {
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight underlayColor={'#000'}>
+              <TouchableHighlight onPress={()=> navigation.navigate('Faq2')} underlayColor={'#000'}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     What does this app contain?
@@ -82,7 +84,8 @@ const FaqScreen = () => {
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight underlayColor={'#000'}>
+
+              <TouchableHighlight onPress={()=> navigation.navigate('Faq3')} underlayColor={'#000'}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     How do I keep track of my Progress?
@@ -90,7 +93,8 @@ const FaqScreen = () => {
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight underlayColor={'#000'}>
+
+              <TouchableHighlight onPress={()=> navigation.navigate('Faq4')} underlayColor={'#000'}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     Can I access this app on multiple devices?
@@ -98,7 +102,8 @@ const FaqScreen = () => {
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight underlayColor={'#000'}>
+
+              <TouchableHighlight onPress={()=> navigation.navigate('Faq5')} underlayColor={'#000'}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     Do I need Internet access to use the app?
