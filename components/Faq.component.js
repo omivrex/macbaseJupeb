@@ -68,7 +68,7 @@ const FaqScreen = () => {
         </View>
           <View style={styles.contentList}>
             <ScrollView>
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq1')} underlayColor={'#000'}>
+              <TouchableHighlight onPress={()=> navigation.navigate('Faq1')} underlayColor={colors.underlayColor}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     Will ASUU Strike Affect JAMB? IJMB? or JUPEB?
@@ -76,7 +76,7 @@ const FaqScreen = () => {
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq2')} underlayColor={'#000'}>
+              <TouchableHighlight onPress={()=> navigation.navigate('Faq2')} underlayColor={colors.underlayColor}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     What does this app contain?
@@ -85,7 +85,7 @@ const FaqScreen = () => {
                 </View>
               </TouchableHighlight>
 
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq3')} underlayColor={'#000'}>
+              <TouchableHighlight onPress={()=> navigation.navigate('Faq3')} underlayColor={colors.underlayColor}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     How do I keep track of my Progress?
@@ -94,7 +94,7 @@ const FaqScreen = () => {
                 </View>
               </TouchableHighlight>
 
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq4')} underlayColor={'#000'}>
+              <TouchableHighlight onPress={()=> navigation.navigate('Faq4')} underlayColor={colors.underlayColor}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     Can I access this app on multiple devices?
@@ -103,7 +103,7 @@ const FaqScreen = () => {
                 </View>
               </TouchableHighlight>
 
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq5')} underlayColor={'#000'}>
+              <TouchableHighlight onPress={()=> navigation.navigate('Faq5')} underlayColor={colors.underlayColor}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     Do I need Internet access to use the app?

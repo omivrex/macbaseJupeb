@@ -6,6 +6,7 @@ const ColorContext = createContext({
     defaultText: '#eee',
     darkText: '#000',
     iconColor: '#b4b42b',
+    underlayColor: '#00000045'
 })
 
 export default ColorContext
