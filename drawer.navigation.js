@@ -6,7 +6,7 @@ import Gp from './stacks/Gp.stack';
 import Help from './stacks/Help.stack';
 import HomeStack from './stacks/Home.stack';
 import LTools from './stacks/LTools.stack';
-import PQ from './stacks/pq.stack';
+import PQ from './stacks/Pq.stack';
 import Register from './stacks/Register.stack';
 
 const Drawer = createDrawerNavigator();
