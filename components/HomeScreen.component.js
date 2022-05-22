@@ -79,7 +79,7 @@ const HomeScreen = () => {
           <TouchableHighlight onPress={()=> navigation.navigate("Frequently asked questions")} style={[styles.tabs, {width: wp('85%')}]}>
             <View>
               <MaterialCommunityIcons style={{alignSelf: 'center', marginVertical: hp('2%')}} name="frequently-asked-questions" size={40} color="#b4b42b" />
-              <Text style={styles.tabTexts}>Freqeuntly Asked Questions</Text>
+              <Text style={styles.tabTexts}>FAQs</Text>
             </View>
           </TouchableHighlight>
         </ScrollView>

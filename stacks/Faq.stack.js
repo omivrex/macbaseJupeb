@@ -10,7 +10,7 @@ const Faq = ({navigation}) => {
         <Stack.Screen
             name="FaqScreen"
             component={FaqScreen}
-            options={{ title: 'Frequently asked questions', header: ()=> <Header navigation={navigation} title='Frequently asked questions'/>}}
+            options={{ title: 'Frequently asked questions', header: ()=> <Header navigation={navigation} title='FAQs'/>}}
         />
     </Stack.Navigator>
   )
