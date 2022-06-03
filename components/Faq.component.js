@@ -3,8 +3,6 @@ import {
   Text, 
   View,
   TouchableHighlight,
-  ScrollView,
-  SafeAreaView
 } from 'react-native';
 import {useContext} from 'react';
 
@@ -12,29 +10,14 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import ColorContext from '../context/Colors.context';
 import { AntDesign } from '@expo/vector-icons';  
 import NavigationContext from '../context/Nav.context';
+import Container from './Reusable/Container.component';
+import WriteupWrapper from './Reusable/WriteupWrapper.component';
 
 const FaqScreen = () => {
   const colors = useContext(ColorContext)
   const navigation = useContext(NavigationContext);
 
   const styles = StyleSheet.create({
-    container: {
-      width: '100%',
-      height: '100%',
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      backgroundColor: '#1c1c74',
-
-    },
-    
-    curve: {
-      backgroundColor: colors.backgroundColor,
-      borderBottomRightRadius: 2500,
-      width: '100%',
-      height: '70%',
-      position: 'absolute',
-    },
-  
     contentList: {
       width: wp('100%'),
       height: '100%',
@@ -55,69 +38,116 @@ const FaqScreen = () => {
       shadowRadius: 4.84,
       elevation: 27,
       flexDirection: 'row',
+      alignItems: 'center',
       justifyContent: 'space-evenly',
       backgroundColor: colors.backgroundColor,
+    },
+
+    wrapper: {
+      width: '100%',
+      height: '100%',
+      padding: 0,
+      left: '0%',
+      overflow: 'scroll',
+      backgroundColor: 'transparent',
     }
   
   })
 
   return (
-    <SafeAreaView>
-      <View style={styles.container}>
-        <View style={styles.curve}>
-        </View>
-          <View style={styles.contentList}>
-            <ScrollView>
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq1')} underlayColor={colors.underlayColor}>
-                <View style={styles.listItem}>
-                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                    Will ASUU Strike Affect JAMB? IJMB? or JUPEB?
-                  </Text>
-                  <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
-                </View>
-              </TouchableHighlight>
-
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq2')} underlayColor={colors.underlayColor}>
-                <View style={styles.listItem}>
-                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                    WHAT IS JUPEB?
-                  </Text>
-                  <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
-                </View>
-              </TouchableHighlight>
-
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq3')} underlayColor={colors.underlayColor}>
-                <View style={styles.listItem}>
-                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                    WHEN IS JUPEB RESUMPTION DATE AND DURATION?
-                  </Text>
-                  <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
-                </View>
-              </TouchableHighlight>
-
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq4')} underlayColor={colors.underlayColor}>
-                <View style={styles.listItem}>
-                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                    JUPEB REGISTRATION PROCEDURES
-                  </Text>
-                  <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
-                </View>
-              </TouchableHighlight>
-
-
-              {/* 
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq5')} underlayColor={colors.underlayColor}>
-                <View style={styles.listItem}>
-                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                    Do I need Internet access to use the app?
-                  </Text>
-                  <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
-                </View>
-              </TouchableHighlight> */}
-            </ScrollView>
+    <Container>
+      <WriteupWrapper contentListStyles={styles.contentList} extraStyes={styles.wrapper}>
+        <TouchableHighlight onPress={()=> navigation.navigate('Faq1')} underlayColor={colors.underlayColor}>
+          <View style={styles.listItem}>
+            <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+              Will ASUU Strike Affect JAMB? IJMB? or JUPEB?
+            </Text>
+            <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
           </View>
-      </View>
-    </SafeAreaView>
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={()=> navigation.navigate('Faq2')} underlayColor={colors.underlayColor}>
+          <View style={styles.listItem}>
+            <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+              ABOUT JUPEB
+            </Text>
+            <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+          </View>
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={()=> navigation.navigate('Faq3')} underlayColor={colors.underlayColor}>
+          <View style={styles.listItem}>
+            <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+              THE LIST OF JUPEB CENTRES ACROSS NIGERIA
+            </Text>
+            <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+          </View>
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={()=> navigation.navigate('Faq4')} underlayColor={colors.underlayColor}>
+          <View style={styles.listItem}>
+            <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+              JUPEB SCORING GRADE ALLOCATION
+            </Text>
+            <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+          </View>
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={()=> navigation.navigate('Faq5')} underlayColor={colors.underlayColor}>
+          <View style={styles.listItem}>
+            <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+              JUPEB EXAMINATION COURSES AND CODES FOR MEDICAL SCIENCE AND ENGINEERING
+            </Text>
+            <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+          </View>
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={()=> navigation.navigate('Faq6')} underlayColor={colors.underlayColor}>
+          <View style={styles.listItem}>
+            <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+              JUPEB Subjects Combinations for Sciences
+            </Text>
+            <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+          </View>
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={()=> navigation.navigate('Faq7')} underlayColor={colors.underlayColor}>
+          <View style={styles.listItem}>
+            <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+              JUPEB Subjects Combinations For ART, management & social science All Courses 
+            </Text>
+            <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+          </View>
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={()=> navigation.navigate('Faq8')} underlayColor={colors.underlayColor}>
+          <View style={styles.listItem}>
+            <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+              JUPEB Result
+            </Text>
+            <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+          </View>
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={()=> navigation.navigate('Faq9')} underlayColor={colors.underlayColor}>
+          <View style={styles.listItem}>
+            <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+              JUPEB  Affiliated Universities In Abroad
+            </Text>
+            <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+          </View>
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={()=> navigation.navigate('Faq10')} underlayColor={colors.underlayColor}>
+          <View style={styles.listItem}>
+            <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+              Study Tips
+            </Text>
+            <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+          </View>
+        </TouchableHighlight>
+      </WriteupWrapper>
+    </Container>
   )
 }
 

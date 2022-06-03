@@ -139,6 +139,66 @@ return (
                 </CText>
             </P>
 
+            <P>
+                <Heading>BENEFITS OF RUNNING JUPEB</Heading>
+                <CText>
+                    - No jamb is required
+                </CText>
+                <CText>
+                    - The result validity period is uncertain
+                </CText>
+                <CText>
+                    - Admission to 200level
+                </CText>
+                <CText>
+                    - Not usually affected by university strikes and vacations
+                </CText>
+                <CText>
+                    - Tuition fee paid in installments is permitted but usually twice the most.
+                </CText>
+                <CText>
+                    - Freedom to be admitted to another school different from your center with direct entry.
+                </CText>
+            </P>
+
+            <P>
+                <BoldedText>Difference between JAMB and JUPEB</BoldedText>
+                <CText>
+                    1. Jamb exam is CBT (computer-based test) but jupeb is paper type
+                </CText>
+                <CText>
+                    2. The jamb exam is written once but the jupeb exam last for 2weeks intermittently.
+                </CText>
+                <CText>
+                    3. The time to seat for the jamb exam is periodic for each candidate but for jupeb, everyone writes the same time.
+                </CText>
+                <CText>
+                    4. Jupeb exam is both internal and external but jamb is purely external.
+                </CText>
+                <CText>
+                    5. For jamb registration takes place only in an accredited center but jupeb any business computer center.
+                </CText>
+                <CText>
+                    6. Jupeb caters to tutoring and accommodation while jamb does not.
+                </CText>
+                <CText>
+                    7. Jamb result comes out after 2weeks while jupeb usually 2month.
+                </CText>
+                <CText>
+                    8. After jamb, you get to write postume, but for jupeb postume is not required
+                </CText>
+                <CText>
+                    9. The risk of going through jamb or jupeb has been debated over this year's but we can't tell which one is better for you. it only depends on what leverage you possess a for competitive advantage for you.
+                </CText>
+                <CText>
+                    10. Jamb is cheap financially but jupeb is relatively expensive.
+                </CText>
+                <CText>
+                    Disclaimer: We offer professional help to advise you on which to choice, except for those we can connect with. We advise seeking a close-by professional for any professional advice.
+                </CText>
+
+            </P>
+
             </ScrollView>
         </View>
     </View>
