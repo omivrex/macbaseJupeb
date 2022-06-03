@@ -89,7 +89,16 @@ const FaqScreen = () => {
               <TouchableHighlight onPress={()=> navigation.navigate('Faq3')} underlayColor={colors.underlayColor}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                    WHEN JUPEB RESUMPTION DATE AND DURATION?
+                    WHEN IS JUPEB RESUMPTION DATE AND DURATION?
+                  </Text>
+                  <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+                </View>
+              </TouchableHighlight>
+
+              <TouchableHighlight onPress={()=> navigation.navigate('Faq4')} underlayColor={colors.underlayColor}>
+                <View style={styles.listItem}>
+                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                    JUPEB REGISTRATION PROCEDURES
                   </Text>
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
@@ -97,15 +106,6 @@ const FaqScreen = () => {
 
 
               {/* 
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq4')} underlayColor={colors.underlayColor}>
-                <View style={styles.listItem}>
-                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                    Can I access this app on multiple devices?
-                  </Text>
-                  <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
-                </View>
-              </TouchableHighlight>
-
               <TouchableHighlight onPress={()=> navigation.navigate('Faq5')} underlayColor={colors.underlayColor}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
