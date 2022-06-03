@@ -2,10 +2,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Header from '../components/Header.component';
 import FaqScreen from '../components/Faq.component';
 import Faq1 from '../components/Faq1.component';
-// import Faq2 from '../components/Hep2.component';
-// import Faq3 from '../components/Hep3.component';
-// import Faq4 from '../components/Hep4.component';
-// import Faq5 from '../components/Hep5.component';
+import Faq2 from '../components/Faq2.component';
+import Faq3 from '../components/Faq3.component';
+// import Faq4 from '../components/Faq4.component';
+// import Faq5 from '../components/Faq5.component';
 import NavigationContext from '../context/Nav.context';
 
 const Stack = createNativeStackNavigator();
@@ -26,7 +26,7 @@ const Faq = ({navigation}) => {
             options={{ title: 'FAQs', header: ()=> <Header navigation={navigation} title='FAQs'/>}}
           />
 
-          {/* <Stack.Screen
+          <Stack.Screen
             name="Faq2"
             component={Faq2}
             options={{ title: 'FAQs', header: ()=> <Header navigation={navigation} title='FAQs'/>}}
@@ -38,6 +38,8 @@ const Faq = ({navigation}) => {
             options={{ title: 'FAQs', header: ()=> <Header navigation={navigation} title='FAQs'/>}}
           />
 
+
+          {/* 
           <Stack.Screen
             name="Faq4"
             component={Faq4}
