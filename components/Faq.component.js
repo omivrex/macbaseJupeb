@@ -76,7 +76,8 @@ const FaqScreen = () => {
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight onPress={()=> navigation.navigate('Faq2')} underlayColor={colors.underlayColor}>
+              
+              {/* <TouchableHighlight onPress={()=> navigation.navigate('Faq2')} underlayColor={colors.underlayColor}>
                 <View style={styles.listItem}>
                   <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                     What does this app contain?
@@ -110,7 +111,7 @@ const FaqScreen = () => {
                   </Text>
                   <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                 </View>
-              </TouchableHighlight>
+              </TouchableHighlight> */}
             </ScrollView>
           </View>
       </View>
