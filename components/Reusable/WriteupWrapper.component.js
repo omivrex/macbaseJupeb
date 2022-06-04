@@ -6,7 +6,7 @@ import {
 
 import {useContext} from 'react';
 import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
-import ColorContext from '../../context/Colors.context';
+import ColorContext from '../context/Colors.context';
 
 const WriteupWrapper = ({children, contentListStyles, extraStyes}) => {
     const colors = useContext(ColorContext)

@@ -5,7 +5,7 @@ import {
   } from 'react-native';
   import {useContext} from 'react';
   
-  import ColorContext from '../../context/Colors.context';
+  import ColorContext from '../context/Colors.context';
   
   const Container = ({children}) => {
     const colors = useContext(ColorContext)
