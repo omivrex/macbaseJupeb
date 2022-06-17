@@ -21,6 +21,9 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.macbase.jupebmacbase",
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
