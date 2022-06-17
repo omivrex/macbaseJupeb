@@ -3,14 +3,14 @@ import { getAnalytics } from "firebase/analytics";
 import 'firebase/compat/firestore'
 import 'firebase/compat/auth'
 import 'firebase/compat/database'
-import {FIREBASE_PROJECT_KEY, MESSAGING_SENDER_ID} from '@env'
+// import {FIREBASE_PROJECT_KEY, MESSAGING_SENDER_ID} from '@env'
 
 const app = firebase.initializeApp({
-    apiKey: FIREBASE_PROJECT_KEY,
+    apiKey: "AIzaSyC2F7JanDLFe5bQ7kVNUhajVUbHBXiMpIE",
     authDomain: "jupebmacbase.firebaseapp.com",
     projectId: "jupebmacbase",
     storageBucket: "jupebmacbase.appspot.com",
-    messagingSenderId: MESSAGING_SENDER_ID,
+    messagingSenderId: "271272994760",
     appId: "1:271272994760:web:5ba6bdf9c329aa2dbcc2fd",
     measurementId: "G-YFE7Q5GGLW"
 });

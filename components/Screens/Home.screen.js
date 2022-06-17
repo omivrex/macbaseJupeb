@@ -4,24 +4,30 @@ import {
   Text, 
   View,
   TouchableHighlight,
-  ScrollView
+  ScrollView,
+  FlatList
 } from 'react-native';
 
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import * as network from 'expo-network';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import NavigationContext from '../context/Nav.context';
 import Container from '../Reusable/Container.component';
 import ColorContext from '../context/Colors.context';
+import { Heading } from '../Reusable/CustomText.component';
+import { firestore } from '../../utils/firebaseInit';
+import { getSectionData } from '../../utils/news.util';
 const HomeScreen = () => {
   const navigation = useContext(NavigationContext);
   const colors = useContext(ColorContext);
   const [greeting, setgreeting] = useState('');
-  
-  useEffect(() => {
+  const [newsData, setnewsData] = useState([])
+  const renderGreeting = () => {
     const hour = new Date().getHours()
     if (hour<= 12) {
       setgreeting('Good Morning!')
@@ -30,6 +36,25 @@ const HomeScreen = () => {
     } else {
       setgreeting('Good Evening!')
     }
+  }
+  
+  const getGenInfo = async () => {
+    const networkStat = await network.getNetworkStateAsync()
+    if (networkStat.isInternetReachable) {
+      getSectionData('General Information').then(data=> {
+        console.log(data)
+        setnewsData([... data])
+      }).catch(err=> {
+        alert('we are having trouble reaching our server. Are you offline?')
+        console.error(err)
+
+      })
+    } 
+  }
+
+  useEffect(() => {
+    renderGreeting()
+    getGenInfo()
   }, []);
 
   const styles = StyleSheet.create({
@@ -79,8 +104,40 @@ const HomeScreen = () => {
       width: '100%',
       textAlign: 'center',
       // alignSelf: 'flex-end',
-      
+    },
+
+    newsAndFaqWrapper: {
+      backgroundColor: colors.backgroundColor,
+      width: wp('100%'),
+      flex: 1,
+      overflow: 'visible',
+      borderTopLeftRadius: 28,
+      borderTopRightRadius: 28,
+      paddingVertical: hp('4%')
+    },
+
+    listItem: {
+      width: '97%',
+      paddingVertical: hp(2.5),
+      left: '5%',
+      marginVertical: hp('3%'),
+      borderRadius: 10,
+      shadowColor: "#000",
+      shadowOpacity: 0.25,
+      shadowRadius: 4.84,
+      elevation: 7,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-evenly',
+      backgroundColor: colors.backgroundColor,
+    },
+
+    newsAndFaqHeading: {
+      fontSize: hp('3%'),
+      textDecorationLine: 'none',
+      // fontWeight: 'normal'
     }
+
   })
 
   return (
@@ -114,19 +171,72 @@ const HomeScreen = () => {
           </TouchableHighlight>
         </View>
 
-        <TouchableHighlight style={[styles.tabs, {width: wp('85%')}]}>
+        <View style={styles.newsAndFaqWrapper}>
           <View>
-            <Entypo style={{alignSelf: 'center', marginVertical: hp('2%')}} name="news" size={40} color="#b4b42b" />
-            <Text style={styles.tabTexts}>Newsfeed</Text>
+            <Heading extraStyles={styles.newsAndFaqHeading}>News Feed</Heading>
+            {newsData.length?
+              newsData.map((item, index) => {
+                return (
+                  <TouchableHighlight key={index} onPress={()=> navigation.navigate('FAQs', { screen: 'Faq1' })} underlayColor={colors.underlayColor}>
+                    <View style={styles.listItem}>
+                      <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                        {item.Topic}
+                      </Text>
+                      <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+                    </View>
+                  </TouchableHighlight>
+                )
+              })
+              :
+                <View style={[styles.tabs, {width: wp('85%'), elevation: 0}]}>
+                  <Text style={{width: '100%', textAlign: 'center'}}>
+                    No Information Here
+                  </Text>
+                  <MaterialCommunityIcons name="information-off-outline" style={{alignSelf: 'center', marginVertical: hp('2%')}} size={40} color="#b4b42b" />
+                </View>
+            }
           </View>
-        </TouchableHighlight>
+          <View>
+            <Heading extraStyles={styles.newsAndFaqHeading}>FAQs</Heading>
 
-        <TouchableHighlight onPress={()=> navigation.navigate("FAQs")} style={[styles.tabs, {width: wp('85%')}]}>
-          <View>
-            <MaterialCommunityIcons style={{alignSelf: 'center', marginVertical: hp('2%')}} name="frequently-asked-questions" size={40} color="#b4b42b" />
-            <Text style={styles.tabTexts}>FAQs</Text>
+            <TouchableHighlight onPress={()=> navigation.navigate('FAQs', { screen: 'Faq2' })} underlayColor={colors.underlayColor}>
+              <View style={styles.listItem}>
+                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                  ABOUT JUPEB
+                </Text>
+                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+              </View>
+            </TouchableHighlight>
+
+            <TouchableHighlight onPress={()=> navigation.navigate('FAQs', { screen: 'Faq3' })} underlayColor={colors.underlayColor}>
+              <View style={styles.listItem}>
+                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                  THE LIST OF JUPEB CENTRES ACROSS NIGERIA
+                </Text>
+                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+              </View>
+            </TouchableHighlight>
+
+            <TouchableHighlight onPress={()=> navigation.navigate('FAQs', { screen: 'Faq4' })} underlayColor={colors.underlayColor}>
+              <View style={styles.listItem}>
+                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                  JUPEB SCORING GRADE ALLOCATION
+                </Text>
+                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+              </View>
+            </TouchableHighlight>
+
+            <TouchableHighlight onPress={()=> navigation.navigate('FAQs', { screen: 'FaqScreen' })} underlayColor={colors.underlayColor}>
+              <View style={styles.listItem}>
+                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                  More FAQs...
+                </Text>
+                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+              </View>
+            </TouchableHighlight>
           </View>
-        </TouchableHighlight>
+        </View>
+
       </ScrollView>
     </Container>
   )

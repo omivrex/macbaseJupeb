@@ -36,7 +36,7 @@ const FaqScreen = () => {
       shadowColor: "#000",
       shadowOpacity: 0.25,
       shadowRadius: 4.84,
-      elevation: 27,
+      elevation: 7,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-evenly',
