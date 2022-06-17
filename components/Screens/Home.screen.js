@@ -5,7 +5,6 @@ import {
   View,
   TouchableHighlight,
   ScrollView,
-  FlatList
 } from 'react-native';
 
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -13,15 +12,14 @@ import * as network from 'expo-network';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
-import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import NavigationContext from '../context/Nav.context';
 import Container from '../Reusable/Container.component';
 import ColorContext from '../context/Colors.context';
 import { Heading } from '../Reusable/CustomText.component';
-import { firestore } from '../../utils/firebaseInit';
 import { getSectionData } from '../../utils/news.util';
+
 const HomeScreen = () => {
   const navigation = useContext(NavigationContext);
   const colors = useContext(ColorContext);
@@ -177,7 +175,7 @@ const HomeScreen = () => {
             {newsData.length?
               newsData.map((item, index) => {
                 return (
-                  <TouchableHighlight key={index} onPress={()=> navigation.navigate('FAQs', { screen: 'Faq1' })} underlayColor={colors.underlayColor}>
+                  <TouchableHighlight key={index} onPress={()=> navigation.navigate('News', {data: item} )} underlayColor={colors.underlayColor}>
                     <View style={styles.listItem}>
                       <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
                         {item.Topic}

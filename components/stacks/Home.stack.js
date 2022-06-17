@@ -7,6 +7,7 @@ import Cbt from './Cbt.stack';
 import Faq from './Faq.stack';
 import Gp from './Gp.stack';
 import LTools from './LTools.stack';
+import News from '../Screens/News.screen';
 const Stack = createNativeStackNavigator();
 
 const HomeStack = ({navigation}) => {
@@ -23,6 +24,11 @@ const HomeStack = ({navigation}) => {
           <Stack.Screen name="Learning tools" component={LTools} />
           <Stack.Screen name="GP Calculator" component={Gp} />
           <Stack.Screen name="FAQs" component={Faq} />
+          <Stack.Screen 
+            name="News" 
+            component={News} 
+            options={{ title: 'News Feed', header: ()=> <Header navigation={navigation} title='News Feed'/>}}
+          />
       </Stack.Navigator>
     </NavigationContext.Provider>
   )
