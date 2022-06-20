@@ -4,6 +4,7 @@ import {
   SafeAreaView
 } from 'react-native';
 import {useContext} from 'react';
+import Svg, { Path } from "react-native-svg"
 import ColorContext from '../context/Colors.context';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
   
@@ -21,28 +22,25 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
       },
 
       curveWrapper: {
-        flexDirection: 'row',
         flexWrap: 'nowrap',
         width: wp('100%'),
-        height: hp('65%'),
+        height: hp('35%'),
         position: 'absolute',
       },
       
-      curve1: {
+      fill: {
         backgroundColor: colors.appColor,
-        borderBottomRightRadius: 2500,
-        width: '85%',
-        height: '85%'
+        width: '100%',
+        height: '90%',
+        margin: 0
       },
 
-      curve2: {
-        backgroundColor: colors.appColor,
-        width: '75%',
+      curve: {
+        width: '100%',
         height: '100%',
-        alignContent: 'flex-end',
-        justifyContent: 'flex-end',
-        // transform: [{ rotate: '-75deg'}],
-        left: '-27%',
+        position: 'absolute',
+        top: '50%',
+        // backgroundColor: 'red'
       },
       
       inward: {
@@ -60,11 +58,13 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
       <SafeAreaView>
         <View style={styles.container}>
           <View style={styles.curveWrapper}>
-            <View style={styles.curve1}>
-            </View>
-            <View style={styles.curve2}>
-              <View style={styles.inward}></View>
-            </View>
+            <View style={styles.fill}></View>
+            <Svg style={styles.curve} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+              <Path
+                fill={colors.appColor}
+                d="m0 224 48-5.3c48-5.7 144-15.7 240-21.4 96-5.3 192-5.3 288-32C672 139 768 85 864 74.7c96-10.7 192 21.3 288 48 96 26.3 192 48.3 240 58.6l48 10.7V0H0Z"
+              />
+            </Svg>
           </View>
             {children}
         </View>

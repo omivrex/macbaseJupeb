@@ -94,7 +94,7 @@ const HomeScreen = () => {
       shadowColor: "#000",
       shadowOpacity: 0.25,
       shadowRadius: 4.84,
-      elevation: 27,
+      elevation: 7,
     },
   
     tabTexts: {
