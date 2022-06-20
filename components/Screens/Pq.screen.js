@@ -3,6 +3,7 @@ import {
   Text, 
   View,
   TouchableHighlight,
+  Alert,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import {useEffect, useRef, useContext, useState} from 'react';
@@ -18,16 +19,45 @@ const PqScreen = () => {
   const colors = useContext(ColorContext)
   const [selected, set_selected] = useState(null)
   const [data, set_data] = useState([])
+  const label = useRef('Course')
 
   useEffect(() => {
-    getOnlineCollections(path.current).then((data) => {
-      set_data([... data])
-      console.log('pqData:', data)
+    getOnlineCollections(path.current).then((returnedData) => {
+      renderCollectionData(returnedData)
+    }).catch((err) => {
+      console.log(err)
     })
   }, [])
 
+  const renderCollectionData = (returnedData) => {
+    // returnedData = [... returnedData.flatMap(i => [i,i, i,i, i,i])]
+    const extractedLabel = Object.keys(returnedData[0])[0]
+    label.current = extractedLabel !== 'courseName' ? capitalize1stLetter(extractedLabel): capitalize1stLetter(label.current)
+    console.log('pqData:', returnedData)
+    set_data([... returnedData])
+    set_selected(null)
+  }
+
+  const capitalize1stLetter = ([first, ...rest]) =>{
+    console.log('test', first, rest)
+    return first.toUpperCase() + rest.join("").toLowerCase()
+  }; 
+
   const changeSelection = (key) => {
+    console.log(label)
     set_selected(key)
+  }
+
+  const next = () => {
+    if (selected !== null) {
+      const [selectedItem] = Object.values(data[selected])
+      path.current += `/${selectedItem}/${selectedItem}`
+      getOnlineCollections(path.current).then(renderCollectionData).catch((err) => {
+        console.log(err)
+      })
+    } else {
+      Alert.alert('', `You Have Not Selected Any ${label.current} Yet`)
+    }  
   }
 
   const styles = StyleSheet.create({
@@ -110,7 +140,7 @@ const PqScreen = () => {
     <Container>
       <View style={styles.optionsWrapper}>
         <View style={styles.optionsCont}>
-          <Heading extraStyles={styles.heading}>Select course</Heading>
+          <Heading extraStyles={styles.heading}>Select {label.current}</Heading>
           <ScrollView style={styles.optionsScroll}>
               {data.map((item, index)=> {
                 return (
@@ -127,7 +157,7 @@ const PqScreen = () => {
           </ScrollView>
           <View style={styles.optionButnWrapper}>
             <TouchableHighlight style={styles.optionButns} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Cancel</Text></TouchableHighlight>
-            <TouchableHighlight style={styles.optionButns} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Next</Text></TouchableHighlight>
+            <TouchableHighlight style={styles.optionButns} onPress={next} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Next</Text></TouchableHighlight>
           </View>
         </View>
       </View>
