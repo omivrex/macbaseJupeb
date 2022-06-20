@@ -88,7 +88,6 @@ const HomeScreen = () => {
       height: hp('25%'),
       marginHorizontal: '5%',
       marginVertical: '10%',
-      backgroundColor: '#fff',
       borderRadius: 28,
       flexDirection: 'column',
       justifyContent: 'center',
@@ -101,6 +100,7 @@ const HomeScreen = () => {
     tabTexts: {
       width: '100%',
       textAlign: 'center',
+      color: colors.darkText
       // alignSelf: 'flex-end',
     },
 
@@ -133,9 +133,16 @@ const HomeScreen = () => {
     newsAndFaqHeading: {
       fontSize: hp('3%'),
       textDecorationLine: 'none',
+      color: colors.darkText
       // fontWeight: 'normal'
-    }
+    },
 
+    infoText: {
+      width: '85%', 
+      paddingLeft: '5%', 
+      fontWeight: 'bold',
+      color: colors.darkText
+    }
   })
 
   return (
@@ -143,27 +150,27 @@ const HomeScreen = () => {
       <Text style={styles.greeting}>{greeting}</Text>
       <ScrollView style={styles.scrollView}>
         <View style={styles.tabContainer}>
-          <TouchableHighlight onPress={()=> navigation.navigate('Past questions')} style={styles.tabs}>
+          <TouchableHighlight onPress={()=> navigation.navigate('Past questions')} style={styles.tabs} underlayColor={colors.underlayColor}>
             <View>
-              <FontAwesome5 style={{alignSelf: 'center', marginVertical: hp('2%')}} name="book" size={40} color="#b4b42b" />
+              <FontAwesome5 style={{alignSelf: 'center', marginVertical: hp('2%')}} name="book" size={40} color={colors.iconColor} />
               <Text style={styles.tabTexts}>Past Questions</Text>
             </View>
           </TouchableHighlight>
-          <TouchableHighlight onPress={()=> navigation.navigate("CBT test")} style={styles.tabs}>
+          <TouchableHighlight onPress={()=> navigation.navigate("CBT test")} style={styles.tabs} underlayColor={colors.underlayColor}>
             <View>
-              <MaterialIcons style={{alignSelf: 'center', marginVertical: hp('2%')}} name="computer" size={40} color="#b4b42b" />
+              <MaterialIcons style={{alignSelf: 'center', marginVertical: hp('2%')}} name="computer" size={40} color={colors.iconColor} />
               <Text style={styles.tabTexts}>CBT test</Text>
             </View>
           </TouchableHighlight>
-          <TouchableHighlight onPress={()=> navigation.navigate("Learning tools")} style={styles.tabs}>
+          <TouchableHighlight onPress={()=> navigation.navigate("Learning tools")} style={styles.tabs} underlayColor={colors.underlayColor}>
             <View>
-              <FontAwesome5 style={{alignSelf: 'center', marginVertical: hp('2%')}} name="tools" size={40} color="#b4b42b" />
+              <FontAwesome5 style={{alignSelf: 'center', marginVertical: hp('2%')}} name="tools" size={40} color={colors.iconColor} />
               <Text style={styles.tabTexts}>Learning Tools</Text>
             </View>
           </TouchableHighlight>
-          <TouchableHighlight onPress={()=> navigation.navigate("GP Calculator")} style={styles.tabs}>
+          <TouchableHighlight onPress={()=> navigation.navigate("GP Calculator")} style={styles.tabs} underlayColor={colors.underlayColor}>
             <View>
-              <FontAwesome style={{alignSelf: 'center', marginVertical: hp('2%')}} name="calculator" size={40} color="#b4b42b" />
+              <FontAwesome style={{alignSelf: 'center', marginVertical: hp('2%')}} name="calculator" size={40} color={colors.iconColor} />
               <Text style={styles.tabTexts}>GP Calculator</Text>
             </View>
           </TouchableHighlight>
@@ -177,8 +184,8 @@ const HomeScreen = () => {
                 return (
                   <TouchableHighlight key={index} onPress={()=> navigation.navigate('News', {data: item} )} underlayColor={colors.underlayColor}>
                     <View style={styles.listItem}>
-                      <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                        {item.Topic}
+                      <Text style={styles.infoText}>
+                        {item.Topic.toUpperCase()}
                       </Text>
                       <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
                     </View>
@@ -190,7 +197,7 @@ const HomeScreen = () => {
                   <Text style={{width: '100%', textAlign: 'center'}}>
                     No Information Here
                   </Text>
-                  <MaterialCommunityIcons name="information-off-outline" style={{alignSelf: 'center', marginVertical: hp('2%')}} size={40} color="#b4b42b" />
+                  <MaterialCommunityIcons name="information-off-outline" style={{alignSelf: 'center', marginVertical: hp('2%')}} size={40} color={colors.iconColor} />
                 </View>
             }
           </View>
@@ -199,7 +206,7 @@ const HomeScreen = () => {
 
             <TouchableHighlight onPress={()=> navigation.navigate('FAQs', { screen: 'Faq2' })} underlayColor={colors.underlayColor}>
               <View style={styles.listItem}>
-                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                <Text style={styles.infoText}>
                   ABOUT JUPEB
                 </Text>
                 <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
@@ -208,7 +215,7 @@ const HomeScreen = () => {
 
             <TouchableHighlight onPress={()=> navigation.navigate('FAQs', { screen: 'Faq3' })} underlayColor={colors.underlayColor}>
               <View style={styles.listItem}>
-                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                <Text style={styles.infoText}>
                   THE LIST OF JUPEB CENTRES ACROSS NIGERIA
                 </Text>
                 <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
@@ -217,7 +224,7 @@ const HomeScreen = () => {
 
             <TouchableHighlight onPress={()=> navigation.navigate('FAQs', { screen: 'Faq4' })} underlayColor={colors.underlayColor}>
               <View style={styles.listItem}>
-                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                <Text style={styles.infoText}>
                   JUPEB SCORING GRADE ALLOCATION
                 </Text>
                 <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
@@ -226,7 +233,7 @@ const HomeScreen = () => {
 
             <TouchableHighlight onPress={()=> navigation.navigate('FAQs', { screen: 'FaqScreen' })} underlayColor={colors.underlayColor}>
               <View style={styles.listItem}>
-                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                <Text style={styles.infoText}>
                   More FAQs...
                 </Text>
                 <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
