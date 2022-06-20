@@ -13,6 +13,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { Ionicons } from '@expo/vector-icons';
 
 const PqScreen = () => {
   const path = useRef('pastquestions')
@@ -20,6 +21,7 @@ const PqScreen = () => {
   const [selected, set_selected] = useState(null)
   const [data, set_data] = useState([])
   const label = useRef('Course')
+  const selection = useRef([])
 
   useEffect(() => {
     getOnlineCollections(path.current).then((returnedData) => {
@@ -30,7 +32,7 @@ const PqScreen = () => {
   }, [])
 
   const renderCollectionData = (returnedData) => {
-    // returnedData = [... returnedData.flatMap(i => [i,i, i,i, i,i])]
+    returnedData = [... returnedData.flatMap(i => [i,i, i,i, i,i])]
     const extractedLabel = Object.keys(returnedData[0])[0]
     label.current = extractedLabel !== 'courseName' ? capitalize1stLetter(extractedLabel): capitalize1stLetter(label.current)
     console.log('pqData:', returnedData)
@@ -47,9 +49,10 @@ const PqScreen = () => {
     console.log(label)
     set_selected(key)
   }
-
+  
   const next = () => {
     if (selected !== null) {
+      selection.current.push(selected)
       const [selectedItem] = Object.values(data[selected])
       path.current += `/${selectedItem}/${selectedItem}`
       getOnlineCollections(path.current).then(renderCollectionData).catch((err) => {
@@ -58,6 +61,22 @@ const PqScreen = () => {
     } else {
       Alert.alert('', `You Have Not Selected Any ${label.current} Yet`)
     }  
+  }
+
+  const previous = () => {
+    if (selection.current.length) {
+      const pathArr = path.current.split('/')
+      pathArr.pop()
+      pathArr.pop()
+      path.current = pathArr.join('/')
+      const lastKey = selection.current[selection.current.length-1]
+      getOnlineCollections(path.current).then(renderCollectionData).then(() => {
+        set_selected(lastKey)
+        selection.current.pop()
+      }).catch((err) => {
+        console.log(err)
+      })
+    }
   }
 
   const styles = StyleSheet.create({
@@ -77,8 +96,19 @@ const PqScreen = () => {
       backgroundColor: colors.backgroundColor,
     },
 
+    headingWrapper: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      alignItems: 'center',
+      alignContent: 'space-between',
+      width: '100%'
+    },
+    
     heading: {
-      fontSize: hp('3%')
+      fontSize: hp('3%'),
+      textDecorationLine: 'none',
+      textAlign: 'center',
+      flex: 1,
     },
 
     optionsScroll: {
@@ -140,7 +170,14 @@ const PqScreen = () => {
     <Container>
       <View style={styles.optionsWrapper}>
         <View style={styles.optionsCont}>
-          <Heading extraStyles={styles.heading}>Select {label.current}</Heading>
+          <View style={styles.headingWrapper}>
+            <TouchableHighlight onPress={previous}>
+              <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+            </TouchableHighlight>
+            <Heading extraStyles={styles.heading}>
+              Select {label.current}
+            </Heading>
+          </View>
           <ScrollView style={styles.optionsScroll}>
               {data.map((item, index)=> {
                 return (
@@ -156,7 +193,6 @@ const PqScreen = () => {
               })}
           </ScrollView>
           <View style={styles.optionButnWrapper}>
-            <TouchableHighlight style={styles.optionButns} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Cancel</Text></TouchableHighlight>
             <TouchableHighlight style={styles.optionButns} onPress={next} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Next</Text></TouchableHighlight>
           </View>
         </View>
