@@ -37,6 +37,7 @@ const PqScreen = () => {
   const renderCollectionData = (returnedData) => {
     if (returnedData.length) {
       const extractedLabel = Object.keys(returnedData[0])[0]
+      returnedData = [... returnedData.flatMap(i => [i,i, i,i, i,i])]
       if (extractedLabel === 'questionNumber') {
         let tempArr = []
         returnedData.forEach((question, index) => {
@@ -51,7 +52,6 @@ const PqScreen = () => {
           }).catch(err=> console.log(err))
         });
       } else {
-        // returnedData = [... returnedData.flatMap(i => [i,i, i,i, i,i])]
         label.current = extractedLabel !== 'courseName' ? capitalize1stLetter(extractedLabel): 'Course'
         set_data([... returnedData])
         set_selected(null)
@@ -100,6 +100,10 @@ const PqScreen = () => {
     }
   }
 
+  const showAns = () => {
+    
+  }
+
   const styles = StyleSheet.create({
     optionsWrapper: {
       width: '100%',
@@ -121,12 +125,12 @@ const PqScreen = () => {
       flexDirection: 'row',
       justifyContent: 'space-around',
       alignItems: 'center',
-      alignContent: 'space-between',
+      alignContent: 'space-around',
       width: '100%'
     },
     
     heading: {
-      fontSize: hp('3%'),
+      fontSize: hp('2.5%'),
       textDecorationLine: 'none',
       textAlign: 'center',
       flex: 1,
@@ -190,7 +194,21 @@ const PqScreen = () => {
       marginVertical: hp('3%'),
       left: '5%',
       justifyContent: 'center'
-    }
+    },
+
+    ansButn: {
+      borderTopLeftRadius: 25,
+      left: '70%',
+      padding: 6,
+      backgroundColor: colors.appColor,
+      width: '30%',
+    },
+
+    ansButnText: {
+      color: colors.defaultText,
+      fontSize: hp('2.5%'),
+      textAlign: 'center'
+    },
 
   })
   
@@ -236,12 +254,12 @@ const PqScreen = () => {
                 <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
               </TouchableHighlight>
               <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
-                {([... new Set(path.current.split('/'))]).join(' > ')}
+                {([... new Set(path.current.replace('pastquestions/', '').toUpperCase().split('/'))]).join(' > ')}
               </Heading>
             </View>
             <FlatList
               data={data}
-              contentContainerStyle = {{width: '100%', alignContent: 'space-around'}}
+              contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
               renderItem={({item}) => {
                 return (
                     <View style={styles.pqDataWrapper}>
@@ -296,23 +314,23 @@ const PqScreen = () => {
                             style={{width: '100%'}}
                         
                         />
-                        {/* <TouchableHighlight underlayColor='rgba(52, 52, 52, 0)' style={pageStyles.ansButn} onPress={()=> {
+                        <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
                             item && item.data && item.data.correctOption !== ''?
                                 Alert.alert(`Correct Option: ${item && item.data? item.data.correctOption:''}`, '', [
-                                    {
-                                        text: 'View Solution',
-                                        onPress: ()=> showAns(item && item.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'')
-                                    },
-  
-                                    {
-                                        text: 'Cancel',
-                                        onPress: () => ''
-                                    }
+                                  {
+                                    text: 'View Solution',
+                                    onPress: ()=> showAns(item && item.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'')
+                                  },
+
+                                  {
+                                    text: 'Cancel',
+                                    onPress: () => ''
+                                  }
                                 ], {cancelable: true})
                             : showAns(item && item.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'')
                         }}>
-                            <Text style = {pageStyles.ansButnText}>ANSWER</Text>
-                        </TouchableHighlight> */}
+                            <Text style = {styles.ansButnText}>ANSWER</Text>
+                        </TouchableHighlight>
                     </View>
                 )
               }}
