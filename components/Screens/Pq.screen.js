@@ -2,10 +2,12 @@ import {
   StyleSheet, 
   Text, 
   View,
+  FlatList,
   TouchableHighlight,
   Alert,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
+import MathJax from 'react-native-mathjax';
 import {useEffect, useRef, useContext, useState} from 'react';
 import Container from '../Reusable/Container.component';
 import { getOnlineCollections } from '../../utils/pastquestions.utils';
@@ -20,6 +22,7 @@ const PqScreen = () => {
   const colors = useContext(ColorContext)
   const [selected, set_selected] = useState(null)
   const [data, set_data] = useState([])
+  const renderQuestionData = useRef(false)
   const label = useRef('Course')
   const selection = useRef([])
 
@@ -30,18 +33,33 @@ const PqScreen = () => {
       console.log(err)
     })
   }, [])
-
+  
   const renderCollectionData = (returnedData) => {
-    returnedData = [... returnedData.flatMap(i => [i,i, i,i, i,i])]
-    const extractedLabel = Object.keys(returnedData[0])[0]
-    label.current = extractedLabel !== 'courseName' ? capitalize1stLetter(extractedLabel): capitalize1stLetter(label.current)
-    console.log('pqData:', returnedData)
-    set_data([... returnedData])
-    set_selected(null)
+    if (returnedData.length) {
+      const extractedLabel = Object.keys(returnedData[0])[0]
+      if (extractedLabel === 'questionNumber') {
+        let tempArr = []
+        returnedData.forEach((question, index) => {
+          const [questionNumber] = Object.values(question)
+          getOnlineCollections(path.current+`/${questionNumber}/${questionNumber}`)
+          .then(questionData=>tempArr.push(questionData)).then(()=> {
+            if (index===returnedData.length-1) {
+              renderQuestionData.current = true
+              tempArr = [... tempArr.flat()]
+              set_data([... tempArr])
+            }
+          }).catch(err=> console.log(err))
+        });
+      } else {
+        // returnedData = [... returnedData.flatMap(i => [i,i, i,i, i,i])]
+        label.current = extractedLabel !== 'courseName' ? capitalize1stLetter(extractedLabel): capitalize1stLetter(label.current)
+        set_data([... returnedData])
+        set_selected(null)
+      }
+    }
   }
 
   const capitalize1stLetter = ([first, ...rest]) =>{
-    console.log('test', first, rest)
     return first.toUpperCase() + rest.join("").toLowerCase()
   }; 
 
@@ -64,6 +82,9 @@ const PqScreen = () => {
   }
 
   const previous = () => {
+    if (renderQuestionData.current) {
+      renderQuestionData.current = false
+    }
     if (selection.current.length) {
       const pathArr = path.current.split('/')
       pathArr.pop()
@@ -90,8 +111,8 @@ const PqScreen = () => {
     },
 
     optionsCont: {
-      width: '75%',
-      height: '80%',
+      width: '85%',
+      flex: 0.8,
       alignItems: 'center',
       backgroundColor: colors.backgroundColor,
     },
@@ -142,13 +163,11 @@ const PqScreen = () => {
     },
 
     optionButnWrapper: {
-      // flex: 1,
       height: '12%',
       width: '100%',
       flexDirection: 'row',
       alignItems: 'flex-end',
       alignContent: 'center',
-      // backgroundColor: 'red',
       justifyContent: 'space-around',
     },
 
@@ -162,41 +181,146 @@ const PqScreen = () => {
       width: '40%',
       borderRadius: 10,
       textAlign: 'center',
+    },
+
+    pqDataWrapper: {
+      borderColor: colors.appColor,
+      borderBottomWidth: 2,
+      width: '90%',
+      marginVertical: hp('3%'),
+      left: '5%',
+      justifyContent: 'center'
     }
 
   })
   
   return (
     <Container>
-      <View style={styles.optionsWrapper}>
-        <View style={styles.optionsCont}>
-          <View style={styles.headingWrapper}>
-            <TouchableHighlight onPress={previous}>
-              <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-            </TouchableHighlight>
-            <Heading extraStyles={styles.heading}>
-              Select {label.current}
-            </Heading>
+      {!renderQuestionData.current? 
+        (
+          <View style={styles.optionsWrapper}>
+            <View style={styles.optionsCont}>
+              <View style={styles.headingWrapper}>
+                <TouchableHighlight onPress={previous}>
+                  <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+                </TouchableHighlight>
+                <Heading extraStyles={styles.heading}>
+                  Select {label.current}
+                </Heading>
+              </View>
+              <ScrollView style={styles.optionsScroll}>
+                  {data.map((item, index)=> {
+                    return (
+                      <View key={index.toString()} style={styles.options}>
+                        <CText style={styles.optionsText}>{Object.values(item)[0].toUpperCase()}</CText>
+                        <CheckBox
+                          value={selected === index? true:false}
+                          onValueChange={()=> changeSelection(index)}
+                          tintColors={{true: colors.appColor}}
+                        />
+                      </View>
+                    )
+                  })}
+              </ScrollView>
+              <View style={styles.optionButnWrapper}>
+                <TouchableHighlight style={styles.optionButns} onPress={next} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Next</Text></TouchableHighlight>
+              </View>
+            </View>
           </View>
-          <ScrollView style={styles.optionsScroll}>
-              {data.map((item, index)=> {
+        )
+      :
+        (
+          <View style={{width: '100%'}}>
+            <View style={{...styles.headingWrapper, ...{width: '100%'}}}>
+              <TouchableHighlight onPress={previous}>
+                <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+              </TouchableHighlight>
+              <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
+                {([... new Set(path.current.split('/'))]).join(' > ')}
+              </Heading>
+            </View>
+            <FlatList
+              data={data}
+              contentContainerStyle = {{width: '100%', alignContent: 'space-around'}}
+              renderItem={({item}) => {
                 return (
-                  <View key={index.toString()} style={styles.options}>
-                    <CText style={styles.optionsText}>{Object.values(item)[0].toUpperCase()}</CText>
-                    <CheckBox
-                      value={selected === index? true:false}
-                      onValueChange={()=> changeSelection(index)}
-                      tintColors={{true: colors.appColor}}
-                    />
-                  </View>
+                    <View style={styles.pqDataWrapper}>
+                        <MathJax
+                            html={
+                                `
+                                    <head>
+                                        <meta name="viewport"  content="width=device-width, initial-scale=1.0 maximum-scale=1.0">
+                                    </head>
+                                    <body>
+                                        <style>
+                                            * {
+                                                -webkit-user-select: none;
+                                                -moz-user-select: none;
+                                                -ms-user-select: none;
+                                                user-select: none;
+                                            }
+                                        </style>
+                                        <div style="font-size: 1em; font-family: Roboto, sans-serif, san Francisco">
+                                            ${item&&item.Data?item.Data.question.replace('max-width: 180px;', 'max-width: 90vw;'):'<h2 style="color: red;">Network Error!</h2>'}
+                                        </div> 
+                                    </body>
+                                
+                                `
+                            }
+                            mathJaxOptions={{
+                                messageStyle: "none",
+                                extensions: ["tex2jax.js"],
+                                jax: ["input/TeX", "output/HTML-CSS"],
+                                showMathMenu: false,
+                                tex2jax: {
+                                    inlineMath: [
+                                        ["$", "$"],
+                                        ["\\(", "\\)"],
+                                    ],
+                                    displayMath: [
+                                        ["$$", "$$"],
+                                        ["\\[", "\\]"],
+                                    ],
+                                    processEscapes: true,
+                                },
+                                TeX: {
+                                    extensions: [
+                                        "AMSmath.js",
+                                        "AMSsymbols.js",
+                                        "noErrors.js",
+                                        "noUndefined.js",
+                                    ],
+                                },
+  
+                            }}
+                            style={{width: '100%'}}
+                        
+                        />
+                        {/* <TouchableHighlight underlayColor='rgba(52, 52, 52, 0)' style={pageStyles.ansButn} onPress={()=> {
+                            item && item.data && item.data.correctOption !== ''?
+                                Alert.alert(`Correct Option: ${item && item.data? item.data.correctOption:''}`, '', [
+                                    {
+                                        text: 'View Solution',
+                                        onPress: ()=> showAns(item && item.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'')
+                                    },
+  
+                                    {
+                                        text: 'Cancel',
+                                        onPress: () => ''
+                                    }
+                                ], {cancelable: true})
+                            : showAns(item && item.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'')
+                        }}>
+                            <Text style = {pageStyles.ansButnText}>ANSWER</Text>
+                        </TouchableHighlight> */}
+                    </View>
                 )
-              })}
-          </ScrollView>
-          <View style={styles.optionButnWrapper}>
-            <TouchableHighlight style={styles.optionButns} onPress={next} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Next</Text></TouchableHighlight>
+              }}
+              keyExtractor = {(item,index) => index.toString()}
+            />
           </View>
-        </View>
-      </View>
+        )
+      }
     </Container>
   )
 }
