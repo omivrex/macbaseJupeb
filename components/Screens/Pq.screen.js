@@ -52,7 +52,7 @@ const PqScreen = () => {
         });
       } else {
         // returnedData = [... returnedData.flatMap(i => [i,i, i,i, i,i])]
-        label.current = extractedLabel !== 'courseName' ? capitalize1stLetter(extractedLabel): capitalize1stLetter(label.current)
+        label.current = extractedLabel !== 'courseName' ? capitalize1stLetter(extractedLabel): 'Course'
         set_data([... returnedData])
         set_selected(null)
       }
