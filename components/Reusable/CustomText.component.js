@@ -2,6 +2,7 @@ import {
     StyleSheet, 
     Text,
 } from 'react-native';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const styles = StyleSheet.create({
     text: {
@@ -14,6 +15,7 @@ const styles = StyleSheet.create({
 
     heading: {
         fontWeight: 'bold',
+        fontSize: hp('2.5%'),
         textDecorationLine: 'underline',
         textAlign: 'center'
     },

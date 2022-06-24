@@ -16,12 +16,14 @@ import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
+import AnswerComponent from '../Reusable/Answer.component';
 
 const PqScreen = () => {
   const path = useRef('pastquestions')
   const colors = useContext(ColorContext)
   const [selected, set_selected] = useState(null)
   const [data, set_data] = useState([])
+  const [ansData, set_ansData] = useState('')
   const renderQuestionData = useRef(false)
   const label = useRef('Course')
   const selection = useRef([])
@@ -100,8 +102,10 @@ const PqScreen = () => {
     }
   }
 
-  const showAns = () => {
-    
+  const showAns = (data) => {
+    console.log('called...')
+    set_ansData(data)
+    console.log('ansData', ansData)
   }
 
   const styles = StyleSheet.create({
@@ -130,7 +134,6 @@ const PqScreen = () => {
     },
     
     heading: {
-      fontSize: hp('2.5%'),
       textDecorationLine: 'none',
       textAlign: 'center',
       flex: 1,
@@ -198,7 +201,8 @@ const PqScreen = () => {
 
     ansButn: {
       borderTopLeftRadius: 25,
-      left: '70%',
+      borderTopRightRadius: 25,
+      left: '35%',
       padding: 6,
       backgroundColor: colors.appColor,
       width: '30%',
@@ -272,13 +276,15 @@ const PqScreen = () => {
                                     <body>
                                         <style>
                                             * {
-                                                -webkit-user-select: none;
-                                                -moz-user-select: none;
-                                                -ms-user-select: none;
-                                                user-select: none;
+                                              -webkit-user-select: none;
+                                              -moz-user-select: none;
+                                              -ms-user-select: none;
+                                              user-select: none;
+                                              overflow-x: show;
+                                              max-width: '100%'
                                             }
                                         </style>
-                                        <div style="font-size: 1em; font-family: Roboto, sans-serif, san Francisco">
+                                        <div style="font-size: 1em; font-family: Roboto, sans-serif, san Francisco;">
                                             ${item&&item.Data?item.Data.question.replace('max-width: 180px;', 'max-width: 90vw;'):'<h2 style="color: red;">Network Error!</h2>'}
                                         </div> 
                                     </body>
@@ -315,11 +321,12 @@ const PqScreen = () => {
                         
                         />
                         <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
-                            item && item.data && item.data.correctOption !== ''?
-                                Alert.alert(`Correct Option: ${item && item.data? item.data.correctOption:''}`, '', [
+                          console.log('item', item)
+                            item?.Data?.correctOption?
+                                Alert.alert(`Answer: ${item?.Data? item.Data.correctOption:''}`, '', [
                                   {
-                                    text: 'View Solution',
-                                    onPress: ()=> showAns(item && item.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'')
+                                    text: 'Solution',
+                                    onPress: ()=> showAns(item?.Data? {answer: item.Data.answer, correctAnswer: item.Data.correctOption}:'')
                                   },
 
                                   {
@@ -327,7 +334,7 @@ const PqScreen = () => {
                                     onPress: () => ''
                                   }
                                 ], {cancelable: true})
-                            : showAns(item && item.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'')
+                            : showAns(item?.Data? {answer: item.Data.answer, correctAnswer: item.Data.correctOption}:'no answwer')
                         }}>
                             <Text style = {styles.ansButnText}>ANSWER</Text>
                         </TouchableHighlight>
@@ -339,6 +346,7 @@ const PqScreen = () => {
           </View>
         )
       }
+      <AnswerComponent extraStyles={{display:ansData !== ''?'flex':'none'}} data={ansData} />
     </Container>
   )
 }
