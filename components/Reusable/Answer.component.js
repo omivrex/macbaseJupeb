@@ -14,7 +14,7 @@ export default function ({data, extraStyles}) {
         answerCardWrapper: {
             position: 'absolute',
             width: '95%',
-            height: '100%',
+            height: '76%',
             left: '2.5%',
             top: '24%',
             justifyContent: 'center',
