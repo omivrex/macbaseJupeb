@@ -84,21 +84,26 @@ const PqScreen = () => {
   }
 
   const previous = () => {
-    if (renderQuestionData.current) {
-      renderQuestionData.current = false
-    }
-    if (selection.current.length) {
-      const pathArr = path.current.split('/')
-      pathArr.pop()
-      pathArr.pop()
-      path.current = pathArr.join('/')
-      const lastKey = selection.current[selection.current.length-1]
-      getOnlineCollections(path.current).then(renderCollectionData).then(() => {
-        set_selected(lastKey)
-        selection.current.pop()
-      }).catch((err) => {
-        console.log(err)
-      })
+    if (ansData !== '') {
+      set_ansData('')
+    } else {
+      if (renderQuestionData.current) {
+        renderQuestionData.current = false
+      }
+      if (selection.current.length) {
+        const pathArr = path.current.split('/')
+        pathArr.pop()
+        pathArr.pop()
+        path.current = pathArr.join('/')
+        const lastKey = selection.current[selection.current.length-1]
+        getOnlineCollections(path.current).then(renderCollectionData).then(() => {
+          set_selected(lastKey)
+          selection.current.pop()
+        }).catch((err) => {
+          console.log(err)
+        })
+      }
+      
     }
   }
 
