@@ -238,14 +238,16 @@ const PqScreen = () => {
               <ScrollView style={styles.optionsScroll}>
                   {data.map((item, index)=> {
                     return (
-                      <View key={index.toString()} style={styles.options}>
-                        <CText style={styles.optionsText}>{Object.values(item)[0].toUpperCase()}</CText>
-                        <CheckBox
-                          value={selected === index? true:false}
-                          onValueChange={()=> changeSelection(index)}
-                          tintColors={{true: colors.appColor}}
-                        />
-                      </View>
+                      <TouchableHighlight onPress = {()=> changeSelection(index)}>
+                        <View key={index.toString()} style={styles.options}>
+                          <CText style={styles.optionsText}>{Object.values(item)[0].toUpperCase()}</CText>
+                          <CheckBox
+                            value={selected === index? true:false}
+                            onValueChange={()=> changeSelection(index)}
+                            tintColors={{true: colors.appColor}}
+                          />
+                        </View>
+                      </TouchableHighlight>
                     )
                   })}
               </ScrollView>
