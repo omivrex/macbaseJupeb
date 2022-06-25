@@ -71,10 +71,6 @@ const CbtScreen = () => {
 
     optionsCartegory: {
       width: '100%',
-      borderTopColor: colors.appColor,
-      borderTopWidth: 2,
-      // borderBottomColor: colors.appColor,
-      // borderBottomWidth: 2,
       marginBottom: hp('3%'),
     },
 
