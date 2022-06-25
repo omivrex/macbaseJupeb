@@ -75,6 +75,7 @@ const PqScreen = () => {
       selection.current.push(selected)
       const [selectedItem] = Object.values(data[selected])
       path.current += `/${selectedItem}/${selectedItem}`
+      set_data([])
       getOnlineCollections(path.current).then(renderCollectionData).catch((err) => {
         console.log(err)
       })
@@ -195,6 +196,19 @@ const PqScreen = () => {
       textAlign: 'center',
     },
 
+    loadingBox: {
+      flex: 1,
+      width: '100%',
+      justifyContent: 'center',
+      alignContent: 'center',
+      alignItems: 'center'
+    },
+
+    loadingText: {
+      fontSize: hp('2.5%'),
+      textAlign: 'center'
+    },
+
     pqDataWrapper: {
       borderColor: colors.appColor,
       borderBottomWidth: 2,
@@ -236,20 +250,26 @@ const PqScreen = () => {
                 </Heading>
               </View>
               <ScrollView style={styles.optionsScroll}>
-                  {data.map((item, index)=> {
-                    return (
-                      <TouchableHighlight onPress = {()=> changeSelection(index)}>
-                        <View key={index.toString()} style={styles.options}>
-                          <CText style={styles.optionsText}>{Object.values(item)[0].toUpperCase()}</CText>
-                          <CheckBox
-                            value={selected === index? true:false}
-                            onValueChange={()=> changeSelection(index)}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
-                    )
-                  })}
+                  {data.length?
+                    data.map((item, index)=> {
+                      return (
+                        <TouchableHighlight key={index.toString()} onPress = {()=> changeSelection(index)}>
+                          <View style={styles.options}>
+                            <CText style={styles.optionsText}>{Object.values(item)[0].toUpperCase()}</CText>
+                            <CheckBox
+                              value={selected === index? true:false}
+                              onValueChange={()=> changeSelection(index)}
+                              tintColors={{true: colors.appColor}}
+                            />
+                          </View>
+                        </TouchableHighlight>
+                      )
+                    })
+                  : 
+                    <View style={styles.loadingBox}>
+                      <CText extraStyles={styles.loadingText}>Loading...</CText>
+                    </View>
+                  }
               </ScrollView>
               <View style={styles.optionButnWrapper}>
                 <TouchableHighlight style={styles.optionButns} onPress={next} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Next</Text></TouchableHighlight>
