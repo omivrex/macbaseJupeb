@@ -14,7 +14,6 @@ import Container from '../Reusable/Container.component';
 import { getOnlineCollections } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
-import NavigationContext from '../context/Nav.context'
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,7 +22,6 @@ import AnswerComponent from '../Reusable/Answer.component';
 const PqScreen = () => {
   const path = useRef('pastquestions')
   const colors = useContext(ColorContext)
-  const navigation = useContext(NavigationContext)
   const [selected, set_selected] = useState(null)
   const [data, set_data] = useState([])
   const [ansData, set_ansData] = useState('')
@@ -42,7 +40,7 @@ const PqScreen = () => {
   const renderCollectionData = (returnedData) => {
     if (returnedData.length) {
       const extractedLabel = Object.keys(returnedData[0])[0]
-      returnedData = [... returnedData.flatMap(i => [i,i, i,i, i,i])]
+      // returnedData = [... returnedData.flatMap(i => [i,i, i,i, i,i])]
       if (extractedLabel === 'questionNumber') {
         let tempArr = []
         returnedData.forEach((question, index) => {
@@ -76,12 +74,14 @@ const PqScreen = () => {
   const next = () => {
     if (selected !== null) {
       selection.current.push(selected)
-      const [selectedItem] = Object.values(data[selected])
-      path.current += `/${selectedItem}/${selectedItem}`
-      set_data([])
-      getOnlineCollections(path.current).then(renderCollectionData).catch((err) => {
-        console.log(err)
-      })
+      if (data[selected]) {
+        const [selectedItem] = Object.values(data[selected])
+        path.current += `/${selectedItem}/${selectedItem}`
+        set_data([])
+        getOnlineCollections(path.current).then(renderCollectionData).catch((err) => {
+          console.log(err)
+        })
+      }
     } else {
       Alert.alert('', `You Have Not Selected Any ${label.current} Yet`)
     }  
@@ -172,7 +172,8 @@ const PqScreen = () => {
       paddingVertical: '2%',
       alignItems: 'center',
       alignContent: 'center',
-      justifyContent: 'space-around',
+      justifyContent: 'space-between',
+      paddingHorizontal: '5%',
       backgroundColor: colors.backgroundColor,
       shadowColor: "#000",
       borderRadius: 10,

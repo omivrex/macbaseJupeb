@@ -8,7 +8,7 @@ export const getOnlineCollections = (collectionName, returnId) => {
         let maxWaitTime = setTimeout(() => {
             resolve(collectionData)
         }, 5000);
-        firestore.collection(collectionName).get().then((snapShot)=> {
+        firestore.collection(collectionName?collectionName:'pastquestions').get().then((snapShot)=> {
             snapShot.forEach(doc => {
                 returnId?collectionData.push({data:doc.data().Data, id:doc.id})
                 :collectionData.push(doc.data())
