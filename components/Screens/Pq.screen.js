@@ -91,6 +91,7 @@ const PqScreen = () => {
       if (renderQuestionData.current) {
         renderQuestionData.current = false
       }
+      set_data([])
       if (selection.current.length) {
         const pathArr = path.current.split('/')
         pathArr.pop()
