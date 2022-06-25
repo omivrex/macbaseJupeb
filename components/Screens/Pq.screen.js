@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableHighlight,
   Alert,
+  BackHandler,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import MathJax from 'react-native-mathjax';
@@ -13,6 +14,7 @@ import Container from '../Reusable/Container.component';
 import { getOnlineCollections } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
+import NavigationContext from '../context/Nav.context'
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,6 +23,7 @@ import AnswerComponent from '../Reusable/Answer.component';
 const PqScreen = () => {
   const path = useRef('pastquestions')
   const colors = useContext(ColorContext)
+  const navigation = useContext(NavigationContext)
   const [selected, set_selected] = useState(null)
   const [data, set_data] = useState([])
   const [ansData, set_ansData] = useState('')
@@ -87,12 +90,13 @@ const PqScreen = () => {
   const previous = () => {
     if (ansData !== '') {
       set_ansData('')
+      return true
     } else {
       if (renderQuestionData.current) {
         renderQuestionData.current = false
       }
-      set_data([])
-      if (selection.current.length) {
+      if (selection.current.length > 0) {
+        set_data([])
         const pathArr = path.current.split('/')
         pathArr.pop()
         pathArr.pop()
@@ -104,10 +108,16 @@ const PqScreen = () => {
         }).catch((err) => {
           console.log(err)
         })
+        return true
       }
-      
+      return false
     }
   }
+
+  BackHandler.addEventListener('hardwareBackPress', () => {
+    previous()
+    return selection.current.length>0
+  });
 
   const showAns = (data) => {
     console.log('called...')
@@ -349,7 +359,6 @@ const PqScreen = () => {
                         
                         />
                         <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
-                          console.log('item', item)
                             item?.Data?.correctOption?
                                 Alert.alert(`Answer: ${item?.Data? item.Data.correctOption:''}`, '', [
                                   {
