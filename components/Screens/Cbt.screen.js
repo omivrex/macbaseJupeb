@@ -22,9 +22,27 @@ import AnswerComponent from '../Reusable/Answer.component';
 const CbtScreen = () => {
   const colors = useContext(ColorContext)
   const [selected, set_selected] = useState(null)
+  const [selectedOptions, set_selectedOptions] = useState({
+    time: null,
+    courses: [],
+    subjects: []
+  })
 
-  const changeSelection = (index, type) => {
-    
+  const changeSelection = (value, type) => {
+    switch (type) {
+      case 'time':
+        set_selectedOptions({... selectedOptions, time: value})
+        break;
+      case 'course':
+        const courseValueIndex =  selectedOptions.courses.indexOf(value)
+        set_selectedOptions({... selectedOptions, courses: courseValueIndex === -1? [... new Set(selectedOptions.courses.concat(value))]: [... selectedOptions.courses.filter(item=> item !== value)]})
+        break;
+      case 'subject':
+        const subjectValueIndex = selectedOptions.subjects.indexOf(value)
+        set_selectedOptions({... selectedOptions, subjects: subjectValueIndex === -1?  [... new Set(selectedOptions.subjects.concat(value))]: [... selectedOptions.subjects.filter(item=> item !== value)]})
+      default:
+        break;
+    }
   }
 
   const start = () => {
@@ -165,42 +183,32 @@ const CbtScreen = () => {
                   Select Course
                 </Heading>
               </View>
-              <TouchableHighlight onPress = {()=> changeSelection(index)}>
+              <TouchableHighlight onPress = {()=> changeSelection('maths', 'course')}>
                 <View style={styles.options}>
                   <CText style={styles.optionsText}>Maths</CText>
                   <CheckBox
-                    value={selected}
-                    onValueChange={()=> changeSelection(index, 'course')}
+                    value={selectedOptions.courses.includes('maths')}
+                    onValueChange={()=> changeSelection('maths', 'course')}
                     tintColors={{true: colors.appColor}}
                   />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight onPress = {()=> changeSelection(index)}>
+              <TouchableHighlight onPress = {()=> changeSelection('chemistry', 'course')}>
                 <View style={styles.options}>
-                  <CText style={styles.optionsText}>Maths</CText>
+                  <CText style={styles.optionsText}>Chemistry</CText>
                   <CheckBox
-                    value={selected}
-                    onValueChange={()=> changeSelection(index, 'course')}
+                    value={selectedOptions.courses.includes('chemistry')}
+                    onValueChange={()=> changeSelection('chemistry', 'course')}
                     tintColors={{true: colors.appColor}}
                   />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight onPress = {()=> changeSelection(index)}>
+              <TouchableHighlight onPress = {()=> changeSelection('physics', 'course')}>
                 <View style={styles.options}>
-                  <CText style={styles.optionsText}>Maths</CText>
+                  <CText style={styles.optionsText}>Physics</CText>
                   <CheckBox
-                    value={selected}
-                    onValueChange={()=> changeSelection(index, 'course')}
-                    tintColors={{true: colors.appColor}}
-                  />
-                </View>
-              </TouchableHighlight>
-              <TouchableHighlight onPress = {()=> changeSelection(index)}>
-                <View style={styles.options}>
-                  <CText style={styles.optionsText}>Maths</CText>
-                  <CheckBox
-                    value={selected}
-                    onValueChange={()=> changeSelection(index, 'course')}
+                    value={selectedOptions.courses.includes('physics')}
+                    onValueChange={()=> changeSelection('physics', 'course')}
                     tintColors={{true: colors.appColor}}
                   />
                 </View>
@@ -213,12 +221,12 @@ const CbtScreen = () => {
                   Select Subject
                 </Heading>
               </View>
-              <TouchableHighlight onPress = {()=> changeSelection(index)}>
+              <TouchableHighlight onPress = {()=> changeSelection('calculus', 'subject')}>
                 <View style={styles.options}>
                   <CText style={styles.optionsText}>Calculus</CText>
                   <CheckBox
-                    value={selected}
-                    onValueChange={()=> changeSelection(index, 'subject')}
+                    value={selectedOptions.subjects.includes('calculus')}
+                    onValueChange={()=> changeSelection('calculus', 'subject')}
                     tintColors={{true: colors.appColor}}
                   />
                 </View>
@@ -231,51 +239,51 @@ const CbtScreen = () => {
                   Select Time
                 </Heading>
               </View>
-              <TouchableHighlight onPress = {()=> changeSelection(index)}>
+              <TouchableHighlight onPress = {()=> changeSelection('15mins', 'time')}>
                 <View style={styles.options}>
                   <CText style={styles.optionsText}>15mins</CText>
                   <CheckBox
-                    value={selected}
-                    onValueChange={()=> changeSelection(index, 'time')}
+                    value={selectedOptions.time === '15mins'}
+                    onValueChange={()=> changeSelection('15mins', 'time')}
                     tintColors={{true: colors.appColor}}
                   />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight onPress = {()=> changeSelection(index)}>
+              <TouchableHighlight onPress = {()=> changeSelection('30mins', 'time')}>
                 <View style={styles.options}>
                   <CText style={styles.optionsText}>30mins</CText>
                   <CheckBox
-                    value={selected}
-                    onValueChange={()=> changeSelection(index, 'time')}
+                    value={selectedOptions.time === '30mins'}
+                    onValueChange={()=> changeSelection('30mins', 'time')}
                     tintColors={{true: colors.appColor}}
                   />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight onPress = {()=> changeSelection(index)}>
+              <TouchableHighlight onPress = {()=> changeSelection('1hr', 'time')}>
                 <View style={styles.options}>
                   <CText style={styles.optionsText}>1hr</CText>
                   <CheckBox
-                    value={selected}
-                    onValueChange={()=> changeSelection(index, 'time')}
+                    value={selectedOptions.time === '1hr'}
+                    onValueChange={()=> changeSelection('1hr', 'time')}
                     tintColors={{true: colors.appColor}}
                   />
                 </View>
               </TouchableHighlight>
-              <TouchableHighlight onPress = {()=> changeSelection(index)}>
+              <TouchableHighlight onPress = {()=> changeSelection('1hr 30mins', 'time')}>
                 <View style={styles.options}>
                   <CText style={styles.optionsText}>1hr 30mins</CText>
                   <CheckBox
-                    value={selected}
-                    onValueChange={()=> changeSelection(index, 'time')}
+                    value={selectedOptions.time === '1hr 30mins'}
+                    onValueChange={()=> changeSelection('1hr 30mins', 'time')}
                     tintColors={{true: colors.appColor}}
                   />
                 </View>
-              </TouchableHighlight><TouchableHighlight onPress = {()=> changeSelection(index)}>
+              </TouchableHighlight><TouchableHighlight onPress = {()=> changeSelection('2hrs', 'time')}>
                 <View style={styles.options}>
-                  <CText style={styles.optionsText}>2hr</CText>
+                  <CText style={styles.optionsText}>2hrs</CText>
                   <CheckBox
-                    value={selected}
-                    onValueChange={()=> changeSelection(index, 'time')}
+                    value={selectedOptions.time === '2hrs'}
+                    onValueChange={()=> changeSelection('2hrs', 'time')}
                     tintColors={{true: colors.appColor}}
                   />
                 </View>
