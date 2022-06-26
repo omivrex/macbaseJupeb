@@ -84,7 +84,7 @@ const HomeScreen = () => {
   
     tabs: {
       width: wp('40%'),
-      backgroundColor: colors.backgroundColor,
+      backgroundColor: colors.appWhite,
       height: hp('25%'),
       marginHorizontal: '5%',
       marginVertical: '10%',
@@ -105,7 +105,7 @@ const HomeScreen = () => {
     },
 
     newsAndFaqWrapper: {
-      backgroundColor: colors.backgroundColor,
+      backgroundColor: colors.appWhite,
       width: wp('100%'),
       flex: 1,
       overflow: 'visible',
@@ -127,7 +127,7 @@ const HomeScreen = () => {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-evenly',
-      backgroundColor: colors.backgroundColor,
+      backgroundColor: colors.tabColor,
     },
 
     newsAndFaqHeading: {
@@ -141,7 +141,7 @@ const HomeScreen = () => {
       width: '85%', 
       paddingLeft: '5%', 
       fontWeight: 'bold',
-      color: colors.darkText
+      color: colors.defaultText
     }
   })
 
@@ -187,7 +187,7 @@ const HomeScreen = () => {
                       <Text style={styles.infoText}>
                         {item.Topic.toUpperCase()}
                       </Text>
-                      <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+                      <AntDesign name="rightcircle" size={24} color={colors.appWhite} />
                     </View>
                   </TouchableHighlight>
                 )
@@ -197,7 +197,7 @@ const HomeScreen = () => {
                   <Text style={{width: '100%', textAlign: 'center'}}>
                     No Information Here
                   </Text>
-                  <MaterialCommunityIcons name="information-off-outline" style={{alignSelf: 'center', marginVertical: hp('2%')}} size={40} color={colors.iconColor} />
+                  <MaterialCommunityIcons name="information-off-outline" style={{alignSelf: 'center', marginVertical: hp('2%')}} size={40} color={colors.appWhite} />
                 </View>
             }
           </View>
@@ -209,7 +209,7 @@ const HomeScreen = () => {
                 <Text style={styles.infoText}>
                   ABOUT JUPEB
                 </Text>
-                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+                <AntDesign name="rightcircle" size={24} color={colors.appWhite} />
               </View>
             </TouchableHighlight>
 
@@ -218,7 +218,7 @@ const HomeScreen = () => {
                 <Text style={styles.infoText}>
                   THE LIST OF JUPEB CENTRES ACROSS NIGERIA
                 </Text>
-                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+                <AntDesign name="rightcircle" size={24} color={colors.appWhite} />
               </View>
             </TouchableHighlight>
 
@@ -227,7 +227,7 @@ const HomeScreen = () => {
                 <Text style={styles.infoText}>
                   JUPEB SCORING GRADE ALLOCATION
                 </Text>
-                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+                <AntDesign name="rightcircle" size={24} color={colors.appWhite} />
               </View>
             </TouchableHighlight>
 
@@ -236,7 +236,7 @@ const HomeScreen = () => {
                 <Text style={styles.infoText}>
                   More FAQs...
                 </Text>
-                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+                <AntDesign name="rightcircle" size={24} color={colors.appWhite} />
               </View>
             </TouchableHighlight>
           </View>

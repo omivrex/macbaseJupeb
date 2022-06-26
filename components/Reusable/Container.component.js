@@ -17,7 +17,7 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
         height: '100%',
         flexDirection: 'row',
         flexWrap: 'wrap',
-        backgroundColor: colors.backgroundColor,
+        backgroundColor: colors.backgroundMix,
         
       },
 
