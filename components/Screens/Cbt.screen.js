@@ -21,7 +21,6 @@ import AnswerComponent from '../Reusable/Answer.component';
 
 const CbtScreen = () => {
   const colors = useContext(ColorContext)
-  const [selected, set_selected] = useState(null)
   const [selectedOptions, set_selectedOptions] = useState({
     time: null,
     courses: [],
@@ -34,12 +33,10 @@ const CbtScreen = () => {
         set_selectedOptions({... selectedOptions, time: value})
         break;
       case 'course':
-        const courseValueIndex =  selectedOptions.courses.indexOf(value)
-        set_selectedOptions({... selectedOptions, courses: courseValueIndex === -1? [... new Set(selectedOptions.courses.concat(value))]: [... selectedOptions.courses.filter(item=> item !== value)]})
+        set_selectedOptions({... selectedOptions, courses:  !selectedOptions.courses.includes(value)? [... new Set(selectedOptions.courses.concat(value))]: [... selectedOptions.courses.filter(item=> item !== value)]})
         break;
       case 'subject':
-        const subjectValueIndex = selectedOptions.subjects.indexOf(value)
-        set_selectedOptions({... selectedOptions, subjects: subjectValueIndex === -1?  [... new Set(selectedOptions.subjects.concat(value))]: [... selectedOptions.subjects.filter(item=> item !== value)]})
+        set_selectedOptions({... selectedOptions, subjects: !selectedOptions.subjects.includes(value)?  [... new Set(selectedOptions.subjects.concat(value))]: [... selectedOptions.subjects.filter(item=> item !== value)]})
       default:
         break;
     }
