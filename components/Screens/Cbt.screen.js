@@ -27,6 +27,11 @@ const CbtScreen = () => {
     subjects: []
   })
 
+  useEffect(() => {
+    
+  }, [])
+  
+
   const changeSelection = (value, type) => {
     switch (type) {
       case 'time':
