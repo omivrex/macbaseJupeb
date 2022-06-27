@@ -9,6 +9,7 @@ const ColorContext = createContext({
     iconColor: '#959524',
     backgroundMix: '#a62867',
     appWhite: '#fff',
+    labelColor: '#576100',
     underlayColor: '#00000045'
 })
 
