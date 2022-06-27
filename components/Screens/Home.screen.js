@@ -127,13 +127,13 @@ const HomeScreen = () => {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-evenly',
-      backgroundColor: colors.tabColor,
+      backgroundColor: colors.appWhite,
     },
 
     newsAndFaqHeading: {
       fontSize: hp('3%'),
       textDecorationLine: 'none',
-      color: colors.darkText
+      color: colors.tabColor
       // fontWeight: 'normal'
     },
 
@@ -141,7 +141,7 @@ const HomeScreen = () => {
       width: '85%', 
       paddingLeft: '5%', 
       fontWeight: 'bold',
-      color: colors.defaultText
+      color: colors.darkText
     }
   })
 

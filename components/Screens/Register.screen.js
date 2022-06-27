@@ -3,12 +3,11 @@ import {
   Text, 
   View,
   TouchableHighlight,
-  SafeAreaView,
   TextInput
 } from 'react-native';
 import {useContext, useState} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import { FontAwesome, Zocial, Entypo, FontAwesome5  } from '@expo/vector-icons';
+import { FontAwesome, Zocial, Entypo, FontAwesome5, Ionicons  } from '@expo/vector-icons';
 import CheckBox from 'expo-checkbox';
 
 import Container from '../Reusable/Container.component';
@@ -20,10 +19,21 @@ import { ScrollView } from 'react-native-gesture-handler';
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
   const colors = useContext(ColorContext);
-  const [currentPath, set_currentPath] = useState('signUp')
+  const [currentPath, set_currentPath] = useState('signup')
   const [selectedCourses, set_selectedCourses] = useState([])
   const next = (path) => {
     set_currentPath(path)
+  }
+
+  const previous = () => {
+    switch (currentPath) {
+      case 'chose courses':
+        set_currentPath('user details')    
+        break;
+      default:
+        set_currentPath('signup')
+        break;
+    }
   }
 
   const changeSelection = (value) => {
@@ -46,16 +56,29 @@ const RegisterScreen = () => {
       backgroundColor: colors.backgroundColor
     },
 
-    cardHeading: {
-      // alignSelf: 'flex-start',
+    headingWrapper: {
+      flexDirection: 'row',
+      width: '100%',
+      alignItems: 'center',
+      alignContent: 'space-around',
+      marginBottom: '10%',
+      paddingHorizontal: '5%'
+    },
+
+    ads: {
+      fontSize: hp('2%'),
+      width: '90%',
       textAlign: 'center',
-      top: 0,
+      marginBottom: '10%'
+    },
+
+    cardHeading: {
+      textAlign: 'center',
+      flex: 1,
       paddingVertical: '5%',
       textDecorationLine: 'none',
       fontSize: hp('3%'),
       color: colors.tabColor,
-      marginBottom: '10%',
-      // backgroundColor: 'red',
       alignItems: 'center'
     },
 
@@ -143,7 +166,12 @@ const RegisterScreen = () => {
               case 'chose courses':
                 return (
                   <>
-                    <Heading extraStyles={styles.cardHeading}>Choose Your Courses</Heading>
+                    <View style={styles.headingWrapper}>
+                      <TouchableHighlight onPress={previous}>
+                        <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+                      </TouchableHighlight>
+                      <Heading extraStyles={styles.cardHeading}>Choose Your Courses</Heading>
+                    </View>
                     <ScrollView style={styles.courseListWrapper}>
                       <TouchableHighlight style={{width: '90%',}} onPress = {()=> changeSelection('maths')}>
                         <View style={styles.courseSelectionButn}>
@@ -197,7 +225,12 @@ const RegisterScreen = () => {
               case 'user details':
                 return (
                   <>
-                    <Heading extraStyles={styles.cardHeading}>Enter Your Details</Heading>
+                    <View style={styles.headingWrapper}>
+                      <TouchableHighlight onPress={previous}>
+                        <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+                      </TouchableHighlight>
+                      <Heading extraStyles={styles.cardHeading}>Enter Your Details</Heading>
+                    </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
                         <FontAwesome name="user" style={styles.icons} size={24} color={colors.tabColor} />
@@ -233,7 +266,12 @@ const RegisterScreen = () => {
               default:
                 return (
                   <>
-                    <Heading extraStyles={styles.cardHeading}>SignUp</Heading>
+                    <Heading extraStyles={styles.cardHeading}>Signup</Heading>
+                    <CText extraStyles={styles.ads}>
+                      Sign up at a price of ₦500/course to enjoy all features of the app.
+                      This includes 5 years of compiled past questions with detailed answers,
+                      Acess to CBT tests to aid you with exam preparations and lots more.
+                    </CText>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
                         <Zocial name="email" style={styles.icons} size={24} color={colors.tabColor}/>  
