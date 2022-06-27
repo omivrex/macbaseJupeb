@@ -144,16 +144,21 @@ const PqScreen = () => {
 
     headingWrapper: {
       flexDirection: 'row',
-      justifyContent: 'space-around',
+      width: '100%',
       alignItems: 'center',
       alignContent: 'space-around',
-      width: '100%'
+      marginBottom: '10%',
+      paddingHorizontal: '5%'
     },
     
     heading: {
-      textDecorationLine: 'none',
       textAlign: 'center',
       flex: 1,
+      paddingVertical: '5%',
+      textDecorationLine: 'none',
+      fontSize: hp('3%'),
+      color: colors.tabColor,
+      alignItems: 'center'
     },
 
     optionsScroll: {
@@ -188,23 +193,18 @@ const PqScreen = () => {
     },
 
     optionButnWrapper: {
-      height: '12%',
-      width: '100%',
-      flexDirection: 'row',
-      alignItems: 'flex-end',
+      backgroundColor: colors.tabColor,
+      borderRadius: 50,
+      height: '10%',
+      width: '40%',
+      marginVertical: '10%',
       alignContent: 'center',
-      justifyContent: 'space-around',
+      alignItems: 'center',
+      justifyContent: 'center'
     },
 
     optionButns: {
-      backgroundColor: colors.appColor,
-      color: colors.defaultText,
-      marginBottom: '5%',
-      height: '90%',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '40%',
-      borderRadius: 10,
+      color: colors.appWhite,
       textAlign: 'center',
     },
 
@@ -284,7 +284,7 @@ const PqScreen = () => {
                   }
               </ScrollView>
               <View style={styles.optionButnWrapper}>
-                <TouchableHighlight style={styles.optionButns} onPress={next} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Next</Text></TouchableHighlight>
+                <TouchableHighlight style={styles.optionButns} onPress={next} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center', fontSize: hp('2.5%')}}>Next</Text></TouchableHighlight>
               </View>
             </View>
           </View>
