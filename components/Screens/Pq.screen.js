@@ -129,7 +129,7 @@ const PqScreen = () => {
     optionsWrapper: {
       width: '100%',
       height: '100%',
-      backgroundColor: '#77777794',
+      // backgroundColor: '#77777794',
       justifyContent: 'center',
       alignContent: 'center',
       alignItems: 'center'
@@ -206,6 +206,12 @@ const PqScreen = () => {
     optionButns: {
       color: colors.appWhite,
       textAlign: 'center',
+      width: '100%',
+      height: '100%',
+      alignContent: 'center',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 50,
     },
 
     loadingBox: {
@@ -265,16 +271,18 @@ const PqScreen = () => {
                   {data.length?
                     data.map((item, index)=> {
                       return (
-                        <TouchableHighlight key={index.toString()} onPress = {()=> changeSelection(index)}>
-                          <View style={styles.options}>
-                            <CText style={styles.optionsText}>{Object.values(item)[0].toUpperCase()}</CText>
-                            <CheckBox
-                              value={selected === index? true:false}
-                              onValueChange={()=> changeSelection(index)}
-                              tintColors={{true: colors.appColor}}
-                            />
-                          </View>
-                        </TouchableHighlight>
+                        <View>
+                          <TouchableHighlight underlayColor={colors.underlayColor} style={styles.options} key={index.toString()} onPress = {()=> changeSelection(index)}>
+                            <>
+                              <CText style={styles.optionsText}>{Object.values(item)[0].toUpperCase()}</CText>
+                              <CheckBox
+                                value={selected === index? true:false}
+                                onValueChange={()=> changeSelection(index)}
+                                tintColors={{true: colors.appColor}}
+                              />
+                            </>
+                          </TouchableHighlight>
+                        </View>
                       )
                     })
                   : 

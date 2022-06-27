@@ -3,9 +3,10 @@ import {
   Text, 
   View,
   TouchableHighlight,
-  TextInput
+  TextInput,
+  Alert
 } from 'react-native';
-import {useContext, useState} from 'react';
+import {useContext, useState, useRef} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { FontAwesome, Zocial, Entypo, FontAwesome5, Ionicons  } from '@expo/vector-icons';
 import CheckBox from 'expo-checkbox';
@@ -15,14 +16,36 @@ import NavigationContext from '../context/Nav.context';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { ScrollView } from 'react-native-gesture-handler';
+import { validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
   const colors = useContext(ColorContext);
   const [currentPath, set_currentPath] = useState('signup')
   const [selectedCourses, set_selectedCourses] = useState([])
+  const userData = useRef({})
+  
   const next = (path) => {
-    set_currentPath(path)
+    let inputsAreValid = false
+    switch (currentPath) {
+      case 'user details':
+        const isValidPhone = validatePhone(userData.current.phone)
+        !isValidPhone && Alert.alert('', 'Your phone number must be in the format +23480xxxxxxxx')
+        const isValidName = userData.current.name?.length >= 3
+        !isValidName && Alert.alert('', 'Full name should be at least 3 characters')
+        const isValidSchool = userData.current.school?.length >= 3
+        !isValidSchool && Alert.alert('', 'School name should be at least 3 characters')
+        inputsAreValid = isValidPhone && isValidName && isValidSchool
+        break;
+      default:
+        const isValidEmail = validateEmail(userData.current.email)
+        const isValidPswd = validatePswd(userData.current.pswd)
+        !isValidEmail && Alert.alert('', 'Invalid Email')
+        !isValidPswd && Alert.alert('', 'Password must be up to 8 Characters')
+        inputsAreValid = isValidEmail&&isValidPswd
+        break;
+    }
+    inputsAreValid && set_currentPath(path)
   }
 
   const previous = () => {
@@ -238,7 +261,7 @@ const RegisterScreen = () => {
                           Full name 
                         </Text>
                       </View>
-                      <TextInput style={styles.textInput}></TextInput>
+                      <TextInput onChangeText={value=> userData.current.name = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
@@ -247,16 +270,16 @@ const RegisterScreen = () => {
                           Phone 
                         </Text>
                       </View>
-                      <TextInput keyboardType='phone-pad' style={styles.textInput}></TextInput>
+                      <TextInput keyboardType='phone-pad' onChangeText={value=> userData.current.phone = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
                         <FontAwesome5 name="school" style={styles.icons} size={24} color={colors.tabColor} />
                         <Text style={styles.label}>
-                          School 
+                          School
                         </Text>
                       </View>
-                      <TextInput keyboardType='phone-pad' style={styles.textInput}></TextInput>
+                      <TextInput keyboardType='phone-pad' onChangeText={value=> userData.current.school = value} style={styles.textInput}></TextInput>
                     </View>
                     <TouchableHighlight onPress={()=> next('chose courses')} style={styles.submitButn}>
                       <Text style={styles.butnText}>Next</Text>
@@ -279,7 +302,7 @@ const RegisterScreen = () => {
                           Email
                         </Text>
                       </View>
-                      <TextInput keyboardType='email-address' style={styles.textInput}></TextInput>
+                      <TextInput keyboardType='email-address' onChangeText={value=> userData.current.email = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
@@ -288,7 +311,7 @@ const RegisterScreen = () => {
                           Password
                         </Text>
                       </View>
-                      <TextInput secureTextEntry={true} keyboardType='name-phone-pad' style={styles.textInput}></TextInput>
+                      <TextInput secureTextEntry={true} onChangeText={value=> userData.current.pswd = value} style={styles.textInput}></TextInput>
                     </View>
                     <TouchableHighlight onPress={()=> next('user details')} style={styles.submitButn}>
                       <Text style={styles.butnText}>Next</Text>
