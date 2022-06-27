@@ -1,15 +1,17 @@
-import React from 'react';
+import {useContext} from 'react';
 import MathJax from 'react-native-mathjax';
+import ColorContext from '../context/Colors.context.js';
 import Container from '../Reusable/Container.component.js';
 import { Heading } from '../Reusable/CustomText.component.js';
 import WriteupWrapper from '../Reusable/WriteupWrapper.component.js';
 
 function News({route}) {
+    const colors = useContext(ColorContext);
     const {data} = route.params
     return (
         <Container>
             <WriteupWrapper>
-                <Heading>{data.Topic}</Heading>
+                <Heading extraStyles={{color: colors.tabColor}}>{data.Topic.toUpperCase()}</Heading>
                 <MathJax
                     html={
                         `
