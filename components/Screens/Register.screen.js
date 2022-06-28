@@ -30,7 +30,7 @@ const RegisterScreen = () => {
     switch (currentPath) {
       case 'user details':
         const isValidPhone = validatePhone(userData.current.phone)
-        !isValidPhone && Alert.alert('', 'Your phone number must be in the format +23480xxxxxxxx')
+        !isValidPhone && Alert.alert('', 'Your phone number must be up to 13 characters and in the format +23480xxxxxxxx')
         const isValidName = userData.current.name?.length >= 3
         !isValidName && Alert.alert('', 'Full name should be at least 3 characters')
         const isValidSchool = userData.current.school?.length >= 3
@@ -261,7 +261,7 @@ const RegisterScreen = () => {
                           Full name 
                         </Text>
                       </View>
-                      <TextInput onChangeText={value=> userData.current.name = value} style={styles.textInput}></TextInput>
+                      <TextInput key={'name'} onChangeText={value=> userData.current.name = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
@@ -270,7 +270,7 @@ const RegisterScreen = () => {
                           Phone 
                         </Text>
                       </View>
-                      <TextInput keyboardType='phone-pad' onChangeText={value=> userData.current.phone = value} style={styles.textInput}></TextInput>
+                      <TextInput key={'phone'} keyboardType='phone-pad' onChangeText={value=> userData.current.phone = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
@@ -279,7 +279,7 @@ const RegisterScreen = () => {
                           School
                         </Text>
                       </View>
-                      <TextInput keyboardType='phone-pad' onChangeText={value=> userData.current.school = value} style={styles.textInput}></TextInput>
+                      <TextInput key={'school'} onChangeText={value=> userData.current.school = value} style={styles.textInput}></TextInput>
                     </View>
                     <TouchableHighlight onPress={()=> next('chose courses')} style={styles.submitButn}>
                       <Text style={styles.butnText}>Next</Text>
@@ -302,7 +302,7 @@ const RegisterScreen = () => {
                           Email
                         </Text>
                       </View>
-                      <TextInput keyboardType='email-address' onChangeText={value=> userData.current.email = value} style={styles.textInput}></TextInput>
+                      <TextInput key={'email'} keyboardType='email-address' onChangeText={value=> userData.current.email = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
@@ -311,7 +311,7 @@ const RegisterScreen = () => {
                           Password
                         </Text>
                       </View>
-                      <TextInput secureTextEntry={true} onChangeText={value=> userData.current.pswd = value} style={styles.textInput}></TextInput>
+                      <TextInput key={'pswd'} secureTextEntry={true} onChangeText={value=> userData.current.pswd = value} style={styles.textInput}></TextInput>
                     </View>
                     <TouchableHighlight onPress={()=> next('user details')} style={styles.submitButn}>
                       <Text style={styles.butnText}>Next</Text>

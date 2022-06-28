@@ -13,12 +13,15 @@
 export const validatePswd = pswd => pswd?.length >= 8
 
 export const validatePhone = phone => {
-    const validPrifixsInNigeria = [new RegExp(/\b23470/), new RegExp(/\b23480/), new RegExp(/\b23481/), new RegExp(/\b23490/), new RegExp(/\b23491/)]
-    const validPhoneChars = new RegExp(/[1234567890]/)
-    if (validPrifixsInNigeria.filter(prefix=> phone?.search(prefix) !== 0).length === 0) {
-        if (phone.search(validPhoneChars) !== -1) {
-            return true
-        }  
+    if (phone?.includes('+') && phone?.length === 13) { /** length of a nigerian number og format +23480XXX... is 13 */
+        const queryStr = phone.replace('+', '')
+        const validPrifixsInNigeria = [new RegExp(/\b23470/), new RegExp(/\b23480/), new RegExp(/\b23481/), new RegExp(/\b23490/), new RegExp(/\b23491/)]
+        const validPhoneChars = new RegExp(/[1234567890]/)
+        if (validPrifixsInNigeria.filter(prefix=> queryStr.search(prefix) === 0).length) {
+            if (queryStr.search(validPhoneChars) !== -1) {
+                return true
+            }  
+        }
     }
     return false
 }
