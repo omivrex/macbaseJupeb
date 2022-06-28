@@ -16,7 +16,7 @@ import NavigationContext from '../context/Nav.context';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { ScrollView } from 'react-native-gesture-handler';
-import { validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
+import { register, validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -30,7 +30,7 @@ const RegisterScreen = () => {
     switch (currentPath) {
       case 'user details':
         const isValidPhone = validatePhone(userData.current.phone)
-        !isValidPhone && Alert.alert('', 'Your phone number must be up to 13 characters and in the format +23480xxxxxxxx')
+        !isValidPhone && Alert.alert('', 'Your phone number must be 13 characters and in the format +23480xxxxxxxx')
         const isValidName = userData.current.name?.length >= 3
         !isValidName && Alert.alert('', 'Full name should be at least 3 characters')
         const isValidSchool = userData.current.school?.length >= 3
@@ -61,6 +61,16 @@ const RegisterScreen = () => {
 
   const changeSelection = (value) => {
     set_selectedCourses(!selectedCourses.includes(value)? [... new Set(selectedCourses.concat(value))]: [... selectedCourses.filter(item=> item !== value)])
+  }
+
+  const signupUser = () => {
+    if (selectedCourses.length) {
+      register(userData.current, selectedCourses).then(uid => {
+        
+      }).catch(err=> console.log(err))
+    } else {
+      Alert.alert('', `You haven't selected any course yet`)
+    }
   }
 
   const styles = StyleSheet.create({
@@ -240,7 +250,7 @@ const RegisterScreen = () => {
                         </View>
                       </TouchableHighlight>
                     </ScrollView>
-                    <TouchableHighlight onPress={()=> next('chose courses')} style={styles.submitButn}>
+                    <TouchableHighlight onPress={()=> signupUser()} style={styles.submitButn}>
                       <Text style={styles.butnText}>Pay ₦{selectedCourses.length*500}</Text>
                     </TouchableHighlight>
                   </>
