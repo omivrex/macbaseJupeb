@@ -66,7 +66,6 @@ const RegisterScreen = () => {
   const signInAndPay = (userExists) => {
     if (selectedCourses.length) {
       signIn(userData.current, selectedCourses, userExists).then(({userData, userId}) => {
-        console.log('kegdv hjkl;', userData, userId)
         saveUserDetails(userData, userId)
       }).catch(err=> {
         console.log(err.customData._tokenResponse.error.errors[0].message === 'EMAIL_EXISTS', 'lalla')
