@@ -29,9 +29,9 @@ export const validatePhone = phone => {
     return false
 }
 
-export const signup = (userData, selectedCourses) => {
+export const signIn = (userData, selectedCourses, userExists) => {
     return new Promise((resolve, reject) => { 
-        auth.createUserWithEmailAndPassword(userData.email, userData.pswd).then(()=> {
+        userExists? auth.createUserWithEmailAndPassword(userData.email, userData.pswd).then(()=> {
             auth.onAuthStateChanged(({uid}) => {
               if (uid) {
                 const uploadData = {...userData, selectedCourses, regDate: new Date().getTime()}
@@ -40,6 +40,13 @@ export const signup = (userData, selectedCourses) => {
                 })
               }
             })
+        }).catch(err=> reject(err))
+        : usersCollection.orderByChild('email').once('value', snapshot => {
+            const [value, userId] = [Object.values(snapshot.val())[0], Object.keys(snapshot.val())[0]]
+            if (value.email === userData.email) {
+              console.log(value, userId);
+              resolve(userId)
+            }
         }).catch(err=> reject(err))
      })
     

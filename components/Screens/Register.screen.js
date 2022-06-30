@@ -63,11 +63,14 @@ const RegisterScreen = () => {
     set_selectedCourses(!selectedCourses.includes(value)? [... new Set(selectedCourses.concat(value))]: [... selectedCourses.filter(item=> item !== value)])
   }
 
-  const signInAndPay = () => {
+  const signInAndPay = (userExists) => {
     if (selectedCourses.length) {
-      signIn(userData.current, selectedCourses).then(uid => {
+      signIn(userData.current, selectedCourses, userExists).then(uid => {
         
-      }).catch(err=> console.log(err))
+      }).catch(err=> {
+        console.log(err.customData._tokenResponse.error.errors[0].message === 'EMAIL_EXISTS')
+        err.customData?._tokenResponse?.error?.errors[0]?.message === 'EMAIL_EXISTS' && signInAndPay(true)
+      })
     } else {
       Alert.alert('', `You haven't selected any course yet`)
     }
