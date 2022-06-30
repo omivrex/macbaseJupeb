@@ -271,7 +271,7 @@ const RegisterScreen = () => {
                           Full name 
                         </Text>
                       </View>
-                      <TextInput key={'name'} onChangeText={value=> userData.current.name = value} style={styles.textInput}></TextInput>
+                      <TextInput key={'name'} defaultValue={userData.current.name&&userData.current.name} onChangeText={value=> userData.current.name = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
@@ -280,7 +280,7 @@ const RegisterScreen = () => {
                           Phone 
                         </Text>
                       </View>
-                      <TextInput key={'phone'} keyboardType='phone-pad' onChangeText={value=> userData.current.phone = value} style={styles.textInput}></TextInput>
+                      <TextInput key={'phone'} defaultValue={userData.current.phone&&userData.current.phone} keyboardType='phone-pad' onChangeText={value=> userData.current.phone = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
@@ -289,7 +289,7 @@ const RegisterScreen = () => {
                           School
                         </Text>
                       </View>
-                      <TextInput key={'school'} onChangeText={value=> userData.current.school = value} style={styles.textInput}></TextInput>
+                      <TextInput key={'school'} defaultValue={userData.current.school&&userData.current.school} onChangeText={value=> userData.current.school = value} style={styles.textInput}></TextInput>
                     </View>
                     <TouchableHighlight onPress={()=> next('chose courses')} style={styles.submitButn}>
                       <Text style={styles.butnText}>Next</Text>
@@ -312,7 +312,7 @@ const RegisterScreen = () => {
                           Email
                         </Text>
                       </View>
-                      <TextInput key={'email'} keyboardType='email-address' onChangeText={value=> userData.current.email = value} style={styles.textInput}></TextInput>
+                      <TextInput defaultValue={userData.current.email&&userData.current.email} key={'email'} keyboardType='email-address' onChangeText={value=> userData.current.email = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
@@ -321,7 +321,7 @@ const RegisterScreen = () => {
                           Password
                         </Text>
                       </View>
-                      <TextInput key={'pswd'} secureTextEntry={true} onChangeText={value=> userData.current.pswd = value} style={styles.textInput}></TextInput>
+                      <TextInput defaultValue={userData.current.pswd&&userData.current.pswd} key={'pswd'} secureTextEntry={true} onChangeText={value=> userData.current.pswd = value} style={styles.textInput}></TextInput>
                     </View>
                     <TouchableHighlight onPress={()=> next('user details')} style={styles.submitButn}>
                       <Text style={styles.butnText}>Next</Text>
