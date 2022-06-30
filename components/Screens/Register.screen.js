@@ -16,12 +16,12 @@ import NavigationContext from '../context/Nav.context';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { ScrollView } from 'react-native-gesture-handler';
-import { register, validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
+import { signIn, validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
   const colors = useContext(ColorContext);
-  const [currentPath, set_currentPath] = useState('signup')
+  const [currentPath, set_currentPath] = useState('signIn')
   const [selectedCourses, set_selectedCourses] = useState([])
   const userData = useRef({})
   
@@ -54,7 +54,7 @@ const RegisterScreen = () => {
         set_currentPath('user details')    
         break;
       default:
-        set_currentPath('signup')
+        set_currentPath('signIn')
         break;
     }
   }
@@ -63,9 +63,9 @@ const RegisterScreen = () => {
     set_selectedCourses(!selectedCourses.includes(value)? [... new Set(selectedCourses.concat(value))]: [... selectedCourses.filter(item=> item !== value)])
   }
 
-  const signupUser = () => {
+  const signInAndPay = () => {
     if (selectedCourses.length) {
-      register(userData.current, selectedCourses).then(uid => {
+      signIn(userData.current, selectedCourses).then(uid => {
         
       }).catch(err=> console.log(err))
     } else {
@@ -250,7 +250,7 @@ const RegisterScreen = () => {
                         </View>
                       </TouchableHighlight>
                     </ScrollView>
-                    <TouchableHighlight onPress={()=> signupUser()} style={styles.submitButn}>
+                    <TouchableHighlight onPress={()=> signInAndPay()} style={styles.submitButn}>
                       <Text style={styles.butnText}>Pay ₦{selectedCourses.length*500}</Text>
                     </TouchableHighlight>
                   </>
@@ -299,9 +299,9 @@ const RegisterScreen = () => {
               default:
                 return (
                   <>
-                    <Heading extraStyles={styles.cardHeading}>Signup</Heading>
+                    <Heading extraStyles={styles.cardHeading}>Sign In</Heading>
                     <CText extraStyles={styles.ads}>
-                      Sign up at a price of ₦500/course to enjoy all features of the app.
+                      Sign In to enjoy all features of the app.
                       This includes 5 years of compiled past questions with detailed answers,
                       Acess to CBT tests to aid you with exam preparations and lots more.
                     </CText>

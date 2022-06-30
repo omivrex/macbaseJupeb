@@ -29,7 +29,7 @@ export const validatePhone = phone => {
     return false
 }
 
-export const register = (userData, selectedCourses) => {
+export const signup = (userData, selectedCourses) => {
     return new Promise((resolve, reject) => { 
         auth.createUserWithEmailAndPassword(userData.email, userData.pswd).then(()=> {
             auth.onAuthStateChanged(({uid}) => {
