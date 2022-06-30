@@ -31,7 +31,7 @@ export const validatePhone = phone => {
 
 export const signIn = (userData, selectedCourses, userExists) => {
     return new Promise((resolve, reject) => { 
-        userExists? auth.createUserWithEmailAndPassword(userData.email, userData.pswd).then(()=> {
+        !userExists? auth.createUserWithEmailAndPassword(userData.email, userData.pswd).then(()=> {
             auth.onAuthStateChanged(({uid}) => {
               if (uid) {
                 const uploadData = {...userData, selectedCourses, regDate: new Date().getTime()}

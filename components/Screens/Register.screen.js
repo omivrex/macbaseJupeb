@@ -68,8 +68,8 @@ const RegisterScreen = () => {
       signIn(userData.current, selectedCourses, userExists).then((userId, userData) => {
         
       }).catch(err=> {
-        console.log(err.customData._tokenResponse.error.errors[0].message === 'EMAIL_EXISTS')
-        err.customData?._tokenResponse?.error?.errors[0]?.message === 'EMAIL_EXISTS' && signInAndPay(true)
+        console.log(err.customData._tokenResponse.error.errors[0].message === 'EMAIL_EXISTS', 'lalla')
+        if (err.customData?._tokenResponse?.error?.errors[0]?.message === 'EMAIL_EXISTS') signInAndPay(true)
       })
     } else {
       Alert.alert('', `You haven't selected any course yet`)
