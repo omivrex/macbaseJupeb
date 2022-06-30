@@ -59,13 +59,13 @@ const RegisterScreen = () => {
     }
   }
 
-  const changeSelection = (value) => {
-    set_selectedCourses(!selectedCourses.includes(value)? [... new Set(selectedCourses.concat(value))]: [... selectedCourses.filter(item=> item !== value)])
+  const changeSelection = (courseName) => {
+    set_selectedCourses(!selectedCourses.filter(item=> item.courseName === courseName).length? [... new Set(selectedCourses.concat({courseName, paid: false}))]: [... selectedCourses.filter(item=> item.courseName !== courseName)])
   }
 
   const signInAndPay = (userExists) => {
     if (selectedCourses.length) {
-      signIn(userData.current, selectedCourses, userExists).then(uid => {
+      signIn(userData.current, selectedCourses, userExists).then((userId, userData) => {
         
       }).catch(err=> {
         console.log(err.customData._tokenResponse.error.errors[0].message === 'EMAIL_EXISTS')
@@ -213,7 +213,7 @@ const RegisterScreen = () => {
                         <View style={styles.courseSelectionButn}>
                           <CText style={styles.courseSelectionButnText}>maths</CText>
                           <CheckBox
-                            value={selectedCourses.includes('maths')}
+                            value={selectedCourses.filter(item=> item.courseName === 'maths').length>0}
                             onValueChange={()=> changeSelection('maths')}
                             tintColors={{true: colors.appColor}}
                           />
@@ -224,7 +224,7 @@ const RegisterScreen = () => {
                         <View style={styles.courseSelectionButn}>
                           <CText style={styles.courseSelectionButnText}>physics</CText>
                           <CheckBox
-                            value={selectedCourses.includes('physics')}
+                            value={selectedCourses.filter(item=> item.courseName === 'physics').length>0}
                             onValueChange={()=> changeSelection('physics')}
                             tintColors={{true: colors.appColor}}
                           />
@@ -235,7 +235,7 @@ const RegisterScreen = () => {
                         <View style={styles.courseSelectionButn}>
                           <CText style={styles.courseSelectionButnText}>chemistry</CText>
                           <CheckBox
-                            value={selectedCourses.includes('chemistry')}
+                            value={selectedCourses.filter(item=> item.courseName === 'chemistry').length>0}
                             onValueChange={()=> changeSelection('chemistry')}
                             tintColors={{true: colors.appColor}}
                           />
@@ -246,7 +246,7 @@ const RegisterScreen = () => {
                         <View style={styles.courseSelectionButn}>
                           <CText style={styles.courseSelectionButnText}>biology</CText>
                           <CheckBox
-                            value={selectedCourses.includes('biology')}
+                            value={selectedCourses.filter(item=> item.courseName === 'biology').length>0}
                             onValueChange={()=> changeSelection('biology')}
                             tintColors={{true: colors.appColor}}
                           />
