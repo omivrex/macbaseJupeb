@@ -16,7 +16,7 @@ import NavigationContext from '../context/Nav.context';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { ScrollView } from 'react-native-gesture-handler';
-import { signIn, validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
+import { saveUserDetails, signIn, validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -65,8 +65,9 @@ const RegisterScreen = () => {
 
   const signInAndPay = (userExists) => {
     if (selectedCourses.length) {
-      signIn(userData.current, selectedCourses, userExists).then((userId, userData) => {
-        
+      signIn(userData.current, selectedCourses, userExists).then(({userData, userId}) => {
+        console.log('kegdv hjkl;', userData, userId)
+        saveUserDetails(userData, userId)
       }).catch(err=> {
         console.log(err.customData._tokenResponse.error.errors[0].message === 'EMAIL_EXISTS', 'lalla')
         if (err.customData?._tokenResponse?.error?.errors[0]?.message === 'EMAIL_EXISTS') signInAndPay(true)
