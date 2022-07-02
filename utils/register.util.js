@@ -47,28 +47,43 @@ export const validatePhone = phone => {
 export const signIn = (userData, selectedCourses, userExists) => {
     return new Promise((resolve, reject) => { 
         !userExists? auth.createUserWithEmailAndPassword(userData.email, userData.pswd).then(()=> {
-            auth.onAuthStateChanged(({userId}) => {
-              if (userId) {
-                const uploadData = {...userData, selectedCourses, regDate: new Date().getTime()}
-                usersCollection.child(userId).set(uploadData).then(() => {
-                    resolve({userData, userId})
+            auth.onAuthStateChanged(({uid}) => {
+                console.log('uid:', uid)
+              if (uid) {
+                const {pswd, ...uploadData} = {...userData, selectedCourses, regDate: new Date().getTime()}
+                console.log('uploadData:', uploadData)
+                usersCollection.child(uid).set(uploadData, () => {
+                    resolve({uploadData, uid})
                 })
               }
             })
         }).catch(err=> reject(err))
         : usersCollection.orderByChild('email').once('value', snapshot => {
-            const [userDetails, userId] = [Object.values(snapshot.val())[0], Object.keys(snapshot.val())[0]]
-            if (userDetails.email === userData.email) {
-              resolve({userData, userId})
+            if (snapshot.exists()) {
+                const [userDetails, userId] = [Object.values(snapshot.val())[0], Object.keys(snapshot.val())[0]]
+                if (userDetails.email === userData.email) {
+                  resolve({userDetails, userId})
+                }
             }
         }).catch(err=> reject(err))
     })
 }
 
-export const saveUserDetails = (userData, userId) => {
+export const saveUserDetails = (userData) => {
   userStorage.save({
     key: 'userDetails',
     data: userData,
-    id: userId
   })
 }
+
+export const getUserDetails = () => {
+  return userStorage.load({
+    key: 'userDetails',
+    autoSync: true,
+    syncInBackground: false,
+  })
+}
+
+// userStorage.remove({
+//   key: 'userDetails'
+// });

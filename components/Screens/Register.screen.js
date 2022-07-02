@@ -6,7 +6,7 @@ import {
   TextInput,
   Alert
 } from 'react-native';
-import {useContext, useState, useRef} from 'react';
+import {useContext, useState, useRef, useEffect} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { FontAwesome, Zocial, Entypo, FontAwesome5, Ionicons  } from '@expo/vector-icons';
 import CheckBox from 'expo-checkbox';
@@ -16,7 +16,7 @@ import NavigationContext from '../context/Nav.context';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { ScrollView } from 'react-native-gesture-handler';
-import { saveUserDetails, signIn, validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
+import { getUserDetails, saveUserDetails, signIn, validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -24,6 +24,12 @@ const RegisterScreen = () => {
   const [currentPath, set_currentPath] = useState('signIn')
   const [selectedCourses, set_selectedCourses] = useState([])
   const userData = useRef({})
+  useEffect(() => {
+    getUserDetails().then(userDetails=> {
+      console.log('userDetails', userDetails)
+    }).catch(err=> console.log(err))
+  }, [])
+  
   
   const next = (path) => {
     let inputsAreValid = false
@@ -65,11 +71,11 @@ const RegisterScreen = () => {
 
   const signInAndPay = (userExists) => {
     if (selectedCourses.length) {
-      signIn(userData.current, selectedCourses, userExists).then(({userData, userId}) => {
-        saveUserDetails(userData, userId)
+      signIn(userData.current, selectedCourses, userExists).then((userDetails) => {
+        saveUserDetails(userDetails)
       }).catch(err=> {
         console.log(err.customData._tokenResponse.error.errors[0].message === 'EMAIL_EXISTS', 'lalla')
-        if (err.customData?._tokenResponse?.error?.errors[0]?.message === 'EMAIL_EXISTS') signInAndPay(true)
+        err.customData?._tokenResponse?.error?.errors[0]?.message === 'EMAIL_EXISTS'?signInAndPay(true):console.log(err)
       })
     } else {
       Alert.alert('', `You haven't selected any course yet`)
