@@ -24,9 +24,19 @@ const RegisterScreen = () => {
   const [currentPath, set_currentPath] = useState('signIn')
   const [selectedCourses, set_selectedCourses] = useState([])
   const userData = useRef({})
+
   useEffect(() => {
-    getUserDetails().then(userDetails=> {
+    getUserDetails().then(({userDetails, userId})=> {
       console.log('userDetails', userDetails)
+      if (userDetails !== null) {
+        userData.current = {... userDetails}
+        set_currentPath('choose courses')
+        userDetails.selectedCourses.map(course=> course.paid=true)
+        set_selectedCourses([... userDetails.selectedCourses]) 
+        Alert.alert('Congrats!!!', `You have Already Registered.\n Go Ahead and purchase more courses.`)
+      } else {
+        set_currentPath('signIn')
+      }
     }).catch(err=> console.log(err))
   }, [])
   
@@ -54,7 +64,7 @@ const RegisterScreen = () => {
     inputsAreValid && set_currentPath(path)
   }
 
-  const previous = () => {
+  const previous = () => {  
     switch (currentPath) {
       case 'chose courses':
         set_currentPath('user details')    
@@ -66,7 +76,13 @@ const RegisterScreen = () => {
   }
 
   const changeSelection = (courseName) => {
-    set_selectedCourses(!selectedCourses.filter(item=> item.courseName === courseName).length? [... new Set(selectedCourses.concat({courseName, paid: false}))]: [... selectedCourses.filter(item=> item.courseName !== courseName)])
+    const [course] = selectedCourses.filter(item=> item.courseName === courseName)
+    if (!course) {
+      set_selectedCourses([... new Set(selectedCourses.concat({courseName, paid: false}))])
+    } else {
+      course.paid? Alert.alert('', `You Have Already Paid For This Course.\n It's Contents Will Be Updated`)
+      :set_selectedCourses([... selectedCourses.filter(item=> item.courseName !== courseName)])
+    }
   }
 
   const signInAndPay = (userExists) => {
@@ -205,7 +221,7 @@ const RegisterScreen = () => {
         {
           (() => {
             switch (currentPath) {
-              case 'chose courses':
+              case 'choose courses':
                 return (
                   <>
                     <View style={styles.headingWrapper}>
@@ -260,7 +276,7 @@ const RegisterScreen = () => {
                       </TouchableHighlight>
                     </ScrollView>
                     <TouchableHighlight onPress={()=> signInAndPay()} style={styles.submitButn}>
-                      <Text style={styles.butnText}>Pay ₦{selectedCourses.length*500}</Text>
+                      <Text style={styles.butnText}>Pay ₦{selectedCourses.filter(course=> course.paid===false).length*500}</Text>
                     </TouchableHighlight>
                   </>
                 )
