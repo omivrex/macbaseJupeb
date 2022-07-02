@@ -31,7 +31,7 @@ const RegisterScreen = () => {
       if (userDetails !== null) {
         userData.current = {... userDetails}
         set_currentPath('choose courses')
-        userDetails.selectedCourses.map(course=> course.paid=true)
+        // userDetails.selectedCourses.map(course=> course.paid=true)
         set_selectedCourses([... userDetails.selectedCourses]) 
         Alert.alert('Congrats!!!', `You have Already Registered.\n Go Ahead and purchase more courses.`)
       } else {
@@ -88,7 +88,9 @@ const RegisterScreen = () => {
   const signInAndPay = (userExists) => {
     if (selectedCourses.length) {
       signIn(userData.current, selectedCourses, userExists).then((userDetails) => {
-        saveUserDetails(userDetails)
+        if (userDetails) {
+          saveUserDetails(userDetails)
+        }
       }).catch(err=> {
         console.log(err.customData._tokenResponse.error.errors[0].message === 'EMAIL_EXISTS', 'lalla')
         err.customData?._tokenResponse?.error?.errors[0]?.message === 'EMAIL_EXISTS'?signInAndPay(true):console.log(err)
