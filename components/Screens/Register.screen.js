@@ -21,30 +21,32 @@ import { getUserDetails, saveUserDetails, signIn, validateEmail, validatePhone, 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
   const colors = useContext(ColorContext);
-  const [currentPath, set_currentPath] = useState('signIn')
+  const [currentPath, set_currentPath] = useState('Sign In')
   const [selectedCourses, set_selectedCourses] = useState([])
   const userData = useRef({})
+  const displayBackButn = useRef(true)
 
   useEffect(() => {
     getUserDetails().then(({userDetails, userId})=> {
       console.log('userDetails', userDetails)
       if (userDetails !== null) {
         userData.current = {... userDetails}
-        set_currentPath('choose courses')
-        // userDetails.selectedCourses.map(course=> course.paid=true)
+        displayBackButn.current = false
+        set_currentPath('Choose Your Courses')
+        userDetails.selectedCourses.map(course=> course.paid=true)
         set_selectedCourses([... userDetails.selectedCourses]) 
         Alert.alert('Congrats!!!', `You have Already Registered.\n Go Ahead and purchase more courses.`)
       } else {
-        set_currentPath('signIn')
+        set_currentPath('Sign In')
       }
     }).catch(err=> console.log(err))
   }, [])
-  
+
   
   const next = (path) => {
     let inputsAreValid = false
     switch (currentPath) {
-      case 'user details':
+      case 'Enter Your Details':
         const isValidPhone = validatePhone(userData.current.phone)
         !isValidPhone && Alert.alert('', 'Your phone number must be 13 characters and in the format +23480xxxxxxxx')
         const isValidName = userData.current.name?.length >= 3
@@ -66,11 +68,11 @@ const RegisterScreen = () => {
 
   const previous = () => {  
     switch (currentPath) {
-      case 'chose courses':
-        set_currentPath('user details')    
+      case 'Choose Your Courses':
+        set_currentPath('Enter Your Details')    
         break;
       default:
-        set_currentPath('signIn')
+        set_currentPath('Sign In')
         break;
     }
   }
@@ -80,13 +82,13 @@ const RegisterScreen = () => {
     if (!course) {
       set_selectedCourses([... new Set(selectedCourses.concat({courseName, paid: false}))])
     } else {
-      course.paid? Alert.alert('', `You Have Already Paid For This Course.\n It's Contents Will Be Updated`)
+      course.paid? Alert.alert('', `You Have Already Paid For This Course.`)
       :set_selectedCourses([... selectedCourses.filter(item=> item.courseName !== courseName)])
     }
   }
 
   const signInAndPay = (userExists) => {
-    if (selectedCourses.length) {
+    if (selectedCourses.filter(course => course.paid=== false).length) {
       signIn(userData.current, selectedCourses, userExists).then((userDetails) => {
         if (userDetails) {
           saveUserDetails(userDetails)
@@ -220,18 +222,22 @@ const RegisterScreen = () => {
   return (
     <Container>
       <View style={styles.wrapper}>
+        <View style={styles.headingWrapper}>
+          {
+            displayBackButn.current?
+            <TouchableHighlight onPress={previous}>
+              <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+            </TouchableHighlight>
+            :<></>
+          }
+          <Heading extraStyles={styles.cardHeading}>{currentPath}</Heading>
+        </View>
         {
           (() => {
             switch (currentPath) {
-              case 'choose courses':
+              case 'Choose Your Courses':
                 return (
                   <>
-                    <View style={styles.headingWrapper}>
-                      <TouchableHighlight onPress={previous}>
-                        <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-                      </TouchableHighlight>
-                      <Heading extraStyles={styles.cardHeading}>Choose Your Courses</Heading>
-                    </View>
                     <ScrollView style={styles.courseListWrapper}>
                       <TouchableHighlight style={{width: '90%',}} onPress = {()=> changeSelection('maths')}>
                         <View style={styles.courseSelectionButn}>
@@ -282,15 +288,9 @@ const RegisterScreen = () => {
                     </TouchableHighlight>
                   </>
                 )
-              case 'user details':
+              case 'Enter Your Details':
                 return (
                   <>
-                    <View style={styles.headingWrapper}>
-                      <TouchableHighlight onPress={previous}>
-                        <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-                      </TouchableHighlight>
-                      <Heading extraStyles={styles.cardHeading}>Enter Your Details</Heading>
-                    </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
                         <FontAwesome name="user" style={styles.icons} size={24} color={colors.tabColor} />
@@ -318,7 +318,7 @@ const RegisterScreen = () => {
                       </View>
                       <TextInput key={'school'} defaultValue={userData.current.school&&userData.current.school} onChangeText={value=> userData.current.school = value} style={styles.textInput}></TextInput>
                     </View>
-                    <TouchableHighlight onPress={()=> next('chose courses')} style={styles.submitButn}>
+                    <TouchableHighlight onPress={()=> next('Choose Your Courses')} style={styles.submitButn}>
                       <Text style={styles.butnText}>Next</Text>
                     </TouchableHighlight>
                   </>
@@ -326,7 +326,6 @@ const RegisterScreen = () => {
               default:
                 return (
                   <>
-                    <Heading extraStyles={styles.cardHeading}>Sign In</Heading>
                     <CText extraStyles={styles.ads}>
                       Sign In to enjoy all features of the app.
                       This includes 5 years of compiled past questions with detailed answers,
@@ -350,7 +349,7 @@ const RegisterScreen = () => {
                       </View>
                       <TextInput defaultValue={userData.current.pswd&&userData.current.pswd} key={'pswd'} secureTextEntry={true} onChangeText={value=> userData.current.pswd = value} style={styles.textInput}></TextInput>
                     </View>
-                    <TouchableHighlight onPress={()=> next('user details')} style={styles.submitButn}>
+                    <TouchableHighlight onPress={()=> next('Enter Your Details')} style={styles.submitButn}>
                       <Text style={styles.butnText}>Next</Text>
                     </TouchableHighlight>
                   </>
