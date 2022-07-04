@@ -10,13 +10,14 @@ import {useContext, useState, useRef, useEffect} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { FontAwesome, Zocial, Entypo, FontAwesome5, Ionicons  } from '@expo/vector-icons';
 import CheckBox from 'expo-checkbox';
+import {FlutterwaveButton, PayWithFlutterwave} from 'flutterwave-react-native';
 
 import Container from '../Reusable/Container.component';
 import NavigationContext from '../context/Nav.context';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { ScrollView } from 'react-native-gesture-handler';
-import { getUserDetails, saveUserDetails, signIn, validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
+import { generateTransactionRef, getUserDetails, pay, saveUserDetails, signIn, validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -25,18 +26,23 @@ const RegisterScreen = () => {
   const [selectedCourses, set_selectedCourses] = useState([])
   const userData = useRef({})
   const displayBackButn = useRef(true)
+  const price = useRef(0)
+  const userExists = useRef(false)
 
   useEffect(() => {
-    getUserDetails().then(({userDetails, userId})=> {
-      console.log('userDetails', userDetails)
+    getUserDetails().then((userDetails)=> {
       if (userDetails !== null) {
-        userData.current = {... userDetails}
+        console.log('userDetails', userDetails)
+        userExists.current = true
+        const {selectedCourses, uid, ...everythingElse} = userDetails
+        userData.current = {... everythingElse}
         displayBackButn.current = false
         set_currentPath('Choose Your Courses')
         userDetails.selectedCourses.map(course=> course.paid=true)
-        set_selectedCourses([... userDetails.selectedCourses]) 
+        set_selectedCourses([... selectedCourses]) 
         Alert.alert('Congrats!!!', `You have Already Registered.\n Go Ahead and purchase more courses.`)
       } else {
+        userExists.current = false
         set_currentPath('Sign In')
       }
     }).catch(err=> console.log(err))
@@ -87,15 +93,16 @@ const RegisterScreen = () => {
     }
   }
 
-  const signInAndPay = (userExists) => {
+  const signInAndPay = (userExists, paymentCallBack) => {
+    console.log(userExists, paymentCallBack)
     if (selectedCourses.filter(course => course.paid=== false).length) {
       signIn(userData.current, selectedCourses, userExists).then((userDetails) => {
         if (userDetails) {
-          saveUserDetails(userDetails)
+          !userExists?saveUserDetails(userDetails):null
+          paymentCallBack()
         }
       }).catch(err=> {
-        console.log(err.customData._tokenResponse.error.errors[0].message === 'EMAIL_EXISTS', 'lalla')
-        err.customData?._tokenResponse?.error?.errors[0]?.message === 'EMAIL_EXISTS'?signInAndPay(true):console.log(err)
+        console.log(err)
       })
     } else {
       Alert.alert('', `You haven't selected any course yet`)
@@ -234,6 +241,7 @@ const RegisterScreen = () => {
         </View>
         {
           (() => {
+            price.current = selectedCourses.filter(course=> course.paid===false).length*500
             switch (currentPath) {
               case 'Choose Your Courses':
                 return (
@@ -283,9 +291,26 @@ const RegisterScreen = () => {
                         </View>
                       </TouchableHighlight>
                     </ScrollView>
-                    <TouchableHighlight onPress={()=> signInAndPay()} style={styles.submitButn}>
-                      <Text style={styles.butnText}>Pay ₦{selectedCourses.filter(course=> course.paid===false).length*500}</Text>
-                    </TouchableHighlight>
+
+                    <PayWithFlutterwave
+                      onRedirect={data=> console.log('payment Return data:', data)}
+                      options={{
+                        tx_ref: generateTransactionRef(10),
+                        authorization: 'FLWPUBK_TEST-c192c6d83589da7000897046bdc51dd2-X',
+                        currency: 'NGN',
+                        integrity_harsh: 'FLWSECK_TEST5423d01f66cf',
+                        payment_options: 'card',
+                        handleOnRedirect: 'google.com',
+                        customer: {email: 'macbasejupeb@gmail.com' },
+                        meta: {...userData},
+                        amount: price.current
+                      }}
+                      customButton= {props=> (
+                      <TouchableHighlight style={styles.submitButn} onPress= {()=> signInAndPay(userExists.current, props.onPress)}>
+                          <Text style={styles.butnText}>Pay ₦{price.current}</Text>
+                        </TouchableHighlight>
+                      )}
+                    />
                   </>
                 )
               case 'Enter Your Details':

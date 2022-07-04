@@ -15,7 +15,6 @@ const userStorage = new Storage({
   }
 });
  
-
 export const validateEmail = email => {
     if (email?.includes('.com') && email?.includes('@')) {
         const validChars = new RegExp(/[abcdefghijklmnopqrstuvwxyz1234567890]/)
@@ -53,26 +52,28 @@ export const signIn = (userData, selectedCourses, userExists) => {
                 const {pswd, ...uploadData} = {...userData, selectedCourses, regDate: new Date().getTime()}
                 console.log('uploadData:', uploadData)
                 usersCollection.child(uid).set(uploadData, () => {
-                    resolve({uploadData, uid})
+                  resolve({...uploadData, uid})
                 })
               }
             })
         }).catch(err=> reject(err))
-        : usersCollection.orderByChild('email').once('value', snapshot => {
-            if (snapshot.exists()) {
-                const [userDetails, userId] = [Object.values(snapshot.val())[0], Object.keys(snapshot.val())[0]]
-                if (userDetails.email === userData.email) {
-                  resolve({userDetails, userId})
-                }
-            }
-        }).catch(err=> reject(err))
+        : (()=> {
+          resolve({...userData})
+        })()
     })
 }
 
-export const saveUserDetails = (userData) => {
-  userStorage.save({
-    key: 'userDetails',
-    data: userData,
+export const saveUserDetails = (userDetails) => {
+  return new Promise((resolve, reject) => {
+    if (userDetails) {
+      userStorage.save({
+        key: 'userDetails',
+        data: userDetails,
+      })
+      resolve (userDetails)
+    } else {
+      reject('User details is not present')
+    }
   })
 }
 
@@ -83,6 +84,17 @@ export const getUserDetails = () => {
     syncInBackground: false,
   })
 }
+
+export const generateTransactionRef = (length) => {
+  let result = '';
+  let characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return `flw_tx_ref_${result}`;
+};
 
 // userStorage.remove({
 //   key: 'userDetails'
