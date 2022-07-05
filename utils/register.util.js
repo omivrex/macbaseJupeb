@@ -1,7 +1,6 @@
 import { auth, rtdb } from './firebaseInit';
 import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { updateQuestions } from './updateCourse.util';
 const usersCollection =  rtdb.ref('users')
 
 const userStorage = new Storage({
