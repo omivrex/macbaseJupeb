@@ -1,6 +1,7 @@
 import { auth, rtdb } from './firebaseInit';
 import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { updateQuestions } from './updateCourse.util';
 const usersCollection =  rtdb.ref('users')
 
 const userStorage = new Storage({
@@ -14,6 +15,15 @@ const userStorage = new Storage({
     }
   }
 });
+
+const courseStorage = new Storage({
+  storageBackend: AsyncStorage, // for web: window.localStorage
+  defaultExpires: null,
+  enableCache: false,
+  sync: {
+
+  }
+})
  
 export const validateEmail = email => {
     if (email?.includes('.com') && email?.includes('@')) {
@@ -96,6 +106,26 @@ export const generateTransactionRef = (length) => {
   return `flw_tx_ref_${result}`;
 };
 
+export const updateOnlineUserData = (selectedCourses, uid) => {
+  return new Promise((resolve, reject) => { 
+    selectedCourses.forEach((course) => {
+      course.paid = true
+    });
+    usersCollection.child(uid).update({selectedCourses}, () => {
+      resolve(selectedCourses)
+    }).catch(err=> reject(err))
+  })
+}
+
+export const updateLocalUserData = (selectedCourses, uid, userData) => {
+  return new Promise((resolve, reject) => { 
+    saveUserDetails({selectedCourses, uid, ...userData}).then(userDetails => {
+      resolve(userDetails)
+    }).catch(err=> reject(err))
+  })
+}
+
+// updateQuestions(courseName)
 // userStorage.remove({
 //   key: 'userDetails'
 // });

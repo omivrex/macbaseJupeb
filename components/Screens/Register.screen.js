@@ -10,14 +10,24 @@ import {useContext, useState, useRef, useEffect} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { FontAwesome, Zocial, Entypo, FontAwesome5, Ionicons  } from '@expo/vector-icons';
 import CheckBox from 'expo-checkbox';
-import {FlutterwaveButton, PayWithFlutterwave} from 'flutterwave-react-native';
+import {PayWithFlutterwave} from 'flutterwave-react-native';
 
 import Container from '../Reusable/Container.component';
 import NavigationContext from '../context/Nav.context';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { ScrollView } from 'react-native-gesture-handler';
-import { generateTransactionRef, getUserDetails, pay, saveUserDetails, signIn, validateEmail, validatePhone, validatePswd } from '../../utils/register.util';
+import { 
+  updateOnlineUserData,
+  generateTransactionRef,
+  getUserDetails,
+  saveUserDetails,
+  signIn,
+  validateEmail,
+  validatePhone,
+  validatePswd,
+  updateLocalUserData 
+} from '../../utils/register.util';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -28,6 +38,7 @@ const RegisterScreen = () => {
   const displayBackButn = useRef(true)
   const price = useRef(0)
   const userExists = useRef(false)
+  const userId = useRef('')
 
   useEffect(() => {
     getUserDetails().then((userDetails)=> {
@@ -35,10 +46,11 @@ const RegisterScreen = () => {
         console.log('userDetails', userDetails)
         userExists.current = true
         const {selectedCourses, uid, ...everythingElse} = userDetails
+        userId.current = uid
         userData.current = {... everythingElse}
         displayBackButn.current = false
         set_currentPath('Choose Your Courses')
-        userDetails.selectedCourses.map(course=> course.paid=true)
+        // userDetails.selectedCourses.map(course=> course.paid=true)
         set_selectedCourses([... selectedCourses]) 
         Alert.alert('Congrats!!!', `You have Already Registered.\n Go Ahead and purchase more courses.`)
       } else {
@@ -83,6 +95,7 @@ const RegisterScreen = () => {
     }
   }
 
+  
   const changeSelection = (courseName) => {
     const [course] = selectedCourses.filter(item=> item.courseName === courseName)
     if (!course) {
@@ -107,6 +120,15 @@ const RegisterScreen = () => {
     } else {
       Alert.alert('', `You haven't selected any course yet`)
     }
+  }
+
+  const paymentResponseHandler = () => {
+    updateOnlineUserData(selectedCourses, userId.current).then(updatedSelectedCourses => {
+      console.log(updatedSelectedCourses)
+      updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(updatedUserData => {
+        console.log(updatedUserData)
+      })
+    })
   }
 
   const styles = StyleSheet.create({
@@ -293,7 +315,7 @@ const RegisterScreen = () => {
                     </ScrollView>
 
                     <PayWithFlutterwave
-                      onRedirect={data=> console.log('payment Return data:', data)}
+                      onRedirect={transactionResult=> transactionResult.status === 'successful'?paymentResponseHandler():null}
                       options={{
                         tx_ref: generateTransactionRef(10),
                         authorization: 'FLWPUBK_TEST-c192c6d83589da7000897046bdc51dd2-X',
@@ -301,7 +323,7 @@ const RegisterScreen = () => {
                         integrity_harsh: 'FLWSECK_TEST5423d01f66cf',
                         payment_options: 'card',
                         handleOnRedirect: 'google.com',
-                        customer: {email: 'macbasejupeb@gmail.com' },
+                        customer: {email: 'macbasejupeb@gmail.com', phonenumber: '+2348165541591', name: 'Macbase' },
                         meta: {...userData},
                         amount: price.current
                       }}
@@ -387,5 +409,4 @@ const RegisterScreen = () => {
   )
 }
 
-  
 export default RegisterScreen
