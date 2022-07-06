@@ -52,7 +52,6 @@ const RegisterScreen = () => {
         userData.current = {... everythingElse}
         displayBackButn.current = false
         getCoursesFromDB()
-        set_currentPath('Choose Your Courses')
         // userDetails.selectedCourses.map(course=> course.paid=true)
         set_selectedCourses([... selectedCourses]) 
         Alert.alert('Congrats!!!', `You have Already Registered.\n Go Ahead and purchase more courses.`)
@@ -89,12 +88,12 @@ const RegisterScreen = () => {
         break;
     }
     if (inputsAreValid) {
-      path === 'Choose Your Courses' && getCoursesFromDB()
-      set_currentPath(path)
+      path === 'Choose Your Courses'? getCoursesFromDB(path)
+      :set_currentPath(path)
     }
   }
 
-  const getCoursesFromDB = () => {
+  const getCoursesFromDB = (path) => {
     getOnlineCollections()
     .then(returnedData=> returnedData?corusesInDb.current = [... returnedData]
     :Alert.alert('Network Error!', `unable to list of courses right now.\n Check your internet connection`, [
@@ -106,8 +105,7 @@ const RegisterScreen = () => {
         title: 'Ok',
         onPress: ()=> null
       }
-    ]))
-    console.log('corusesInDb', corusesInDb.current)
+      ])).then(()=> set_currentPath(path||'Choose Your Courses'))
   }
 
   const previous = () => {  
