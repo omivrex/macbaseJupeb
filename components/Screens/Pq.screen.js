@@ -271,7 +271,7 @@ const PqScreen = () => {
                   {data.length?
                     data.map((item, index)=> {
                       return (
-                        <View>
+                        <View key={index}>
                           <TouchableHighlight underlayColor={colors.underlayColor} style={styles.options} key={index.toString()} onPress = {()=> changeSelection(index)}>
                             <>
                               <CText style={styles.optionsText}>{Object.values(item)[0].toUpperCase()}</CText>

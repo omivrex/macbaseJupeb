@@ -1,44 +1,100 @@
 import {firestore} from "./firebaseInit"
-// import AsyncStorage from "@react-native-async-storage/async-storage";
-// const pqData = require("../scripts/pqData.json");
+import Storage from 'react-native-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const courseData = []
+const courseStorage = new Storage({
+    storageBackend: AsyncStorage, // for web: window.localStorage
+    defaultExpires: null,
+    enableCache: false,
+    sync: {
+        callUpdateCourseData(...args) {
+            updateCourseData(...args)
+            .then(()=>loadCourseData(courseName))
+        }
+    }
+})
 
-export const updateQuestions = (path = `pastquestions/${path}/${path}`) => {
-    getOnlineCollections(path).then(collectionData => {
-        collectionData.forEach(data => {
-            let [label] = Object.keys(data)
-            courseData.push(data)
-            let currentPath = rootPath+`/${data[label]}/${data[label]}`
-            getSubCollections(currentPath, data)
-        });
-        console.log(courseData)
-    })
+
+let courseData = []
+export const updateCourseData = (courseName) => {
+    return new Promise((resolve, reject) => { 
+        courseData = []
+        const rootPath = `pastquestions/${courseName}/${courseName}`
+        console.log(courseName)
+        getOnlineCollections(rootPath).then(collectionData => {
+            collectionData.forEach(async (data, index) => {
+                let [label] = Object.values(data)
+                data.content = []
+                data.key = label
+                courseData.push(data)
+                let currentPath = rootPath+`/${label}/${label}`
+                await getSubCollections(currentPath, data)
+                index === collectionData[collectionData.length-1]?resolve(courseData):null
+            });
+        }).catch(err=> reject(err))
+     })
 }
 
-const getSubCollections = (path, parentObj) => {
+const getSubCollections = async (path, parentObj) => {
     getOnlineCollections(path).then((data) =>{
-        parentObj.content = data
-        parentObj.content.forEach(item => {
+        parentObj.key = [Object.keys(parentObj)[0]]
+        parentObj.content = [...data]
+        parentObj.content.forEach(async item => {
             let [label] = Object.keys(item)
             let itemDataPath = path + `/${item[label]}/${item[label]}`
+            console.log(item)
             label === 'questionNumber'?getQuestionData(item, itemDataPath):
-            getSubCollections(itemDataPath, item)
+            await getSubCollections(itemDataPath, item)
         });
     })
 }
 
-const getQuestionData = (questionObj, path) => {
-    getOnlineCollections(path, true).then(([questionData]) => {
+const getQuestionData = async (questionObj, path) => {
+    await getOnlineCollections(path, true).then(([questionData]) => {
         questionObj.content = questionData
+        const courseName = path.split('/')[1]
+        console.log('courseName', courseName)
+        saveCourseData(courseName)
     })
 }
+
+const saveCourseData = (courseName) => {
+    courseStorage.save({
+        id: courseName,
+        key: 'course-data',
+        data: courseData,
+    })
+}
+
+export const loadCourseData = (courseName) => {
+    return new Promise((resolve, reject) => {
+        courseStorage.load({
+          key: 'course-data',
+          id: courseName,
+          syncInBackground: true,
+          syncParams: {
+            courseName
+          }
+        }).then(returnedData=> resolve(returnedData))
+        .catch(
+            err=> err.name==='NotFoundError'?
+                courseStorage.sync.callUpdateCourseData(courseName)
+            :
+                reject(err)
+        )
+     })
+}
+
+// courseStorage.remove({
+//   key: 'course-data',
+//   id: 'maths'
+// });
 
 
 export const getOnlineCollections = (collectionName, returnId) => {
     const collectionData = []
     return new Promise((resolve, reject) => {
-        let maxWaitTime = setTimeout(() => {
+        let maxWaitTime = setTimeout(() => { /** add maximum time to prevent app from seemimg like it hanged */
             resolve(collectionData)
         }, 5000);
         firestore.collection(collectionName?collectionName:'pastquestions').get().then((snapShot)=> {
@@ -52,24 +108,10 @@ export const getOnlineCollections = (collectionName, returnId) => {
             }
         }).catch (err => {
             console.log(err)
-            // reject(err)
+            reject(err)
         })
     })
 }
-
-// export const getToken = async (callback) => {
-//     try {
-//         let token = await AsyncStorage.getItem('vpa')
-//         if (token !== 'true') {
-//             callback(false)
-//             return false
-//         } else {
-//             callback(true)
-//         }
-//     } catch (err) {
-//         console.log(err);
-//     }
-// }
 
 // export const getOfflineCollections = (pathObj) => {
 //     const collectionData = []

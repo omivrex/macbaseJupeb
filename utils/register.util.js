@@ -14,15 +14,6 @@ const userStorage = new Storage({
     }
   }
 });
-
-const courseStorage = new Storage({
-  storageBackend: AsyncStorage, // for web: window.localStorage
-  defaultExpires: null,
-  enableCache: false,
-  sync: {
-
-  }
-})
  
 export const validateEmail = email => {
     if (email?.includes('.com') && email?.includes('@')) {
@@ -124,7 +115,6 @@ export const updateLocalUserData = (selectedCourses, uid, userData) => {
   })
 }
 
-// updateQuestions(courseName)
 // userStorage.remove({
 //   key: 'userDetails'
 // });

@@ -28,6 +28,7 @@ import {
   validatePswd,
   updateLocalUserData 
 } from '../../utils/register.util';
+import { updateCourseData, loadCourseData } from '../../utils/pastquestions.utils';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -57,6 +58,10 @@ const RegisterScreen = () => {
         userExists.current = false
         set_currentPath('Sign In')
       }
+    }).then(() => {
+      return loadCourseData('maths')
+    }).then(courseData => {
+      console.log('courseData loaded:', courseData)
     }).catch(err=> console.log(err))
   }, [])
 
@@ -98,6 +103,7 @@ const RegisterScreen = () => {
   
   const changeSelection = (courseName) => {
     const [course] = selectedCourses.filter(item=> item.courseName === courseName)
+    // set_selectedCourses([])
     if (!course) {
       set_selectedCourses([... new Set(selectedCourses.concat({courseName, paid: false}))])
     } else {
@@ -124,11 +130,13 @@ const RegisterScreen = () => {
 
   const paymentResponseHandler = () => {
     updateOnlineUserData(selectedCourses, userId.current).then(updatedSelectedCourses => {
-      console.log(updatedSelectedCourses)
+      console.log(updatedSelectedCourses) /**BUG: online and local updates are runing async instead of after the other */
       updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(updatedUserData => {
-        console.log(updatedUserData)
+        updatedSelectedCourses.forEach(course => {
+          updateCourseData(course.courseName)
+        });
       })
-    })
+    }).catch(err=> console.log(err))
   }
 
   const styles = StyleSheet.create({
