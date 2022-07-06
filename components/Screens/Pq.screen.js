@@ -11,7 +11,7 @@ import CheckBox from 'expo-checkbox';
 import MathJax from 'react-native-mathjax';
 import {useEffect, useRef, useContext, useState} from 'react';
 import Container from '../Reusable/Container.component';
-import { getOnlineCollections } from '../../utils/pastquestions.utils';
+import { getOnlineCollections, loadCourseData } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
@@ -30,8 +30,13 @@ const PqScreen = () => {
   const selection = useRef([])
 
   useEffect(() => {
-    getOnlineCollections(path.current).then((returnedData) => {
+    loadCourseData().then((returnedData) => {
+      console.log(returnedData)
       renderCollectionData(returnedData)
+    }).then(() => {
+      return loadCourseData('maths')
+    }).then(courseData => {
+      console.log('courseData loaded:', courseData)
     }).catch((err) => {
       console.log(err)
     })

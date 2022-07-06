@@ -28,7 +28,7 @@ import {
   validatePswd,
   updateLocalUserData 
 } from '../../utils/register.util';
-import { updateCourseData, loadCourseData, getOnlineCollections } from '../../utils/pastquestions.utils';
+import { updateCourseDatas, getOnlineCollections } from '../../utils/pastquestions.utils';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -59,10 +59,6 @@ const RegisterScreen = () => {
         userExists.current = false
         set_currentPath('Sign In')
       }
-    }).then(() => {
-      return loadCourseData('maths')
-    }).then(courseData => {
-      console.log('courseData loaded:', courseData)
     }).catch(err=> console.log(err))
   }, [])
 
@@ -149,7 +145,6 @@ const RegisterScreen = () => {
 
   const paymentResponseHandler = () => {
     updateOnlineUserData(selectedCourses, userId.current).then(updatedSelectedCourses => {
-      console.log(updatedSelectedCourses) /**BUG: online and local updates are runing async instead of after the other */
       updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(updatedUserData => {
         updatedSelectedCourses.forEach(course => {
           updateCourseData(course.courseName)

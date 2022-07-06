@@ -20,45 +20,47 @@ export const updateCourseData = (courseName) => {
     return new Promise((resolve, reject) => { 
         courseData = []
         const rootPath = `pastquestions/${courseName}/${courseName}`
-        console.log(courseName)
         getOnlineCollections(rootPath).then(collectionData => {
-            collectionData.forEach(async (data, index) => {
+            console.log(collectionData)
+            collectionData.forEach((data, index) => {
                 let [label] = Object.values(data)
-                data.content = []
-                data.key = label
+                data.data = []
                 courseData.push(data)
                 let currentPath = rootPath+`/${label}/${label}`
-                await getSubCollections(currentPath, data)
+                getSubCollections(currentPath, data)
                 index === collectionData[collectionData.length-1]?resolve(courseData):null
             });
         }).catch(err=> reject(err))
      })
 }
 
-const getSubCollections = async (path, parentObj) => {
+const getSubCollections = (path, parentObj) => {
     getOnlineCollections(path).then((data) =>{
-        parentObj.key = [Object.keys(parentObj)[0]]
-        parentObj.content = [...data]
-        parentObj.content.forEach(async item => {
-            let [label] = Object.keys(item)
-            let itemDataPath = path + `/${item[label]}/${item[label]}`
-            console.log(item)
-            label === 'questionNumber'?getQuestionData(item, itemDataPath):
-            await getSubCollections(itemDataPath, item)
+        parentObj.data = [...data]
+        // console.log('parentObj', parentObj)
+        parentObj.data.forEach(item => {
+            let [label] = Object.values(item)
+            let [key] = Object.keys(item)
+            let itemDataPath = path + `/${label}/${label}`
+            console.log('called...', label)
+            key === 'questionNumber'?getQuestionData(item, itemDataPath)
+            : getSubCollections(itemDataPath, item)
         });
     })
 }
 
-const getQuestionData = async (questionObj, path) => {
-    await getOnlineCollections(path, true).then(([questionData]) => {
-        questionObj.content = questionData
+const getQuestionData = (questionObj, path) => {
+    console.log('questionObj', questionObj)
+    getOnlineCollections(path, true).then(([questionData]) => {
+        questionObj.data = questionData
         const courseName = path.split('/')[1]
-        console.log('courseName', courseName)
+        // console.log('getQuestionData courseData', courseData)
         saveCourseData(courseName)
     })
 }
 
 const saveCourseData = (courseName) => {
+    console.log('called...')
     courseStorage.save({
         id: courseName,
         key: 'course-data',
@@ -76,7 +78,6 @@ export const loadCourseData = (courseName) => {
             courseName
           }
         }).then(returnedData=> {
-            console.log('returnedData', returnedData)
             resolve(returnedData)
         })
         .catch(
@@ -113,6 +114,15 @@ export const getOnlineCollections = (collectionName, returnId) => {
             console.log(err)
             reject(err)
         })
+    })
+}
+
+export const loadAllSavedCourses = () => {
+    new Promise((resolve, reject) => {
+        courseStorage.getIdsForKey('course-data').then(savedCourses=> {
+            console.log(savedCourses)
+            resolve(savedCourses)
+        }).catch(err=> reject(err))
     })
 }
 
