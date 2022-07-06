@@ -28,7 +28,7 @@ import {
   validatePswd,
   updateLocalUserData 
 } from '../../utils/register.util';
-import { updateCourseData, loadCourseData } from '../../utils/pastquestions.utils';
+import { updateCourseData, loadCourseData, getOnlineCollections } from '../../utils/pastquestions.utils';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -40,6 +40,7 @@ const RegisterScreen = () => {
   const price = useRef(0)
   const userExists = useRef(false)
   const userId = useRef('')
+  const corusesInDb = useRef([])
 
   useEffect(() => {
     getUserDetails().then((userDetails)=> {
@@ -50,6 +51,7 @@ const RegisterScreen = () => {
         userId.current = uid
         userData.current = {... everythingElse}
         displayBackButn.current = false
+        getCoursesFromDB()
         set_currentPath('Choose Your Courses')
         // userDetails.selectedCourses.map(course=> course.paid=true)
         set_selectedCourses([... selectedCourses]) 
@@ -86,7 +88,26 @@ const RegisterScreen = () => {
         inputsAreValid = isValidEmail&&isValidPswd
         break;
     }
-    inputsAreValid && set_currentPath(path)
+    if (inputsAreValid) {
+      path === 'Choose Your Courses' && getCoursesFromDB()
+      set_currentPath(path)
+    }
+  }
+
+  const getCoursesFromDB = () => {
+    getOnlineCollections()
+    .then(returnedData=> returnedData?corusesInDb.current = [... returnedData]
+    :Alert.alert('Network Error!', `unable to list of courses right now.\n Check your internet connection`, [
+      {
+        title: 'Retry',
+        onPress: ()=>getCoursesFromDB(),
+      },
+      {
+        title: 'Ok',
+        onPress: ()=> null
+      }
+    ]))
+    console.log('corusesInDb', corusesInDb.current)
   }
 
   const previous = () => {  
@@ -277,49 +298,20 @@ const RegisterScreen = () => {
                 return (
                   <>
                     <ScrollView style={styles.courseListWrapper}>
-                      <TouchableHighlight style={{width: '90%',}} onPress = {()=> changeSelection('maths')}>
-                        <View style={styles.courseSelectionButn}>
-                          <CText style={styles.courseSelectionButnText}>maths</CText>
-                          <CheckBox
-                            value={selectedCourses.filter(item=> item.courseName === 'maths').length>0}
-                            onValueChange={()=> changeSelection('maths')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
-
-                      <TouchableHighlight style={{width: '90%',}} onPress = {()=> changeSelection('physics')}>
-                        <View style={styles.courseSelectionButn}>
-                          <CText style={styles.courseSelectionButnText}>physics</CText>
-                          <CheckBox
-                            value={selectedCourses.filter(item=> item.courseName === 'physics').length>0}
-                            onValueChange={()=> changeSelection('physics')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
-                      
-                      <TouchableHighlight style={{width: '90%',}} onPress = {()=> changeSelection('chemistry')}>
-                        <View style={styles.courseSelectionButn}>
-                          <CText style={styles.courseSelectionButnText}>chemistry</CText>
-                          <CheckBox
-                            value={selectedCourses.filter(item=> item.courseName === 'chemistry').length>0}
-                            onValueChange={()=> changeSelection('chemistry')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
-                      
-                      <TouchableHighlight style={{width: '90%',}} onPress = {()=> changeSelection('biology')}>
-                        <View style={styles.courseSelectionButn}>
-                          <CText style={styles.courseSelectionButnText}>biology</CText>
-                          <CheckBox
-                            value={selectedCourses.filter(item=> item.courseName === 'biology').length>0}
-                            onValueChange={()=> changeSelection('biology')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
+                      {corusesInDb.current.map(({courseName}, index) => {
+                        return (
+                          <TouchableHighlight key={index} style={{width: '90%',}} onPress = {()=> changeSelection(courseName)}>
+                            <View style={styles.courseSelectionButn}>
+                              <CText style={styles.courseSelectionButnText}>{courseName}</CText>
+                              <CheckBox
+                                value={selectedCourses.filter(item=> item.courseName === courseName).length>0}
+                                onValueChange={()=> changeSelection(courseName)}
+                                tintColors={{true: colors.appColor}}
+                              />
+                            </View>
+                          </TouchableHighlight>
+                        )
+                      })}
                     </ScrollView>
 
                     <PayWithFlutterwave
