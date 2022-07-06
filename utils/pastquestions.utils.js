@@ -75,7 +75,10 @@ export const loadCourseData = (courseName) => {
           syncParams: {
             courseName
           }
-        }).then(returnedData=> resolve(returnedData))
+        }).then(returnedData=> {
+            console.log('returnedData', returnedData)
+            resolve(returnedData)
+        })
         .catch(
             err=> err.name==='NotFoundError'?
                 courseStorage.sync.callUpdateCourseData(courseName)
