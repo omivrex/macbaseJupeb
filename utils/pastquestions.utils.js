@@ -118,50 +118,46 @@ export const getOnlineCollections = (collectionName, returnId) => {
 }
 
 export const loadAllSavedCourses = () => {
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         courseStorage.getIdsForKey('course-data').then(savedCourses=> {
-            console.log(savedCourses)
             resolve(savedCourses)
         }).catch(err=> reject(err))
     })
 }
 
-// export const getOfflineCollections = (pathObj) => {
-//     const collectionData = []
-//     try {
-//         if (pathObj) {
-//             const path = Object.values(pathObj).filter(Boolean) /** remove falsey values */
-//             let recordToSearch = pqData
-//             path.forEach((item) => {
-//                 recordToSearch = recordToSearch[item.index].content
-//             })
-//             recordToSearch.forEach((item, index)=> {
-//                 const [key] = Object.keys(item)
-//                 const [value] = Object.values(item)
-//                 collectionData.push({[key]: value, index})
-//             })
-//         } else {
-//             pqData.forEach(({courseName}, index) => {
-//                 collectionData.push({courseName, index})
-//             });
-//         }
-//         return collectionData
-//     } catch (error) {
-//         console.log('error from getOfflineCollections:', error)
-//     }
-// }
+export const getOfflineCollections = (pathObj, dataToSearch) => {
+    const collectionData = []
+    console.log('test2', pathObj)
+    try {
+        if (pathObj) {
+            const path = Object.values(pathObj).filter(Boolean) /** remove falsey values */
+            path.forEach((item) => {
+                dataToSearch = [... dataToSearch[item.index].data]
+                console.log('item', item)
+            })
+            dataToSearch.forEach((item, index)=> {
+                const [key] = Object.keys(item)
+                const [value] = Object.values(item)
+                collectionData.push({[key]: value, index})
+            })
+        }
+        return collectionData
+    } catch (error) {
+        console.log('error from getOfflineCollections:', error)
+    }
+}
 
-// export const getSectionsLocalQuestions = (pathObj, questionNumber) => {
-//     try {
-//         const questionData = pqData[pathObj.courseName.index]
-//         .content[pathObj.year.index]
-//         .content[pathObj.subject.index]
-//         .content[pathObj.section.index]
-//         .content[questionNumber.index]
-//         .content.Data.Data
-//         return questionData
-//     } catch (error) {
-//         console.log(error)
-//     }
+export const getSectionsLocalQuestions = (pathObj, questionNumber, dataToSearch) => {
+    console.log(dataToSearch.data)
+    try {
+        const questionData = dataToSearch[pathObj.year.index]
+        .data[pathObj.subject.index]
+        .data[pathObj.section.index]
+        .data[questionNumber.index]
+        .data.Data.Data
+        return questionData
+    } catch (error) {
+        console.log(error)
+    }
 
-// }
+}

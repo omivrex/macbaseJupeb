@@ -11,7 +11,7 @@ import CheckBox from 'expo-checkbox';
 import MathJax from 'react-native-mathjax';
 import {useEffect, useRef, useContext, useState} from 'react';
 import Container from '../Reusable/Container.component';
-import { getOnlineCollections, loadCourseData } from '../../utils/pastquestions.utils';
+import { getOfflineCollections, getSectionsLocalQuestions, loadAllSavedCourses, loadCourseData } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
@@ -20,51 +20,47 @@ import { Ionicons } from '@expo/vector-icons';
 import AnswerComponent from '../Reusable/Answer.component';
 
 const PqScreen = () => {
-  const path = useRef('pastquestions')
+  const path = useRef({
+    year: null,
+    subject: null,
+    section: null
+  })
+  /** content is th the format {
+    course: {index: 0},
+    year: {index: 0},
+    subject:{index: 0},
+    section: {index: 0}
+  } */
   const colors = useContext(ColorContext)
   const [selected, set_selected] = useState(null)
   const [data, set_data] = useState([])
   const [ansData, set_ansData] = useState('')
   const renderQuestionData = useRef(false)
   const label = useRef('Course')
-  const selection = useRef([])
+  const subCollectionData = useRef({})
+  const selectedCourseData = useRef([])
 
   useEffect(() => {
-    loadCourseData().then((returnedData) => {
-      console.log(returnedData)
-      renderCollectionData(returnedData)
-    }).then(() => {
-      return loadCourseData('maths')
-    }).then(courseData => {
-      console.log('courseData loaded:', courseData)
+    getListOfCourses()
+  }, [])
+
+  const getListOfCourses = () => {
+    loadAllSavedCourses().then(savedCourses => {
+      const tempArr = [... savedCourses]
+      for (let index = 0; index < savedCourses.length; index++) {
+        const course = savedCourses[index];
+        tempArr[index] = {courseName: course}
+      }
+      renderCollectionData(tempArr)
     }).catch((err) => {
       console.log(err)
     })
-  }, [])
-  
-  const renderCollectionData = (returnedData) => {
-    if (returnedData.length) {
-      const extractedLabel = Object.keys(returnedData[0])[0]
-      // returnedData = [... returnedData.flatMap(i => [i,i, i,i, i,i])]
-      if (extractedLabel === 'questionNumber') {
-        let tempArr = []
-        returnedData.forEach((question, index) => {
-          const [questionNumber] = Object.values(question)
-          getOnlineCollections(path.current+`/${questionNumber}/${questionNumber}`)
-          .then(questionData=>tempArr.push(questionData)).then(()=> {
-            if (index===returnedData.length-1) {
-              renderQuestionData.current = true
-              tempArr = [... tempArr.flat()]
-              set_data([... tempArr])
-            }
-          }).catch(err=> console.log(err))
-        });
-      } else {
-        label.current = extractedLabel !== 'courseName' ? capitalize1stLetter(extractedLabel): 'Course'
-        set_data([... returnedData])
-        set_selected(null)
-      }
-    }
+  }
+
+  const renderCollectionData = collectionData => {
+    const [extractedLabel] = Object.keys(collectionData[0])
+    label.current = extractedLabel !== 'courseName' ? capitalize1stLetter(extractedLabel): 'Course'
+    set_data([... collectionData])
   }
 
   const capitalize1stLetter = ([first, ...rest]) =>{
@@ -72,27 +68,65 @@ const PqScreen = () => {
   }; 
 
   const changeSelection = (key) => {
-    console.log(label)
     set_selected(key)
+  }
+
+  const getCourseData = (courseName) => {
+    return new Promise((resolve, reject) => { 
+      loadCourseData(courseName).then(data => {
+        selectedCourseData.current = [...data]
+        subCollectionData.current = {data: [... extractSubCollections(data)]}
+        resolve(subCollectionData.current.data)
+      }).catch(err=> reject(err))
+    })
+  }
+
+  const extractSubCollections = (ItemData) => {
+    const subCollections = []
+    ItemData.forEach(subCollection => {
+      const {data, ...label} = subCollection
+      subCollections.push({...label})
+    });
+    return subCollections
   }
   
   const next = () => {
     if (selected !== null) {
-      selection.current.push(selected)
       if (data[selected]) {
         const [selectedItem] = Object.values(data[selected])
-        path.current += `/${selectedItem}/${selectedItem}`
-        set_data([])
-        getOnlineCollections(path.current).then(renderCollectionData).catch((err) => {
-          console.log(err)
-        })
+        switch (label.current) {
+          case "Course":
+            path.current[label.current.toLowerCase()] = {value: selectedItem, index: selected}
+            getCourseData(selectedItem)
+            .then(renderCollectionData)
+          break;
+          case "Section":
+            const listOfQuestions = getOfflineCollections(path.current, selectedCourseData.current)
+            const tempArray = []
+            listOfQuestions.forEach(question => {
+              tempArray.push({data: getSectionsLocalQuestions(path.current, question, selectedCourseData.current)})
+            });
+            renderQuestionData.current = true
+            tempArray.length?set_data([...tempArray]):null
+          break;  
+          default:
+            path.current[label.current.toLowerCase()] = {value: selectedItem,index: selected}
+            const {course, ...pathToUse} = path.current
+            const returnedData = getOfflineCollections(pathToUse, selectedCourseData.current)
+            renderCollectionData(returnedData)
+            console.log('Test',path.current)
+            console.log('returnedData', returnedData, 'label', label)
+          break;
+        }
       }
     } else {
       Alert.alert('', `You Have Not Selected Any ${label.current} Yet`)
-    }  
+    } 
+    set_selected(null)
   }
 
   const previous = () => {
+    const previousLabel = label.current
     if (ansData !== '') {
       set_ansData('')
       return true
@@ -100,19 +134,19 @@ const PqScreen = () => {
       if (renderQuestionData.current) {
         renderQuestionData.current = false
       }
-      if (selection.current.length > 0) {
-        set_data([])
-        const pathArr = path.current.split('/')
-        pathArr.pop()
-        pathArr.pop()
-        path.current = pathArr.join('/')
-        const lastKey = selection.current[selection.current.length-1]
-        getOnlineCollections(path.current).then(renderCollectionData).then(() => {
-          set_selected(lastKey)
-          selection.current.pop()
-        }).catch((err) => {
-          console.log(err)
-        })
+      if (Object.keys(path.current).length > 0) {
+        const keys = Object.keys(path.current)
+        let index = keys.length - 1
+        while (path.current[keys[index]] === null && index>0) { /** start with the last property if its null move to the next untill you reach the final property where the index is 0*/
+          index--
+        }
+        path.current[keys[index]] = null
+        if (previousLabel === 'Year') {
+          getListOfCourses() 
+        } else {
+          const collectionData = getOfflineCollections(path.current, selectedCourseData.current)
+          renderCollectionData(collectionData)
+        }
         return true
       }
       return false
@@ -121,11 +155,10 @@ const PqScreen = () => {
 
   BackHandler.addEventListener('hardwareBackPress', () => {
     previous()
-    return selection.current.length>0
+    return Object.keys(path.current).length>0
   });
 
   const showAns = (data) => {
-    console.log('called...')
     set_ansData(data)
     console.log('ansData', ansData)
   }
@@ -255,7 +288,6 @@ const PqScreen = () => {
       fontSize: hp('2.5%'),
       textAlign: 'center'
     },
-
   })
   
   return (
@@ -309,9 +341,9 @@ const PqScreen = () => {
               <TouchableHighlight onPress={previous}>
                 <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
               </TouchableHighlight>
-              <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
-                {([... new Set(path.current.replace('pastquestions/', '').toUpperCase().split('/'))]).join(' > ')}
-              </Heading>
+              {/* <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
+                {([... Object.values(path.current)]).filter(item=> item&&item.value !== undefined).join(' > ')}
+              </Heading> */}
             </View>
             <FlatList
               data={data}
