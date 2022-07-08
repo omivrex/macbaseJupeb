@@ -102,6 +102,7 @@ const PqScreen = () => {
           break;
           case "Section":
             const listOfQuestions = getOfflineCollections(path.current, selectedCourseData.current)
+            path.current[label.current.toLowerCase()] = {value: selectedItem,index: selected}
             const tempArray = []
             listOfQuestions.forEach(question => {
               tempArray.push({data: getSectionsLocalQuestions(path.current, question, selectedCourseData.current)})
@@ -349,6 +350,7 @@ const PqScreen = () => {
               data={data}
               contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
               renderItem={({item}) => {
+                console.log('question To Render', item)
                 return (
                     <View style={styles.pqDataWrapper}>
                         <MathJax
@@ -369,7 +371,7 @@ const PqScreen = () => {
                                             }
                                         </style>
                                         <div style="font-size: 1em; font-family: Roboto, sans-serif, san Francisco;">
-                                            ${item&&item.Data?item.Data.question.replace('max-width: 180px;', 'max-width: 90vw;'):'<h2 style="color: red;">Network Error!</h2>'}
+                                            ${item?.data?item.data.question.replace('max-width: 180px;', 'max-width: 90vw;'):'<h2 style="color: red;">Network Error!</h2>'}
                                         </div> 
                                     </body>
                                 
@@ -405,11 +407,11 @@ const PqScreen = () => {
                         
                         />
                         <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
-                            item?.Data?.correctOption?
-                                Alert.alert(`Answer: ${item?.Data? item.Data.correctOption:''}`, '', [
+                            item?.data?.correctOption?
+                                Alert.alert(`Answer: ${item?.data? item.data.correctOption:''}`, '', [
                                   {
                                     text: 'Solution',
-                                    onPress: ()=> showAns(item?.Data? {answer: item.Data.answer, correctAnswer: item.Data.correctOption}:'')
+                                    onPress: ()=> showAns(item?.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'')
                                   },
 
                                   {
@@ -417,7 +419,7 @@ const PqScreen = () => {
                                     onPress: () => ''
                                   }
                                 ], {cancelable: true})
-                            : showAns(item?.Data? {answer: item.Data.answer, correctAnswer: item.Data.correctOption}:'no answwer')
+                            : showAns(item?.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'no answwer')
                         }}>
                             <Text style = {styles.ansButnText}>ANSWER</Text>
                         </TouchableHighlight>

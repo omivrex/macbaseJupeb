@@ -148,13 +148,17 @@ export const getOfflineCollections = (pathObj, dataToSearch) => {
 }
 
 export const getSectionsLocalQuestions = (pathObj, questionNumber, dataToSearch) => {
-    console.log(dataToSearch.data)
+    console.log('Test1',  dataToSearch[pathObj.year.index]
+    .data[pathObj.subject.index]
+    .data[pathObj.section.index]
+    .data[questionNumber.index]
+    .data, pathObj)
     try {
         const questionData = dataToSearch[pathObj.year.index]
         .data[pathObj.subject.index]
         .data[pathObj.section.index]
         .data[questionNumber.index]
-        .data.Data.Data
+        .data.data
         return questionData
     } catch (error) {
         console.log(error)
