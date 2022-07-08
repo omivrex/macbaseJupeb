@@ -11,7 +11,7 @@ import CheckBox from 'expo-checkbox';
 import MathJax from 'react-native-mathjax';
 import {useEffect, useRef, useContext, useState} from 'react';
 import Container from '../Reusable/Container.component';
-import { getOnlineCollections } from '../../utils/pastquestions.utils';
+import { loadAllSavedCourses } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
@@ -21,6 +21,7 @@ import AnswerComponent from '../Reusable/Answer.component';
 
 const CbtScreen = () => {
   const colors = useContext(ColorContext)
+  const [listOfCourses, set_listOfCourses] = useState([])
   const [selectedOptions, set_selectedOptions] = useState({
     time: null,
     courses: [],
@@ -28,9 +29,25 @@ const CbtScreen = () => {
   })
 
   useEffect(() => {
-    
+    getListOfCourses()
   }, [])
-  
+
+  const getListOfCourses = () => {
+    loadAllSavedCourses().then(savedCourses => {
+      const tempArr = [... savedCourses]
+      for (let index = 0; index < savedCourses.length; index++) {
+        const course = savedCourses[index];
+        tempArr[index] = {courseName: course}
+      }
+      renderCollectionData(tempArr)
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
+
+  const renderCollectionData = collectionData => {
+    set_listOfCourses([... collectionData])
+  }
 
   const changeSelection = (value, type) => {
     switch (type) {
@@ -179,60 +196,29 @@ const CbtScreen = () => {
       <View style={styles.optionsWrapper}>
         <View style={styles.optionsCont}>
           <ScrollView style={styles.optionsScroll}>
+
             <View style={styles.optionsCartegory}>
               <View style={styles.headingWrapper}>
                 <Heading extraStyles={styles.heading}>
                   Select Course
                 </Heading>
               </View>
-              <TouchableHighlight onPress = {()=> changeSelection('maths', 'course')}>
-                <View style={styles.options}>
-                  <CText style={styles.optionsText}>Maths</CText>
-                  <CheckBox
-                    value={selectedOptions.courses.includes('maths')}
-                    onValueChange={()=> changeSelection('maths', 'course')}
-                    tintColors={{true: colors.appColor}}
-                  />
-                </View>
-              </TouchableHighlight>
-              <TouchableHighlight onPress = {()=> changeSelection('chemistry', 'course')}>
-                <View style={styles.options}>
-                  <CText style={styles.optionsText}>Chemistry</CText>
-                  <CheckBox
-                    value={selectedOptions.courses.includes('chemistry')}
-                    onValueChange={()=> changeSelection('chemistry', 'course')}
-                    tintColors={{true: colors.appColor}}
-                  />
-                </View>
-              </TouchableHighlight>
-              <TouchableHighlight onPress = {()=> changeSelection('physics', 'course')}>
-                <View style={styles.options}>
-                  <CText style={styles.optionsText}>Physics</CText>
-                  <CheckBox
-                    value={selectedOptions.courses.includes('physics')}
-                    onValueChange={()=> changeSelection('physics', 'course')}
-                    tintColors={{true: colors.appColor}}
-                  />
-                </View>
-              </TouchableHighlight>
-            </View>
-
-            <View style={styles.optionsCartegory}>
-              <View style={styles.headingWrapper}>
-                <Heading extraStyles={styles.heading}>
-                  Select Subject
-                </Heading>
-              </View>
-              <TouchableHighlight onPress = {()=> changeSelection('calculus', 'subject')}>
-                <View style={styles.options}>
-                  <CText style={styles.optionsText}>Calculus</CText>
-                  <CheckBox
-                    value={selectedOptions.subjects.includes('calculus')}
-                    onValueChange={()=> changeSelection('calculus', 'subject')}
-                    tintColors={{true: colors.appColor}}
-                  />
-                </View>
-              </TouchableHighlight>
+              <>
+                {listOfCourses.map(({courseName}, index)=> {
+                  return (
+                    <TouchableHighlight key={index} onPress = {()=> changeSelection({courseName}, 'course')}>
+                      <View style={styles.options}>
+                        <CText style={styles.optionsText}>{courseName}</CText>
+                        <CheckBox
+                          value={selectedOptions.courses.includes({courseName})}
+                          onValueChange={()=> changeSelection({courseName}, 'course')}
+                          tintColors={{true: colors.appColor}}
+                        />
+                      </View>
+                    </TouchableHighlight>
+                  )
+                })}
+              </>
             </View>
 
             <View style={styles.optionsCartegory}>
