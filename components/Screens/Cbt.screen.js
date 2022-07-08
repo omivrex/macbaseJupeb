@@ -25,7 +25,6 @@ const CbtScreen = () => {
   const [selectedOptions, set_selectedOptions] = useState({
     time: null,
     courses: [],
-    subjects: []
   })
 
   useEffect(() => {
@@ -34,12 +33,7 @@ const CbtScreen = () => {
 
   const getListOfCourses = () => {
     loadAllSavedCourses().then(savedCourses => {
-      const tempArr = [... savedCourses]
-      for (let index = 0; index < savedCourses.length; index++) {
-        const course = savedCourses[index];
-        tempArr[index] = {courseName: course}
-      }
-      renderCollectionData(tempArr)
+      renderCollectionData(savedCourses)
     }).catch((err) => {
       console.log(err)
     })
@@ -49,18 +43,15 @@ const CbtScreen = () => {
     set_listOfCourses([... collectionData])
   }
 
+  console.log(selectedOptions)
   const changeSelection = (value, type) => {
     switch (type) {
       case 'time':
         set_selectedOptions({... selectedOptions, time: value})
         break;
-      case 'course':
-        set_selectedOptions({... selectedOptions, courses:  !selectedOptions.courses.includes(value)? [... new Set(selectedOptions.courses.concat(value))]: [... selectedOptions.courses.filter(item=> item !== value)]})
-        break;
-      case 'subject':
-        set_selectedOptions({... selectedOptions, subjects: !selectedOptions.subjects.includes(value)?  [... new Set(selectedOptions.subjects.concat(value))]: [... selectedOptions.subjects.filter(item=> item !== value)]})
       default:
-        break;
+        set_selectedOptions({... selectedOptions, courses:  !selectedOptions.courses.includes(value)? [... new Set(selectedOptions.courses.concat(value))]: [... selectedOptions.courses.filter(item=> item !== value)]})
+      break;
     }
   }
 
@@ -203,22 +194,20 @@ const CbtScreen = () => {
                   Select Course
                 </Heading>
               </View>
-              <>
-                {listOfCourses.map(({courseName}, index)=> {
-                  return (
-                    <TouchableHighlight key={index} onPress = {()=> changeSelection({courseName}, 'course')}>
-                      <View style={styles.options}>
-                        <CText style={styles.optionsText}>{courseName}</CText>
-                        <CheckBox
-                          value={selectedOptions.courses.includes({courseName})}
-                          onValueChange={()=> changeSelection({courseName}, 'course')}
-                          tintColors={{true: colors.appColor}}
-                        />
-                      </View>
-                    </TouchableHighlight>
-                  )
-                })}
-              </>
+              {listOfCourses.map((course, index)=> {
+                return (
+                  <TouchableHighlight key={index} onPress = {()=> changeSelection(course, 'course')}>
+                    <View style={styles.options}>
+                      <CText style={styles.optionsText}>{course}</CText>
+                      <CheckBox
+                        value={selectedOptions.courses.includes(course)}
+                        onValueChange={()=> changeSelection(course, 'course')}
+                        tintColors={{true: colors.appColor}}
+                      />
+                    </View>
+                  </TouchableHighlight>
+                )
+              })}
             </View>
 
             <View style={styles.optionsCartegory}>
