@@ -127,13 +127,11 @@ export const loadAllSavedCourses = () => {
 
 export const getOfflineCollections = (pathObj, dataToSearch) => {
     const collectionData = []
-    console.log('test2', pathObj)
     try {
         if (pathObj) {
             const path = Object.values(pathObj).filter(Boolean) /** remove falsey values */
             path.forEach((item) => {
                 dataToSearch = [... dataToSearch[item.index].data]
-                console.log('item', item)
             })
             dataToSearch.forEach((item, index)=> {
                 const [key] = Object.keys(item)
@@ -148,11 +146,6 @@ export const getOfflineCollections = (pathObj, dataToSearch) => {
 }
 
 export const getSectionsLocalQuestions = (pathObj, questionNumber, dataToSearch) => {
-    console.log('Test1',  dataToSearch[pathObj.year.index]
-    .data[pathObj.subject.index]
-    .data[pathObj.section.index]
-    .data[questionNumber.index]
-    .data, pathObj)
     try {
         const questionData = dataToSearch[pathObj.year.index]
         .data[pathObj.subject.index]

@@ -20,17 +20,17 @@ import { Ionicons } from '@expo/vector-icons';
 import AnswerComponent from '../Reusable/Answer.component';
 
 const PqScreen = () => {
+  /** below is th the form {
+    course: {value: string, index: number},
+    ...
+  } */
   const path = useRef({
+    course: null, 
     year: null,
     subject: null,
     section: null
   })
-  /** content is th the format {
-    course: {index: 0},
-    year: {index: 0},
-    subject:{index: 0},
-    section: {index: 0}
-  } */
+  
   const colors = useContext(ColorContext)
   const [selected, set_selected] = useState(null)
   const [data, set_data] = useState([])
@@ -115,9 +115,7 @@ const PqScreen = () => {
             const {course, ...pathToUse} = path.current
             const returnedData = getOfflineCollections(pathToUse, selectedCourseData.current)
             renderCollectionData(returnedData)
-            console.log('Test',path.current)
-            console.log('returnedData', returnedData, 'label', label)
-          break;
+            break;
         }
       }
     } else {
@@ -142,12 +140,15 @@ const PqScreen = () => {
           index--
         }
         path.current[keys[index]] = null
-        if (previousLabel === 'Year') {
+        if (label.current === 'Course') {
+          // do nothing
+        } else if (previousLabel === 'Year') {
           getListOfCourses() 
         } else {
           const collectionData = getOfflineCollections(path.current, selectedCourseData.current)
           renderCollectionData(collectionData)
         }
+        label.current === 'Questionnumber'?previous():null
         return true
       }
       return false
@@ -350,7 +351,6 @@ const PqScreen = () => {
               data={data}
               contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
               renderItem={({item}) => {
-                console.log('question To Render', item)
                 return (
                     <View style={styles.pqDataWrapper}>
                         <MathJax
