@@ -6,6 +6,7 @@ import {
   TouchableHighlight,
   Alert,
   BackHandler,
+  ToastAndroid,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import MathJax from 'react-native-mathjax';
@@ -18,8 +19,9 @@ import { CText, Heading } from '../Reusable/CustomText.component';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
 import AnswerComponent from '../Reusable/Answer.component';
+import NavigationContext from '../context/Nav.context';
 
-const PqScreen = () => {
+const PqScreen = ({navigation}) => {
   /** below is th the form {
     course: {value: string, index: number},
     ...
@@ -32,6 +34,7 @@ const PqScreen = () => {
   })
   
   const colors = useContext(ColorContext)
+  // const navigation = useContext(NavigationContext)
   const [selected, set_selected] = useState(null)
   const [data, set_data] = useState([])
   const [ansData, set_ansData] = useState('')
@@ -119,7 +122,7 @@ const PqScreen = () => {
         }
       }
     } else {
-      Alert.alert('', `You Have Not Selected Any ${label.current} Yet`)
+      ToastAndroid.show(`You Have Not Selected Any ${label.current} Yet`, ToastAndroid.LONG);
     } 
     set_selected(null)
   }
@@ -133,16 +136,16 @@ const PqScreen = () => {
       if (renderQuestionData.current) {
         renderQuestionData.current = false
       }
-      if (Object.keys(path.current).length > 0) {
+      console.log('test previous', Object.values(path.current).filter(Boolean))
+      if (Object.values(path.current).filter(Boolean).length > 0) {
         const keys = Object.keys(path.current)
         let index = keys.length - 1
         while (path.current[keys[index]] === null && index>0) { /** start with the last property if its null move to the next untill you reach the final property where the index is 0*/
           index--
         }
         path.current[keys[index]] = null
-        if (label.current === 'Course') {
-          // do nothing
-        } else if (previousLabel === 'Year') {
+        console.log('previous test', Object.values(path.current))
+        if (previousLabel === 'Year') {
           getListOfCourses() 
         } else {
           const collectionData = getOfflineCollections(path.current, selectedCourseData.current)
@@ -150,15 +153,23 @@ const PqScreen = () => {
         }
         label.current === 'Questionnumber'?previous():null
         return true
+      } else {
+        getListOfCourses()
       }
       return false
     }
   }
 
-  BackHandler.addEventListener('hardwareBackPress', () => {
-    previous()
-    return Object.keys(path.current).length>0
-  });
+  // BackHandler.addEventListener('hardwareBackPress', () => {
+  //   try {
+  //     // console.log('Test alpha', Object.values(path.current).filter(Boolean).length && navigation.isFocused())
+  //     return previous() && navigation.isFocused()
+  //   }
+  //   catch (err) {
+  //     ToastAndroid.show(err, ToastAndroid.LONG);
+  //     return true;
+  //   }
+  // });
 
   const showAns = (data) => {
     set_ansData(data)

@@ -27,6 +27,8 @@ const CbtScreen = () => {
     courses: [],
   })
 
+  BackHandler.removeEventListener('hardwareBackPress',()=>null)
+
   useEffect(() => {
     getListOfCourses()
   }, [])
@@ -43,7 +45,6 @@ const CbtScreen = () => {
     set_listOfCourses([... collectionData])
   }
 
-  console.log(selectedOptions)
   const changeSelection = (value, type) => {
     switch (type) {
       case 'time':
