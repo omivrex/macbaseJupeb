@@ -158,3 +158,32 @@ export const getSectionsLocalQuestions = (pathObj, questionNumber, dataToSearch)
     }
 
 }
+
+export const getAllQuestionsInCourse = (...courseNames) => {
+    return new Promise((resolve, reject) => {
+        let questions = []
+        courseNames.forEach(courseName => {
+            loadCourseData(courseName)
+            .then(years => {
+                years.forEach(year => {
+                    let subjects = year.data
+                    subjects.forEach(subject => {
+                        const sections = subject.data
+                        const [objData] = sections.filter(({section})=> section === 'Objective')
+                        const sectionQuestion = objData?.data
+                        questions = questions.concat(sectionQuestion)
+                    });
+                });
+                resolve(questions.filter(Boolean))
+            });
+        })
+    }).catch(err=>{
+        reject(err)
+        console.log('Error from getAllQuestionsInCourse', err)
+    })
+}
+
+export const shuffleAndCutQuestions = (questionsArray, lengthToCut) => {
+    const shuffledArray = questionsArray.sort(() => 0.5 - Math.random())
+    return shuffledArray.slice(0, lengthToCut)
+}

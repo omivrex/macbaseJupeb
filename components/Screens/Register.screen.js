@@ -28,7 +28,7 @@ import {
   validatePswd,
   updateLocalUserData 
 } from '../../utils/register.util';
-import { updateCourseDatas, getOnlineCollections } from '../../utils/pastquestions.utils';
+import { updateCourseData, getOnlineCollections } from '../../utils/pastquestions.utils';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);

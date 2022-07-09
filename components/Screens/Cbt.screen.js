@@ -11,7 +11,7 @@ import CheckBox from 'expo-checkbox';
 import MathJax from 'react-native-mathjax';
 import {useEffect, useRef, useContext, useState} from 'react';
 import Container from '../Reusable/Container.component';
-import { loadAllSavedCourses } from '../../utils/pastquestions.utils';
+import { getAllQuestionsInCourse, loadAllSavedCourses, shuffleAndCutQuestions } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
@@ -56,7 +56,11 @@ const CbtScreen = () => {
   }
 
   const start = () => {
-    
+    getAllQuestionsInCourse(...selectedOptions.courses)
+    .then(questions => {
+      const randomQuestions = shuffleAndCutQuestions([...questions], 50)
+      console.log('randomQuestions', randomQuestions)
+    }).catch(err=> console.log(err))
   }
 
   const styles = StyleSheet.create({
