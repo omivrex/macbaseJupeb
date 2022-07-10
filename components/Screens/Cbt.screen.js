@@ -19,7 +19,6 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
 import AnswerComponent from '../Reusable/Answer.component';
 
-let timerInterval = null
 const CbtScreen = () => {
   const colors = useContext(ColorContext)
   const [listOfCourses, set_listOfCourses] = useState([])
@@ -75,12 +74,14 @@ const CbtScreen = () => {
     set_questionData([... dataToDisplay])
   }
 
+  const timerInterval  = useRef(null)
   const givingTime = useRef(0)
   const currentTime = useRef(0)
   const runCountDown = () => {
     givingTime.current = selectedOptions.time
     currentTime.current = givingTime.current
-    timerInterval = setInterval(() => {
+    timerInterval.current = setInterval(() => {
+      console.log('called...')
       currentTime.current = currentTime.current<givingTime.current?
       (currentTime.current-1000):(givingTime.current-1000)
       set_selectedOptions({... selectedOptions})
@@ -88,9 +89,8 @@ const CbtScreen = () => {
   }
 
   const backFunc = () => {
-    console.log('called...')
     renderQuestions.current = false
-    clearInterval(timerInterval)
+    clearInterval(timerInterval.current)
     set_questionData([])
   }
 
