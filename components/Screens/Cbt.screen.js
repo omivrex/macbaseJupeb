@@ -75,16 +75,21 @@ const CbtScreen = () => {
     set_questionData([... dataToDisplay])
   }
 
+  const currentTime = useRef(0)
+  const givingTime = useRef(0)
   const runCountDown = () => {
+    givingTime.current = selectedOptions.time
     timerInterval = setInterval(() => {
-      set_selectedOptions({... selectedOptions, time: selectedOptions.time -1000})
-      displayQuestions()
+      currentTime.current = currentTime.current<givingTime.current?
+      (currentTime.current-1000):(givingTime.current-1000)
+      set_selectedOptions({... selectedOptions})
     }, 1000);
   }
 
   const backFunc = () => {
     console.log('called...')
     renderQuestions.current = false
+    clearInterval(timerInterval)
     set_questionData([])
   }
 
@@ -354,7 +359,7 @@ const CbtScreen = () => {
                 <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
               </TouchableHighlight>
               <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
-                {selectedOptions.time}
+                {currentTime.current}
               </Heading>
             </View>
             <FlatList
