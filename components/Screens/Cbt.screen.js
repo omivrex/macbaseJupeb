@@ -75,10 +75,11 @@ const CbtScreen = () => {
     set_questionData([... dataToDisplay])
   }
 
-  const currentTime = useRef(0)
   const givingTime = useRef(0)
+  const currentTime = useRef(0)
   const runCountDown = () => {
     givingTime.current = selectedOptions.time
+    currentTime.current = givingTime.current
     timerInterval = setInterval(() => {
       currentTime.current = currentTime.current<givingTime.current?
       (currentTime.current-1000):(givingTime.current-1000)
@@ -359,7 +360,7 @@ const CbtScreen = () => {
                 <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
               </TouchableHighlight>
               <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
-                {currentTime.current}
+                {currentTime.current/3600000|0}:{(currentTime.current/60000|0)%60}:{(currentTime.current/1000|0)%60}
               </Heading>
             </View>
             <FlatList
