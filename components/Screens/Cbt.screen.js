@@ -81,7 +81,6 @@ const CbtScreen = () => {
     givingTime.current = selectedOptions.time
     currentTime.current = givingTime.current
     timerInterval.current = setInterval(() => {
-      console.log('called...')
       currentTime.current = currentTime.current<givingTime.current?
       (currentTime.current-1000):(givingTime.current-1000)
       set_selectedOptions({... selectedOptions})
@@ -93,6 +92,11 @@ const CbtScreen = () => {
     clearInterval(timerInterval.current)
     set_questionData([])
   }
+
+  // const [optionsObj, setoptionsObj] = useState(second)
+  // const changeOptions = value => {
+    
+  // }
 
   const styles = StyleSheet.create({
     optionsWrapper: {
@@ -367,76 +371,79 @@ const CbtScreen = () => {
               data={questionData}
               contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
               renderItem={({item}) => {
-                return (
-                  <View style={styles.pqDataWrapper}>
-                    <MathJax
-                      html={
-                          `
-                              <head>
-                                  <meta name="viewport"  content="width=device-width, initial-scale=1.0 maximum-scale=1.0">
-                              </head>
-                              <body>
-                                  <style>
-                                      * {
-                                        -webkit-user-select: none;
-                                        -moz-user-select: none;
-                                        -ms-user-select: none;
-                                        user-select: none;
-                                        overflow-x: show;
-                                        max-width: '100%'
-                                      }
-                                  </style>
-                                  <div style="font-size: 1em; font-family: Roboto, sans-serif, san Francisco;">
-                                      ${item?.data?.data?item.data.data.question.replace('max-width: 180px;', 'max-width: 90vw;'):`<h2 style="color: #777; text-align: center">Something Went Wrong!</h2>`}
-                                  </div> 
-                              </body>
-                          
-                          `
-                      }
-                      mathJaxOptions={{
-                          messageStyle: "none",
-                          extensions: ["tex2jax.js"],
-                          jax: ["input/TeX", "output/HTML-CSS"],
-                          showMathMenu: false,
-                          tex2jax: {
-                              inlineMath: [
-                                  ["$", "$"],
-                                  ["\\(", "\\)"],
-                              ],
-                              displayMath: [
-                                  ["$$", "$$"],
-                                  ["\\[", "\\]"],
-                              ],
-                              processEscapes: true,
-                          },
-                          TeX: {
-                              extensions: [
-                                  "AMSmath.js",
-                                  "AMSsymbols.js",
-                                  "noErrors.js",
-                                  "noUndefined.js",
-                              ],
-                          },
-
-                      }}
-                      style={{width: '100%'}}
-                    />
-                    <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
-                      <TouchableHighlight underlayColor={colors.underlayColor} style={styles.questOptionsButn}>
-                          <Text style={styles.questOptionsText}>A</Text>
-                      </TouchableHighlight>
-                      <TouchableHighlight underlayColor={colors.underlayColor} style={styles.questOptionsButn}>
-                          <Text style={styles.questOptionsText}>B</Text>
-                      </TouchableHighlight>
-                      <TouchableHighlight underlayColor={colors.underlayColor} style={styles.questOptionsButn}>
-                          <Text style={styles.questOptionsText}>C</Text>
-                      </TouchableHighlight>
-                      <TouchableHighlight underlayColor={colors.underlayColor} style={styles.questOptionsButn}>
-                          <Text style={styles.questOptionsText}>D</Text>
-                      </TouchableHighlight>
+                const dataToRender = item?.data?.data
+                if (dataToRender) {
+                  return (
+                    <View style={styles.pqDataWrapper}>
+                      <MathJax
+                        html={
+                            `
+                                <head>
+                                    <meta name="viewport"  content="width=device-width, initial-scale=1.0 maximum-scale=1.0">
+                                </head>
+                                <body>
+                                    <style>
+                                        * {
+                                          -webkit-user-select: none;
+                                          -moz-user-select: none;
+                                          -ms-user-select: none;
+                                          user-select: none;
+                                          overflow-x: show;
+                                          max-width: '100%'
+                                        }
+                                    </style>
+                                    <div style="font-size: 1em; font-family: Roboto, sans-serif, san Francisco;">
+                                        ${dataToRender?dataToRender.question.replace('max-width: 180px;', 'max-width: 90vw;'):`<h2 style="color: #777; text-align: center">Something Went Wrong!</h2>`}
+                                    </div> 
+                                </body>
+                            
+                            `
+                        }
+                        mathJaxOptions={{
+                            messageStyle: "none",
+                            extensions: ["tex2jax.js"],
+                            jax: ["input/TeX", "output/HTML-CSS"],
+                            showMathMenu: false,
+                            tex2jax: {
+                                inlineMath: [
+                                    ["$", "$"],
+                                    ["\\(", "\\)"],
+                                ],
+                                displayMath: [
+                                    ["$$", "$$"],
+                                    ["\\[", "\\]"],
+                                ],
+                                processEscapes: true,
+                            },
+                            TeX: {
+                                extensions: [
+                                    "AMSmath.js",
+                                    "AMSsymbols.js",
+                                    "noErrors.js",
+                                    "noUndefined.js",
+                                ],
+                            },
+  
+                        }}
+                        style={{width: '100%'}}
+                      />
+                      <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
+                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'A'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>A</Text>
+                        </TouchableHighlight>
+                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'B'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>B</Text>
+                        </TouchableHighlight>
+                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'C'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>C</Text>
+                        </TouchableHighlight>
+                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'D'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>D</Text>
+                        </TouchableHighlight>
+                      </View>
                     </View>
-                  </View>
-                )
+                  )
+                } else (<></>)
               }}
               keyExtractor = {(item,index) => index.toString()}
             />
