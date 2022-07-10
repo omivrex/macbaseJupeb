@@ -159,27 +159,27 @@ export const getSectionsLocalQuestions = (pathObj, questionNumber, dataToSearch)
 
 }
 
-export const getAllQuestionsInCourse = (...courseNames) => {
+export const getAllQuestionsInCourse = (course) => {
+    let questions = []
     return new Promise((resolve, reject) => {
-        let questions = []
-        courseNames.forEach(courseName => {
-            loadCourseData(courseName)
-            .then(years => {
-                years.forEach(year => {
-                    let subjects = year.data
-                    subjects.forEach(subject => {
-                        const sections = subject.data
-                        const [objData] = sections.filter(({section})=> section === 'Objective')
-                        const sectionQuestion = objData?.data
-                        questions = questions.concat(sectionQuestion)
-                    });
+        loadCourseData(course)
+        .then(years => {
+            years.forEach(year => {
+                let subjects = year.data
+                subjects.forEach(subject => {
+                    const sections = subject.data
+                    const [objData] = sections.filter(({section})=> section === 'Objective')
+                    const sectionQuestion = objData?.data
+                    questions = questions.concat(sectionQuestion)
                 });
-                resolve(questions.filter(Boolean))
             });
-        })
-    }).catch(err=>{
-        reject(err)
-        console.log('Error from getAllQuestionsInCourse', err)
+        }).then(() => {
+            questions.length && resolve(questions.filter(Boolean))
+            console.log('questions',questions)
+        }).catch(err=>{
+            reject(err)
+            console.log('Error from getAllQuestionsInCourse', err)
+        });
     })
 }
 
