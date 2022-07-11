@@ -20,6 +20,7 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
 import AnswerComponent from '../Reusable/Answer.component';
 import NavigationContext from '../context/Nav.context';
+import QuestionComponent from '../Reusable/Question.component';
 
 const PqScreen = ({navigation}) => {
   /** below is th the form {
@@ -362,62 +363,10 @@ const PqScreen = ({navigation}) => {
               data={data}
               contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
               renderItem={({item}) => {
+                const {data} = item
                 return (
-                    <View style={styles.pqDataWrapper}>
-                        <MathJax
-                            html={
-                                `
-                                    <head>
-                                        <meta name="viewport"  content="width=device-width, initial-scale=1.0 maximum-scale=1.0">
-                                    </head>
-                                    <body>
-                                        <style>
-                                            * {
-                                              -webkit-user-select: none;
-                                              -moz-user-select: none;
-                                              -ms-user-select: none;
-                                              user-select: none;
-                                              overflow-x: show;
-                                              max-width: '100%'
-                                            }
-                                        </style>
-                                        <div style="font-size: 1em; font-family: Roboto, sans-serif, san Francisco;">
-                                            ${item?.data?item.data.question.replace('max-width: 180px;', 'max-width: 90vw;'):'<h2 style="color: red;">Network Error!</h2>'}
-                                        </div> 
-                                    </body>
-                                
-                                `
-                            }
-                            mathJaxOptions={{
-                                messageStyle: "none",
-                                extensions: ["tex2jax.js"],
-                                jax: ["input/TeX", "output/HTML-CSS"],
-                                showMathMenu: false,
-                                tex2jax: {
-                                    inlineMath: [
-                                        ["$", "$"],
-                                        ["\\(", "\\)"],
-                                    ],
-                                    displayMath: [
-                                        ["$$", "$$"],
-                                        ["\\[", "\\]"],
-                                    ],
-                                    processEscapes: true,
-                                },
-                                TeX: {
-                                    extensions: [
-                                        "AMSmath.js",
-                                        "AMSsymbols.js",
-                                        "noErrors.js",
-                                        "noUndefined.js",
-                                    ],
-                                },
-  
-                            }}
-                            style={{width: '100%'}}
-                        
-                        />
-                        <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
+                  <QuestionComponent dataToRender={data}>
+                    <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
                             item?.data?.correctOption?
                                 Alert.alert(`Answer: ${item?.data? item.data.correctOption:''}`, '', [
                                   {
@@ -434,7 +383,7 @@ const PqScreen = ({navigation}) => {
                         }}>
                             <Text style = {styles.ansButnText}>ANSWER</Text>
                         </TouchableHighlight>
-                    </View>
+                  </QuestionComponent>
                 )
               }}
               keyExtractor = {(item,index) => index.toString()}

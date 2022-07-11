@@ -18,6 +18,7 @@ import { CText, Heading } from '../Reusable/CustomText.component';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
 import AnswerComponent from '../Reusable/Answer.component';
+import QuestionComponent from '../Reusable/Question.component';
 
 const CbtScreen = () => {
   const colors = useContext(ColorContext)
@@ -26,7 +27,8 @@ const CbtScreen = () => {
     time: null,
     courses: [],
   })
-  const renderQuestions = useRef(false)
+  const shouldRenderQuestions = useRef(false)
+  const shouldRenderResult = useRef(false)
   const [questionData, set_questionData] = useState([])
 
   useEffect(() => {
@@ -70,7 +72,7 @@ const CbtScreen = () => {
   }
 
   const displayQuestions = (dataToDisplay = questionData) => {
-    renderQuestions.current = true
+    shouldRenderQuestions.current = true
     set_questionData([... dataToDisplay])
   }
 
@@ -81,22 +83,49 @@ const CbtScreen = () => {
     givingTime.current = selectedOptions.time
     currentTime.current = givingTime.current
     timerInterval.current = setInterval(() => {
-      currentTime.current = currentTime.current<givingTime.current?
-      (currentTime.current-1000):(givingTime.current-1000)
-      set_selectedOptions({... selectedOptions})
+      if (currentTime.current === 0) {
+        submit()
+      } else {
+        currentTime.current = currentTime.current<givingTime.current?
+        (currentTime.current-1000):(givingTime.current-1000)
+        set_selectedOptions({... selectedOptions})
+      }
     }, 1000);
   }
 
   const backFunc = () => {
-    renderQuestions.current = false
+    shouldRenderQuestions.current = false
     clearInterval(timerInterval.current)
     set_questionData([])
   }
 
-  // const [optionsObj, setoptionsObj] = useState(second)
-  // const changeOptions = value => {
-    
-  // }
+  const submit = () => {
+    backFunc()
+    renderResult(markTest())
+  }
+
+  const markTest = () => {
+    let score = 0
+    let noOfQuestionsAttempted = 0
+    questionData.forEach((question) => {
+      if (question.data) {
+        const {data} = question.data
+        if (data.correctOption === data.userAns || data.correctOption === '' && data.userAns != '') { // if user got the answer or if there is no correct option but th user attempted the question
+          score++
+        }
+        
+        if (data.userAns) {
+          noOfQuestionsAttempted++
+        }
+      }
+    });
+    return {score, noOfQuestionsAttempted}
+  }
+
+  const renderResult = ({score, noOfQuestionsAttempted}) => {
+    Alert.alert('', `You Scored ${score} and Attempted ${noOfQuestionsAttempted}`)
+    shouldRenderResult.current = true
+  }
 
   const styles = StyleSheet.create({
     optionsWrapper: {
@@ -260,195 +289,168 @@ const CbtScreen = () => {
       fontSize: hp('2.5%'),
       textAlign: 'center'
     },
+
+    submitButn: {
+      position: 'absolute',
+      width: '40%',
+      height: '10%',
+      top: '90%',
+      alignSelf: 'center',
+      flexDirection: 'column',
+      backgroundColor: colors.appColor,
+      justifyContent: 'center',
+    },
+    
+    submitButnText: {
+      color: colors.defaultText,
+      width: '100%',
+      fontSize: hp('3.3%'),
+      textAlign: 'center',
+    },
   })
 
-  
   return (
     <Container>
-      {!renderQuestions.current?
-        (
-          <View style={styles.optionsWrapper}>
-            <View style={styles.optionsCont}>
-              <ScrollView style={styles.optionsScroll}>
-
-                <View style={styles.optionsCartegory}>
-                  <View style={styles.headingWrapper}>
-                    <Heading extraStyles={styles.heading}>
-                      Select Course
-                    </Heading>
-                  </View>
-                  {listOfCourses.map((course, index)=> {
-                    return (
-                      <TouchableHighlight key={index} onPress = {()=> changeSelection(course, 'course')}>
+      {(()=> {
+        switch (true) {
+          case (shouldRenderQuestions.current):
+            return (
+              <View style={{width: '100%'}}>
+                <View style={{...styles.headingWrapper, ...{width: '100%'}}}>
+                  <TouchableHighlight onPress={backFunc}>
+                    <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+                  </TouchableHighlight>
+                  <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
+                    {currentTime.current/3600000|0}:{(currentTime.current/60000|0)%60}:{(currentTime.current/1000|0)%60}
+                  </Heading>
+                </View>
+                <FlatList
+                  data={questionData}
+                  contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
+                  renderItem={({item}) => {
+                    const dataToRender = item?.data?.data
+                    if (dataToRender) {
+                      return (
+                        <QuestionComponent dataToRender={dataToRender}>
+                          <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
+                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'A'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>A</Text>
+                            </TouchableHighlight>
+                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'B'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>B</Text>
+                            </TouchableHighlight>
+                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'C'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>C</Text>
+                            </TouchableHighlight>
+                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'D'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>D</Text>
+                            </TouchableHighlight>
+                          </View>
+                        </QuestionComponent>
+                      )
+                    } else (<></>)
+                  }}
+                  keyExtractor = {(item,index) => index.toString()}
+                />
+                <TouchableHighlight style={styles.submitButn} underlayColor='rgba(52, 52, 52, 0)' onPress={submit}>
+                  <Text style={styles.submitButnText}>Submit</Text>
+                </TouchableHighlight>
+              </View>
+            )
+          default:
+          return  (
+              <View style={styles.optionsWrapper}>
+                <View style={styles.optionsCont}>
+                  <ScrollView style={styles.optionsScroll}>
+    
+                    <View style={styles.optionsCartegory}>
+                      <View style={styles.headingWrapper}>
+                        <Heading extraStyles={styles.heading}>
+                          Select Course
+                        </Heading>
+                      </View>
+                      {listOfCourses.map((course, index)=> {
+                        return (
+                          <TouchableHighlight key={index} onPress = {()=> changeSelection(course, 'course')}>
+                            <View style={styles.options}>
+                              <CText style={styles.optionsText}>{course}</CText>
+                              <CheckBox
+                                value={selectedOptions.courses.includes(course)}
+                                onValueChange={()=> changeSelection(course, 'course')}
+                                tintColors={{true: colors.appColor}}
+                              />
+                            </View>
+                          </TouchableHighlight>
+                        )
+                      })}
+                    </View>
+    
+                    <View style={styles.optionsCartegory}>
+                      <View style={styles.headingWrapper}>
+                        <Heading extraStyles={styles.heading}>
+                          Select Time
+                        </Heading>
+                      </View>
+                      <TouchableHighlight onPress = {()=> changeSelection(1000*60*15, 'time')}>
                         <View style={styles.options}>
-                          <CText style={styles.optionsText}>{course}</CText>
+                          <CText style={styles.optionsText}>15mins</CText>
                           <CheckBox
-                            value={selectedOptions.courses.includes(course)}
-                            onValueChange={()=> changeSelection(course, 'course')}
+                            value={selectedOptions.time === 1000*60*15}
+                            onValueChange={()=> changeSelection(1000*60*15, 'time')}
                             tintColors={{true: colors.appColor}}
                           />
                         </View>
                       </TouchableHighlight>
-                    )
-                  })}
-                </View>
-
-                <View style={styles.optionsCartegory}>
-                  <View style={styles.headingWrapper}>
-                    <Heading extraStyles={styles.heading}>
-                      Select Time
-                    </Heading>
+                      <TouchableHighlight onPress = {()=> changeSelection(1000*60*30, 'time')}>
+                        <View style={styles.options}>
+                          <CText style={styles.optionsText}>30mins</CText>
+                          <CheckBox
+                            value={selectedOptions.time === 1000*60*30}
+                            onValueChange={()=> changeSelection(1000*60*30, 'time')}
+                            tintColors={{true: colors.appColor}}
+                          />
+                        </View>
+                      </TouchableHighlight>
+                      <TouchableHighlight onPress = {()=> changeSelection(1000*60*60, 'time')}>
+                        <View style={styles.options}>
+                          <CText style={styles.optionsText}>1hr</CText>
+                          <CheckBox
+                            value={selectedOptions.time === 1000*60*60}
+                            onValueChange={()=> changeSelection(1000*60*60, 'time')}
+                            tintColors={{true: colors.appColor}}
+                          />
+                        </View>
+                      </TouchableHighlight>
+                      <TouchableHighlight onPress = {()=> changeSelection(1000*60*90, 'time')}>
+                        <View style={styles.options}>
+                          <CText style={styles.optionsText}>1hr 30mins</CText>
+                          <CheckBox
+                            value={selectedOptions.time === 1000*60*90}
+                            onValueChange={()=> changeSelection(1000*60*90, 'time')}
+                            tintColors={{true: colors.appColor}}
+                          />
+                        </View>
+                      </TouchableHighlight><TouchableHighlight onPress = {()=> changeSelection(1000*60*60*2, 'time')}>
+                        <View style={styles.options}>
+                          <CText style={styles.optionsText}>2hrs</CText>
+                          <CheckBox
+                            value={selectedOptions.time === 1000*60*60*2}
+                            onValueChange={()=> changeSelection(1000*60*60*2, 'time')}
+                            tintColors={{true: colors.appColor}}
+                          />
+                        </View>
+                      </TouchableHighlight>
+                    </View>
+                  </ScrollView>
+                  <View style={styles.startButnWrapper}>
+                    <TouchableHighlight style={styles.startButnText} onPress={start} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Start</Text></TouchableHighlight>
                   </View>
-                  <TouchableHighlight onPress = {()=> changeSelection(1000*60*15, 'time')}>
-                    <View style={styles.options}>
-                      <CText style={styles.optionsText}>15mins</CText>
-                      <CheckBox
-                        value={selectedOptions.time === 1000*60*15}
-                        onValueChange={()=> changeSelection(1000*60*15, 'time')}
-                        tintColors={{true: colors.appColor}}
-                      />
-                    </View>
-                  </TouchableHighlight>
-                  <TouchableHighlight onPress = {()=> changeSelection(1000*60*30, 'time')}>
-                    <View style={styles.options}>
-                      <CText style={styles.optionsText}>30mins</CText>
-                      <CheckBox
-                        value={selectedOptions.time === 1000*60*30}
-                        onValueChange={()=> changeSelection(1000*60*30, 'time')}
-                        tintColors={{true: colors.appColor}}
-                      />
-                    </View>
-                  </TouchableHighlight>
-                  <TouchableHighlight onPress = {()=> changeSelection(1000*60*60, 'time')}>
-                    <View style={styles.options}>
-                      <CText style={styles.optionsText}>1hr</CText>
-                      <CheckBox
-                        value={selectedOptions.time === 1000*60*60}
-                        onValueChange={()=> changeSelection(1000*60*60, 'time')}
-                        tintColors={{true: colors.appColor}}
-                      />
-                    </View>
-                  </TouchableHighlight>
-                  <TouchableHighlight onPress = {()=> changeSelection(1000*60*90, 'time')}>
-                    <View style={styles.options}>
-                      <CText style={styles.optionsText}>1hr 30mins</CText>
-                      <CheckBox
-                        value={selectedOptions.time === 1000*60*90}
-                        onValueChange={()=> changeSelection(1000*60*90, 'time')}
-                        tintColors={{true: colors.appColor}}
-                      />
-                    </View>
-                  </TouchableHighlight><TouchableHighlight onPress = {()=> changeSelection(1000*60*60*2, 'time')}>
-                    <View style={styles.options}>
-                      <CText style={styles.optionsText}>2hrs</CText>
-                      <CheckBox
-                        value={selectedOptions.time === 1000*60*60*2}
-                        onValueChange={()=> changeSelection(1000*60*60*2, 'time')}
-                        tintColors={{true: colors.appColor}}
-                      />
-                    </View>
-                  </TouchableHighlight>
                 </View>
-              </ScrollView>
-              <View style={styles.startButnWrapper}>
-                <TouchableHighlight style={styles.startButnText} onPress={start} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Start</Text></TouchableHighlight>
               </View>
-            </View>
-          </View>
-
-        )
-        :(
-          <View style={{width: '100%'}}>
-            <View style={{...styles.headingWrapper, ...{width: '100%'}}}>
-              <TouchableHighlight onPress={backFunc}>
-                <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-              </TouchableHighlight>
-              <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
-                {currentTime.current/3600000|0}:{(currentTime.current/60000|0)%60}:{(currentTime.current/1000|0)%60}
-              </Heading>
-            </View>
-            <FlatList
-              data={questionData}
-              contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
-              renderItem={({item}) => {
-                const dataToRender = item?.data?.data
-                if (dataToRender) {
-                  return (
-                    <View style={styles.pqDataWrapper}>
-                      <MathJax
-                        html={
-                            `
-                                <head>
-                                    <meta name="viewport"  content="width=device-width, initial-scale=1.0 maximum-scale=1.0">
-                                </head>
-                                <body>
-                                    <style>
-                                        * {
-                                          -webkit-user-select: none;
-                                          -moz-user-select: none;
-                                          -ms-user-select: none;
-                                          user-select: none;
-                                          overflow-x: show;
-                                          max-width: '100%'
-                                        }
-                                    </style>
-                                    <div style="font-size: 1em; font-family: Roboto, sans-serif, san Francisco;">
-                                        ${dataToRender?dataToRender.question.replace('max-width: 180px;', 'max-width: 90vw;'):`<h2 style="color: #777; text-align: center">Something Went Wrong!</h2>`}
-                                    </div> 
-                                </body>
-                            
-                            `
-                        }
-                        mathJaxOptions={{
-                            messageStyle: "none",
-                            extensions: ["tex2jax.js"],
-                            jax: ["input/TeX", "output/HTML-CSS"],
-                            showMathMenu: false,
-                            tex2jax: {
-                                inlineMath: [
-                                    ["$", "$"],
-                                    ["\\(", "\\)"],
-                                ],
-                                displayMath: [
-                                    ["$$", "$$"],
-                                    ["\\[", "\\]"],
-                                ],
-                                processEscapes: true,
-                            },
-                            TeX: {
-                                extensions: [
-                                    "AMSmath.js",
-                                    "AMSsymbols.js",
-                                    "noErrors.js",
-                                    "noUndefined.js",
-                                ],
-                            },
-  
-                        }}
-                        style={{width: '100%'}}
-                      />
-                      <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
-                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'A'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                            <Text style={styles.questOptionsText}>A</Text>
-                        </TouchableHighlight>
-                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'B'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                            <Text style={styles.questOptionsText}>B</Text>
-                        </TouchableHighlight>
-                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'C'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                            <Text style={styles.questOptionsText}>C</Text>
-                        </TouchableHighlight>
-                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'D'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                            <Text style={styles.questOptionsText}>D</Text>
-                        </TouchableHighlight>
-                      </View>
-                    </View>
-                  )
-                } else (<></>)
-              }}
-              keyExtractor = {(item,index) => index.toString()}
-            />
-          </View>
-        )
+    
+            )
+          }
+        })()
       }
     </Container>
   )
