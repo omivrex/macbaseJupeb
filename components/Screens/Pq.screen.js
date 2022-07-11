@@ -367,22 +367,22 @@ const PqScreen = ({navigation}) => {
                 return (
                   <QuestionComponent dataToRender={data}>
                     <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
-                            item?.data?.correctOption?
-                                Alert.alert(`Answer: ${item?.data? item.data.correctOption:''}`, '', [
-                                  {
-                                    text: 'Solution',
-                                    onPress: ()=> showAns(item?.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'')
-                                  },
+                      item?.data?.correctOption?
+                          Alert.alert(`Answer: ${item?.data? item.data.correctOption:''}`, '', [
+                            {
+                              text: 'Solution',
+                              onPress: ()=> showAns(item?.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'')
+                            },
 
-                                  {
-                                    text: 'Cancel',
-                                    onPress: () => ''
-                                  }
-                                ], {cancelable: true})
-                            : showAns(item?.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'no answwer')
-                        }}>
-                            <Text style = {styles.ansButnText}>ANSWER</Text>
-                        </TouchableHighlight>
+                            {
+                              text: 'Cancel',
+                              onPress: () => ''
+                            }
+                          ], {cancelable: true})
+                      : showAns(item?.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'no answwer')
+                    }}>
+                      <Text style = {styles.ansButnText}>ANSWER</Text>
+                    </TouchableHighlight>
                   </QuestionComponent>
                 )
               }}

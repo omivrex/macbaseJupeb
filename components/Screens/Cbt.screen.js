@@ -66,7 +66,6 @@ const CbtScreen = () => {
       questions = [... questions, ...(await getAllQuestionsInCourse(course))]
     }
     const randomQuestions = shuffleAndCutQuestions([...questions.filter(Boolean)], 50)
-    console.log('randomQuestions', randomQuestions)
     displayQuestions(randomQuestions)
     runCountDown()
   }
@@ -94,37 +93,49 @@ const CbtScreen = () => {
   }
 
   const backFunc = () => {
-    shouldRenderQuestions.current = false
-    clearInterval(timerInterval.current)
-    set_questionData([])
+    if (ansData !== '') {
+      set_ansData('')
+    } else {
+      shouldRenderQuestions.current = false
+      shouldRenderResult.current = false
+      clearInterval(timerInterval.current)
+      score.current = 0
+      noOfQuestionsAttempted.current = 0
+      set_questionData([... questionData])
+    }
   }
 
   const submit = () => {
     backFunc()
-    renderResult(markTest())
+    markTest()
+    renderResult()
   }
 
+  const score = useRef(0)
+  const noOfQuestionsAttempted = useRef(0)
   const markTest = () => {
-    let score = 0
-    let noOfQuestionsAttempted = 0
     questionData.forEach((question) => {
       if (question.data) {
         const {data} = question.data
         if (data.correctOption === data.userAns || data.correctOption === '' && data.userAns != '') { // if user got the answer or if there is no correct option but th user attempted the question
-          score++
+          score.current++
         }
         
         if (data.userAns) {
-          noOfQuestionsAttempted++
+          noOfQuestionsAttempted.current++
         }
       }
     });
-    return {score, noOfQuestionsAttempted}
   }
 
-  const renderResult = ({score, noOfQuestionsAttempted}) => {
-    Alert.alert('', `You Scored ${score} and Attempted ${noOfQuestionsAttempted}`)
+  const renderResult = () => {
+    Alert.alert('', `You Scored ${score.current} and Attempted ${noOfQuestionsAttempted.current}`)
     shouldRenderResult.current = true
+  }
+
+  const [ansData, set_ansData] = useState('')
+  const showAns = (data) => {
+    set_ansData(data)
   }
 
   const styles = StyleSheet.create({
@@ -313,6 +324,65 @@ const CbtScreen = () => {
     <Container>
       {(()=> {
         switch (true) {
+          case (shouldRenderResult.current):
+            return (
+              <View style={{width: '100%'}}>
+                <View style={{...styles.headingWrapper, ...{width: '100%'}}}>
+                  <TouchableHighlight onPress={backFunc}>
+                    <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+                  </TouchableHighlight>
+                  <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
+                    {`You Scored ${score.current} and Attempted ${noOfQuestionsAttempted.current}`}
+                  </Heading>
+                </View>
+                <FlatList
+                  data={questionData}
+                  contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
+                  renderItem={({item}) => {
+                    const dataToRender = item?.data?.data
+                    if (dataToRender) {
+                      // console.log('dataToRender', dataToRender.userAns, dataToRender.correctOption)
+                      return (
+                        <QuestionComponent dataToRender={dataToRender}>
+                          <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
+                            dataToRender.correctOption?
+                                Alert.alert(`Answer: ${dataToRender? dataToRender.correctOption:''}`, '', [
+                                  {
+                                    text: 'Solution',
+                                    onPress: ()=> showAns(dataToRender? {answer: dataToRender.answer, correctAnswer: dataToRender.correctOption}:'')
+                                  },
+
+                                  {
+                                    text: 'Cancel',
+                                    onPress: () => ''
+                                  }
+                                ], {cancelable: true})
+                            : showAns(dataToRender? {answer: dataToRender.answer, correctAnswer: dataToRender.correctOption}:'no answwer')
+                          }}>
+                            <Text style = {styles.ansButnText}>ANSWER</Text>
+                          </TouchableHighlight>
+                          <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
+                            <View style={[styles.questOptionsButn, dataToRender.userAns === 'A'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>A</Text>
+                            </View>
+                            <View style={[styles.questOptionsButn, dataToRender.userAns === 'B'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>B</Text>
+                            </View>
+                            <View style={[styles.questOptionsButn, dataToRender.userAns === 'C'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>C</Text>
+                            </View>
+                            <View style={[styles.questOptionsButn, dataToRender.userAns === 'D'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>D</Text>
+                            </View>
+                          </View>
+                        </QuestionComponent>
+                      )
+                    } else (<></>)
+                  }}
+                  keyExtractor = {(item,index) => index.toString()}
+                />
+              </View>
+            )
           case (shouldRenderQuestions.current):
             return (
               <View style={{width: '100%'}}>
@@ -452,6 +522,7 @@ const CbtScreen = () => {
           }
         })()
       }
+      <AnswerComponent extraStyles={{display:ansData !== ''?'flex':'none'}} data={ansData} />
     </Container>
   )
 }
