@@ -341,7 +341,6 @@ const CbtScreen = () => {
                   renderItem={({item}) => {
                     const dataToRender = item?.data?.data
                     if (dataToRender) {
-                      // console.log('dataToRender', dataToRender.userAns, dataToRender.correctOption)
                       return (
                         <QuestionComponent dataToRender={dataToRender}>
                           <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {

@@ -94,7 +94,7 @@ export default function ({data, extraStyles}) {
                                     margin: auto;
                                     min-height: 50rem;
                                 ">
-                                    ${data&&data.answer?data.answer.replace('max-width: 180px;', 'max-width: 90vw;'):'<h2 style="color: red;">Network Error!</h2>'}
+                                    ${data&&data.answer?data.answer.replace('max-width: 180px;', 'max-width: 90vw;'):`<h2 style="color: #777; text-align: center">Something Went Wrong!</h2>`}
                                 </div>
                                 <div style="height: 50%"></div>
                             </body>
