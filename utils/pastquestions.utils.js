@@ -36,7 +36,6 @@ export const updateCourseData = (courseName) => {
 const getSubCollections = (path, parentObj) => {
     getOnlineCollections(path).then((data) =>{
         parentObj.data = [...data]
-        // console.log('parentObj', parentObj)
         parentObj.data.forEach(item => {
             let [label] = Object.values(item)
             let [key] = Object.keys(item)
@@ -49,7 +48,6 @@ const getSubCollections = (path, parentObj) => {
 }
 
 const getQuestionData = (questionObj, path) => {
-    console.log('questionObj', questionObj)
     getOnlineCollections(path, true).then(([questionData]) => {
         questionObj.data = questionData
         const courseName = path.split('/')[1]
@@ -197,15 +195,23 @@ const testResulStorage = new Storage({
     }
 })
 
+// testResulStorage.remove({
+//     key: 'test-data',
+//     id: 'physics'
+// });
+
 export const loadResultData = courseName => {
     return new Promise((resolve, reject) => {
         testResulStorage.load({
-          key: 'test-result',
-          id: courseName,
-          syncInBackground: true,
+            key: 'test-result',
+            id: courseName,
+            syncInBackground: true,
         }).then(returnedData=> {
             resolve(returnedData)
-        }).catch(err=> reject(err))
+        }).catch(err=> {
+            console.log(err)
+            reject(err)
+        })
     })
 }
 
@@ -216,7 +222,7 @@ export const storeTestResult = ({courseName, ...remainingData}) => {
             testResulStorage.save({
                 id: courseName,
                 key: 'test-result',
-                data: testData?testData.concat({time: new Date().getTime(),...remainingData}):[remainingData],
+                data: testData?testData.concat({time: new Date().getTime(), courseName, ...remainingData}):[remainingData],
             })
         }).finally(resolve).catch(reject)
     })
