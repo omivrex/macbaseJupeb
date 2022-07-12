@@ -8,10 +8,9 @@ import {
   BackHandler,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
-import MathJax from 'react-native-mathjax';
 import {useEffect, useRef, useContext, useState} from 'react';
 import Container from '../Reusable/Container.component';
-import { getAllQuestionsInCourse, loadAllSavedCourses, shuffleAndCutQuestions } from '../../utils/pastquestions.utils';
+import { getAllQuestionsInCourse, loadAllSavedCourses, shuffleAndCutQuestions, storeTestResult } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
@@ -25,7 +24,7 @@ const CbtScreen = () => {
   const [listOfCourses, set_listOfCourses] = useState([])
   const [selectedOptions, set_selectedOptions] = useState({
     time: null,
-    courses: [],
+    course: null,
   })
   const shouldRenderQuestions = useRef(false)
   const shouldRenderResult = useRef(false)
@@ -53,18 +52,15 @@ const CbtScreen = () => {
         set_selectedOptions({... selectedOptions, time: value})
         break;
       default:
-        set_selectedOptions({... selectedOptions, courses:  !selectedOptions.courses.includes(value)? [... new Set(selectedOptions.courses.concat(value))]: [... selectedOptions.courses.filter(item=> item !== value)]})
+        set_selectedOptions({... selectedOptions, course: value})
       break;
     }
   }
 
   const start = async () => {
-    const {courses} = selectedOptions
+    const {course} = selectedOptions
     let questions = []
-    for (let index = 0; index < courses.length; index++) {
-      const course = courses[index];
-      questions = [... questions, ...(await getAllQuestionsInCourse(course))]
-    }
+    questions = [... await getAllQuestionsInCourse(course)]
     const randomQuestions = shuffleAndCutQuestions([...questions.filter(Boolean)], 50)
     displayQuestions(randomQuestions)
     runCountDown()
@@ -109,6 +105,7 @@ const CbtScreen = () => {
     backFunc()
     markTest()
     renderResult()
+    storeTestResult({courseName: selectedOptions.course, noOfQuestionsAttempted, score})
   }
 
   const score = useRef(0)
@@ -443,7 +440,7 @@ const CbtScreen = () => {
                             <View style={styles.options}>
                               <CText style={styles.optionsText}>{course}</CText>
                               <CheckBox
-                                value={selectedOptions.courses.includes(course)}
+                                value={selectedOptions.course  === course}
                                 onValueChange={()=> changeSelection(course, 'course')}
                                 tintColors={{true: colors.appColor}}
                               />

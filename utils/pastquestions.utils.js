@@ -14,18 +14,6 @@ const courseStorage = new Storage({
     }
 })
 
-const testResulStorage = new Storage({
-    storageBackend: AsyncStorage, // for web: window.localStorage
-    defaultExpires: null,
-    enableCache: false,
-    sync: {
-        update() {
-            return null // do not sync
-        }
-    }
-})
-
-
 let courseData = []
 export const updateCourseData = (courseName) => {
     return new Promise((resolve, reject) => { 
@@ -71,7 +59,6 @@ const getQuestionData = (questionObj, path) => {
 }
 
 const saveCourseData = (courseName) => {
-    console.log('called...')
     courseStorage.save({
         id: courseName,
         key: 'course-data',
@@ -197,4 +184,40 @@ export const getAllQuestionsInCourse = (course) => {
 export const shuffleAndCutQuestions = (questionsArray, lengthToCut) => {
     const shuffledArray = questionsArray.sort(() => 0.5 - Math.random())
     return shuffledArray.slice(0, lengthToCut)
+}
+
+const testResulStorage = new Storage({
+    storageBackend: AsyncStorage, // for web: window.localStorage
+    defaultExpires: null,
+    enableCache: false,
+    sync: {
+        update() {
+            return null // do not sync
+        }
+    }
+})
+
+export const loadResultData = courseName => {
+    return new Promise((resolve, reject) => {
+        testResulStorage.load({
+          key: 'test-result',
+          id: courseName,
+          syncInBackground: true,
+        }).then(returnedData=> {
+            resolve(returnedData)
+        }).catch(err=> reject(err))
+    })
+}
+
+
+export const storeTestResult = ({courseName, ...remainingData}) => {
+    return new Promise((resolve, reject) => {
+        loadResultData(courseName).then(testData => {
+            testResulStorage.save({
+                id: courseName,
+                key: 'test-result',
+                data: testData?testData.concat({time: new Date().getTime(),...remainingData}):[remainingData],
+            })
+        }).finally(resolve).catch(reject)
+    })
 }
