@@ -14,6 +14,17 @@ const courseStorage = new Storage({
     }
 })
 
+const testResulStorage = new Storage({
+    storageBackend: AsyncStorage, // for web: window.localStorage
+    defaultExpires: null,
+    enableCache: false,
+    sync: {
+        update() {
+            return null // do not sync
+        }
+    }
+})
+
 
 let courseData = []
 export const updateCourseData = (courseName) => {

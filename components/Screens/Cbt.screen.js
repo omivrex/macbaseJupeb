@@ -129,7 +129,6 @@ const CbtScreen = () => {
   }
 
   const renderResult = () => {
-    Alert.alert('', `You Scored ${score.current} and Attempted ${noOfQuestionsAttempted.current}`)
     shouldRenderResult.current = true
   }
 
