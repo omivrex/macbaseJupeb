@@ -6,11 +6,12 @@ import {
   TouchableHighlight,
   Alert,
   BackHandler,
+  ToastAndroid,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import {useEffect, useRef, useContext, useState} from 'react';
 import Container from '../Reusable/Container.component';
-import { getAllQuestionsInCourse, loadAllSavedCourses, loadAllTestData, shuffleAndCutQuestions, storeTestResult } from '../../utils/pastquestions.utils';
+import { getAllQuestionsInCourse, loadAllSavedCourses, loadAllTestData, resetTestData, shuffleAndCutQuestions, storeTestResult } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
@@ -43,7 +44,6 @@ const CbtScreen = () => {
     })
   }
   
-  console.log('testResults', testResults)
   const getAllTestResults = () => {
     loadAllTestData().then(testsData=> {
       set_testResults({...testsData})
@@ -69,12 +69,16 @@ const CbtScreen = () => {
 
 
   const start = async () => {
-    const {course} = selectedOptions
-    let questions = []
-    questions = [... await getAllQuestionsInCourse(course)]
-    const randomQuestions = shuffleAndCutQuestions([...questions.filter(Boolean)], 50)
-    displayQuestions(randomQuestions)
-    runCountDown()
+    if (selectedOptions.course && selectedOptions.time) {
+      const {course} = selectedOptions
+      let questions = []
+      questions = [... await getAllQuestionsInCourse(course)]
+      const randomQuestions = shuffleAndCutQuestions([...questions.filter(Boolean)], 50)
+      displayQuestions(randomQuestions)
+      runCountDown()
+    } else {
+      ToastAndroid.show(`You Have Not Selected Any time Yet`, ToastAndroid.SHORT);
+    }
   }
 
   const displayQuestions = (dataToDisplay = questionData) => {
@@ -117,7 +121,7 @@ const CbtScreen = () => {
     backFunc()
     markTest()
     renderResult()
-    storeTestResult({courseName: selectedOptions.course, noOfQuestionsAttempted, score})
+    storeTestResult({courseName: selectedOptions.course, noOfQuestionsAttempted:noOfQuestionsAttempted.current, score: score.current}).then(getAllTestResults)
   }
 
   const score = useRef(0)
@@ -146,6 +150,8 @@ const CbtScreen = () => {
     set_ansData(data)
   }
 
+  const scrollViewRef = useRef()
+
   const styles = StyleSheet.create({
     optionsWrapper: {
       width: '100%',
@@ -160,6 +166,7 @@ const CbtScreen = () => {
       width: '85%',
       flex: 0.85,
       alignItems: 'center',
+      borderRadius: 25,
       backgroundColor: colors.backgroundColor,
     },
 
@@ -174,8 +181,8 @@ const CbtScreen = () => {
     
     heading: {
       textDecorationLine: 'none',
-      textAlign: 'center',
-      flex: 1,
+      alignSelf: 'auto',
+      width: '100%'
     },
 
     optionsScroll: {
@@ -224,7 +231,7 @@ const CbtScreen = () => {
     },
 
     optionButns: {
-      backgroundColor: colors.appColor,
+      backgroundColor: colors.tabColor,
       color: colors.defaultText,
       marginBottom: '5%',
       height: '90%',
@@ -243,8 +250,8 @@ const CbtScreen = () => {
     },
     
     graphScroll: {
-      width: '90%',
-      left: '5%',
+      width: '100%',
+      // left: '5%',
       // alignItems: 'center',
       overflow: 'scroll',
       backgroundColor: colors.backgroundColor,
@@ -256,8 +263,8 @@ const CbtScreen = () => {
       width: '90%',
       left: '5%',
       alignItems: 'center',
-      marginVertical: '5%',
-      height: hp('50%'),
+      marginVertical: '8%',
+      height: hp('60%'),
       // flex: 1,
     },
     
@@ -266,12 +273,20 @@ const CbtScreen = () => {
       width: '97%',
       height: '100%',
       flexDirection: 'row',
-      alignItems: 'flex-end',
-      justifyContent: 'space-around',
-      alignContent: 'space-around'
+      alignContent: 'space-around',
+      overflow: 'scroll',
       // left: '5%',
     },
-
+    
+    barBody: {
+      flexDirection: 'column',
+      maxHeight: '93%',
+      minHeight: '10%',
+      height: '0%',
+      marginHorizontal: wp('2%'),
+      // width: '25%',
+    },
+    
     graphBars: {
       backgroundColor: colors.tabColor,
       flex: 1,
@@ -304,7 +319,7 @@ const CbtScreen = () => {
       height: '12%',
       width: '100%',
       borderRadius: 10,
-      backgroundColor: colors.appColor,
+      backgroundColor: colors.tabColor,
     },
 
     startButnWrapper: {
@@ -317,7 +332,7 @@ const CbtScreen = () => {
     },
 
     startButnText: {
-      backgroundColor: colors.appColor,
+      backgroundColor: colors.tabColor,
       color: colors.defaultText,
       marginBottom: '5%',
       height: '90%',
@@ -329,7 +344,7 @@ const CbtScreen = () => {
     },
 
     pqDataWrapper: {
-      borderColor: colors.appColor,
+      borderColor: colors.tabColor,
       borderBottomWidth: 2,
       width: '90%',
       marginVertical: hp('3%'),
@@ -337,66 +352,64 @@ const CbtScreen = () => {
       justifyContent: 'center'
     },
 
+    flatlistWrapper: {
+      height: '80%',
+      width: '90%',
+      left: '5%'
+    },
+
     questOptionsContainer: {
       width: '100%',
       flexDirection: 'row',
       borderTopLeftRadius: 15,
       borderTopRightRadius: 15,
+      alignItems: 'center',
       justifyContent: 'space-around',
       backgroundColor: colors.appColor,
+      height: '5%',
     },
 
     questOptionsButn: {
-      // width: '17%',
       flex: 4,
-      height: 40,
+      height: '100%',
       alignItems: 'center',
-      borderRightColor: colors.appWhite,
-      borderLeftColor: colors.appWhite,
-      borderWidth: 2,
-      borderBottomWidth: 0,
-      borderTopWidth: 0,
-      borderStyle: 'solid',
+      alignContent: 'center',
       justifyContent: 'center',
     },
 
     questOptionsText: {
       color: colors.defaultText,
-      fontSize: 25,
-      width: '100%',
       textAlign: 'center',
     },
 
     ansButn: {
-      borderTopLeftRadius: 25,
-      borderTopRightRadius: 25,
-      left: '35%',
+      left: '25%',
       padding: 6,
       backgroundColor: colors.appColor,
-      width: '30%',
+      width: '50%',
     },
 
     ansButnText: {
       color: colors.defaultText,
-      fontSize: hp('2.5%'),
       textAlign: 'center'
     },
 
     submitButn: {
       position: 'absolute',
       width: '40%',
-      height: '10%',
-      top: '90%',
+      height: '8%',
+      borderRadius: 10,
+      top: '92%',
       alignSelf: 'center',
       flexDirection: 'column',
-      backgroundColor: colors.appColor,
+      backgroundColor: colors.tabColor,
       justifyContent: 'center',
     },
     
     submitButnText: {
       color: colors.defaultText,
       width: '100%',
-      fontSize: hp('3.3%'),
+      fontSize: hp('2.3%'),
       textAlign: 'center',
     },
   })
@@ -474,34 +487,37 @@ const CbtScreen = () => {
                     {currentTime.current/3600000|0}:{(currentTime.current/60000|0)%60}:{(currentTime.current/1000|0)%60}
                   </Heading>
                 </View>
-                <FlatList
-                  data={questionData}
-                  contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
-                  renderItem={({item}) => {
-                    const dataToRender = item?.data?.data
-                    if (dataToRender) {
-                      return (
-                        <QuestionComponent dataToRender={dataToRender}>
-                          <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
-                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'A'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>A</Text>
-                            </TouchableHighlight>
-                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'B'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>B</Text>
-                            </TouchableHighlight>
-                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'C'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>C</Text>
-                            </TouchableHighlight>
-                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'D'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>D</Text>
-                            </TouchableHighlight>
-                          </View>
-                        </QuestionComponent>
-                      )
-                    } else (<></>)
-                  }}
-                  keyExtractor = {(item,index) => index.toString()}
-                />
+                <View style={styles.flatlistWrapper}>
+                  <FlatList
+                    data={questionData}
+                    style={{width: '100%', overflow: 'scroll', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
+                    contentContainerStyle = {{}}
+                    renderItem={({item}) => {
+                      const dataToRender = item?.data?.data
+                      if (dataToRender) {
+                        return (
+                          <QuestionComponent dataToRender={dataToRender}>
+                            <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
+                              <TouchableHighlight onPress={()=> dataToRender.userAns = 'A'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                  <Text style={styles.questOptionsText}>A</Text>
+                              </TouchableHighlight>
+                              <TouchableHighlight onPress={()=> dataToRender.userAns = 'B'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                  <Text style={styles.questOptionsText}>B</Text>
+                              </TouchableHighlight>
+                              <TouchableHighlight onPress={()=> dataToRender.userAns = 'C'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                  <Text style={styles.questOptionsText}>C</Text>
+                              </TouchableHighlight>
+                              <TouchableHighlight onPress={()=> dataToRender.userAns = 'D'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                  <Text style={styles.questOptionsText}>D</Text>
+                              </TouchableHighlight>
+                            </View>
+                          </QuestionComponent>
+                        )
+                      } else (<></>)
+                    }}
+                    keyExtractor = {(item,index) => index.toString()}
+                  />
+                </View>
                 <TouchableHighlight style={styles.submitButn} underlayColor='rgba(52, 52, 52, 0)' onPress={submit}>
                   <Text style={styles.submitButnText}>Submit</Text>
                 </TouchableHighlight>
@@ -511,16 +527,16 @@ const CbtScreen = () => {
             return  (
               <View style={styles.optionsWrapper}>
                 <View style={styles.optionsCont}>
+                  <View style={styles.headingWrapper}>
+                    <TouchableHighlight onPress={backFunc}>
+                      <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+                    </TouchableHighlight>
+                    <Heading extraStyles={styles.heading}>
+                      Select Time
+                    </Heading>
+                  </View>
                   <ScrollView style={styles.optionsScroll}>
                     <View style={styles.optionsCartegory}>
-                      <View style={styles.headingWrapper}>
-                        <TouchableHighlight onPress={backFunc}>
-                          <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-                        </TouchableHighlight>
-                        <Heading extraStyles={styles.heading}>
-                          Select Time
-                        </Heading>
-                      </View>
                       <TouchableHighlight onPress = {()=> changeSelection(1000*60*15, 'time')}>
                         <View style={styles.options}>
                           <CText style={styles.optionsText}>15mins</CText>
@@ -581,6 +597,7 @@ const CbtScreen = () => {
             )
             
           default:
+            console.log('testResults', testResults)
             return(
               <View style={styles.graphWrapper}>
                 <ScrollView style={styles.graphScroll}>
@@ -592,52 +609,73 @@ const CbtScreen = () => {
                         <View key={courseName} style={styles.graphContainer}>
                           <View style={styles.headingWrapper}>
                             <Heading extraStyles={styles.heading}>
-                              Performance In {courseName}
+                              Your Performance In {courseName}
                             </Heading>
                           </View>
-                          <ScrollView contentContainerStyle={styles.graph} horizontal={true}>
+                          <ScrollView ref={scrollViewRef} onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })} style={styles.graph} contentContainerStyle={{alignItems: 'flex-end', justifyContent: 'space-around'}} horizontal={true}>
                             {testResult.map((test, index)=> {
-                              totalScore+= test.score.current
+                              totalScore+= test.score
+                              let barHeight = (Math.round(test.score/test.noOfQuestionsAttempted)*100)
+                              barHeight = isNaN(barHeight)?0:barHeight
                               return (
-                                <View key={index} style={{flexDirection: 'column', maxHeight: '93%',height: `${(Math.round(test.score.current/test.noOfQuestionsAttempted.current)*100)}%`, minHeight: '10%'}}>
+                                <View key={index} style={[styles.barBody, {height: `${barHeight}%`}]}>
                                   <View style={styles.graphBars}>
                                   </View>
-                                  <Text style={{color: colors.defaultText}}>{test.score.current}</Text>
+                                  <Text style={{color: colors.defaultText}}>{barHeight}%</Text>
                                 </View>
                               )
                             })}
                           </ScrollView>
                           <View style={styles.graphDetailsCont}>
-                            <CText extraStyles={styles.graphDetails}>Ave. Score {'\n'+Math.ceil(totalScore/testResult.length)}</CText>
+                            <CText extraStyles={styles.graphDetails}>Ave. Score {'\n'+(totalScore>0?Math.ceil(totalScore/testResult.length):0)}</CText>
                             <CText extraStyles={styles.graphDetails}>Tests Taken {'\n'+testResult.length}</CText>
                           </View>
-                          <View style={styles.selectCourseButn}>
-                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> changeSelection(courseName, 'course')} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Take Test</Text></TouchableHighlight>
+                          <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
+                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> changeSelection(courseName, 'course')} underlayColor={colors.underlayColor}>
+                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Take Test</Text>
+                            </TouchableHighlight>
+                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
+                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
+                            </TouchableHighlight>
+                          </View>
+                          <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
+                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
+                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
+                            </TouchableHighlight>
                           </View>
                         </View>
                       )
                     } else {
-                      let totalScore = 0
                       return  (
                         <View key={courseName} style={styles.graphContainer}>
                           <View style={styles.headingWrapper}>
                             <Heading extraStyles={styles.heading}>
-                              Performance In {courseName}
+                              Your Performance In {courseName}
                             </Heading>
                           </View>
-                          <ScrollView contentContainerStyle={styles.graph} horizontal={true}>
-                            <View style={{flexDirection: 'column', maxHeight: '93%', minHeight: '10%'}}>
+                          <ScrollView ref={scrollViewRef} onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })} style={styles.graph} contentContainerStyle={{alignItems: 'flex-end', justifyContent: 'space-around'}} horizontal={true}>
+                            <View style={styles.barBody}>
                               <View style={styles.graphBars}>
                               </View>
-                              <Text style={{color: colors.defaultText}}>{0}</Text>
+                              {/* <Text style={{color: colors.defaultText}}>0/0</Text> */}
                             </View>
                           </ScrollView>
                           <View style={styles.graphDetailsCont}>
                             <CText extraStyles={styles.graphDetails}>Ave. Score {'\n'+0}</CText>
                             <CText extraStyles={styles.graphDetails}>Tests Taken {'\n'+0}</CText>
                           </View>
-                          <View style={styles.selectCourseButn}>
-                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> changeSelection(courseName, 'course')} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Take Test</Text></TouchableHighlight>
+                          <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
+                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> changeSelection(courseName, 'course')} underlayColor={colors.underlayColor}>
+                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Take Test</Text>
+                            </TouchableHighlight>
+                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
+                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
+                            </TouchableHighlight>
+                          </View>
+                          <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
+                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
+                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
+                            </TouchableHighlight>
                           </View>
                         </View>
                       )

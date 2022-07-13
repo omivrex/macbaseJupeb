@@ -197,7 +197,6 @@ const testResultStorage = new Storage({
 
 // testResultStorage.remove({
 //     key: 'test-data',
-//     id: 'physics'
 // });
 
 export const loadResultData = courseName => {
@@ -215,6 +214,7 @@ export const loadResultData = courseName => {
     })
 }
 
+// loadResultData('PHYSICS')
 export const loadAllTestData = () => {
     return new Promise((resolve, reject) => {
         const courseTests = {}
@@ -238,6 +238,18 @@ export const storeTestResult = ({courseName, ...remainingData}) => {
                 data: testData?testData.concat({time: new Date().getTime(), courseName, ...remainingData}):[remainingData],
             })
         }).finally(resolve).catch(reject)
+    })
+}
+
+export const resetTestData = (courseName) => {
+    return new Promise((resolve, reject) => {
+        loadResultData(courseName).then(testData => {
+            testResultStorage.save({
+                id: courseName,
+                key: 'test-result',
+                data: []
+            })
+        }).then(resolve).catch(reject)
     })
 }
 

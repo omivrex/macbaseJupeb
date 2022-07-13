@@ -13,10 +13,10 @@ export default function ({data, extraStyles}) {
     const styles = StyleSheet.create({
         answerCardWrapper: {
             position: 'absolute',
-            width: '95%',
-            height: '76%',
-            left: '2.5%',
-            top: '24%',
+            width: '100%',
+            height: '90%',
+            // left: '2.5%',
+            top: '10%',
             justifyContent: 'center',
             alignContent: 'center',
             alignItems: 'center',
@@ -33,7 +33,7 @@ export default function ({data, extraStyles}) {
             alignItems: 'center',
             justifyContent: 'center',
             height: '90%',
-            width: '90%',
+            width: '95%',
             backgroundColor: colors.bodyBackground,
         },
         
