@@ -184,7 +184,7 @@ export const shuffleAndCutQuestions = (questionsArray, lengthToCut) => {
     return shuffledArray.slice(0, lengthToCut)
 }
 
-const testResulStorage = new Storage({
+const testResultStorage = new Storage({
     storageBackend: AsyncStorage, // for web: window.localStorage
     defaultExpires: null,
     enableCache: false,
@@ -195,14 +195,14 @@ const testResulStorage = new Storage({
     }
 })
 
-// testResulStorage.remove({
+// testResultStorage.remove({
 //     key: 'test-data',
 //     id: 'physics'
 // });
 
 export const loadResultData = courseName => {
     return new Promise((resolve, reject) => {
-        testResulStorage.load({
+        testResultStorage.load({
             key: 'test-result',
             id: courseName,
             syncInBackground: true,
@@ -215,11 +215,24 @@ export const loadResultData = courseName => {
     })
 }
 
+export const loadAllTestData = () => {
+    return new Promise((resolve, reject) => {
+        const courseTests = {}
+        testResultStorage.getIdsForKey('test-result').then(courses=> {
+            courses.forEach((course, index) => {
+                loadResultData(course).then(testResults => {
+                    courseTests[course] = [...testResults]
+                    index===courses.length-1&&resolve(courseTests)
+                })
+            });
+        }).catch(reject)
+    })
+}
 
 export const storeTestResult = ({courseName, ...remainingData}) => {
     return new Promise((resolve, reject) => {
         loadResultData(courseName).then(testData => {
-            testResulStorage.save({
+            testResultStorage.save({
                 id: courseName,
                 key: 'test-result',
                 data: testData?testData.concat({time: new Date().getTime(), courseName, ...remainingData}):[remainingData],
@@ -227,3 +240,4 @@ export const storeTestResult = ({courseName, ...remainingData}) => {
         }).finally(resolve).catch(reject)
     })
 }
+
