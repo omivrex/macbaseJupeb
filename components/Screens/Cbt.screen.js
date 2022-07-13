@@ -18,7 +18,6 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import { Ionicons } from '@expo/vector-icons';
 import AnswerComponent from '../Reusable/Answer.component';
 import QuestionComponent from '../Reusable/Question.component';
-import { getApplication } from 'react-native-web/dist/cjs/exports/AppRegistry/renderApplication';
 
 const CbtScreen = () => {
   const colors = useContext(ColorContext)
@@ -33,6 +32,7 @@ const CbtScreen = () => {
   const [testResults, set_testResults] = useState({}) 
   useEffect(() => {
     getAllTestResults()
+    getListOfCourses()
   }, [])
 
   const getListOfCourses = () => {
@@ -168,7 +168,8 @@ const CbtScreen = () => {
       justifyContent: 'space-around',
       alignItems: 'center',
       alignContent: 'space-around',
-      width: '100%'
+      width: '97%',
+      left: '1.5%'
     },
     
     heading: {
@@ -236,27 +237,27 @@ const CbtScreen = () => {
 
     graphWrapper: {
       width: '100%',
-      // left: '2.5%',
       justifyContent: 'center',
-      alignItems: 'center',
       alignContent: 'center',
       height: '100%',
     },
     
     graphScroll: {
       width: '90%',
-      height: '90%',
-      marginBottom: '10%',
-      alignItems: 'center',
-      // alignContent: 'space-around',
-      // justifyContent: 'space-around',
+      left: '5%',
+      // alignItems: 'center',
+      overflow: 'scroll',
       backgroundColor: colors.backgroundColor,
+      height: '100%',
+      paddingBottom: '20%'
     },
-
+    
     graphContainer: {
       width: '90%',
+      left: '5%',
       alignItems: 'center',
-      height: '60%',
+      marginVertical: '5%',
+      height: hp('50%'),
       // flex: 1,
     },
     
@@ -509,15 +510,13 @@ const CbtScreen = () => {
           case (shouldDisplayTimeSettings.current):
             return  (
               <View style={styles.optionsWrapper}>
-                <View style={{...styles.headingWrapper, ...{width: '100%'}}}>
-                  <TouchableHighlight onPress={backFunc}>
-                    <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-                  </TouchableHighlight>
-                </View>
                 <View style={styles.optionsCont}>
                   <ScrollView style={styles.optionsScroll}>
                     <View style={styles.optionsCartegory}>
                       <View style={styles.headingWrapper}>
+                        <TouchableHighlight onPress={backFunc}>
+                          <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+                        </TouchableHighlight>
                         <Heading extraStyles={styles.heading}>
                           Select Time
                         </Heading>
@@ -584,43 +583,66 @@ const CbtScreen = () => {
           default:
             return(
               <View style={styles.graphWrapper}>
-                <ScrollView contentContainerStyle={styles.graphScroll}>
-                  {(() => {
-                    for (const courseName in testResults) {
-                      if (Object.hasOwnProperty.call(testResults, courseName)) {
-                        const testResult = testResults[courseName];
-                        let totalScore = 0
-                        return  (
-                          <View key={courseName} style={styles.graphContainer}>
-                            <View style={styles.headingWrapper}>
-                              <Heading extraStyles={styles.heading}>
-                                Performance In {courseName}
-                              </Heading>
-                            </View>
-                            <ScrollView contentContainerStyle={styles.graph} horizontal={true}>
-                              {testResult.map((test, index)=> {
-                                totalScore+= test.score.current
-                                return (
-                                  <View key={index} style={{flexDirection: 'column', maxHeight: '93%',height: `${(Math.round(test.score.current/test.noOfQuestionsAttempted.current)*100)}%`, minHeight: '10%'}}>
-                                    <View style={[styles.graphBars, {}]}>
-                                    </View>
-                                    <Text style={{color: colors.defaultText}}>{test.score.current}</Text>
-                                  </View>
-                                )
-                              })}
-                            </ScrollView>
-                            <View style={styles.graphDetailsCont}>
-                              <CText extraStyles={styles.graphDetails}>Ave. Score {'\n'+Math.ceil(totalScore/testResult.length)}</CText>
-                              <CText extraStyles={styles.graphDetails}>Tests Taken {'\n'+testResult.length}</CText>
-                            </View>
-                            <View style={styles.selectCourseButn}>
-                              <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> changeSelection(courseName, 'course')} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Take Test</Text></TouchableHighlight>
-                            </View>
+                <ScrollView style={styles.graphScroll}>
+                  {listOfCourses.map(courseName=> {
+                    const testResult = testResults[courseName];
+                    if (testResult) {
+                      let totalScore = 0
+                      return  (
+                        <View key={courseName} style={styles.graphContainer}>
+                          <View style={styles.headingWrapper}>
+                            <Heading extraStyles={styles.heading}>
+                              Performance In {courseName}
+                            </Heading>
                           </View>
-                        )
-                      }
+                          <ScrollView contentContainerStyle={styles.graph} horizontal={true}>
+                            {testResult.map((test, index)=> {
+                              totalScore+= test.score.current
+                              return (
+                                <View key={index} style={{flexDirection: 'column', maxHeight: '93%',height: `${(Math.round(test.score.current/test.noOfQuestionsAttempted.current)*100)}%`, minHeight: '10%'}}>
+                                  <View style={styles.graphBars}>
+                                  </View>
+                                  <Text style={{color: colors.defaultText}}>{test.score.current}</Text>
+                                </View>
+                              )
+                            })}
+                          </ScrollView>
+                          <View style={styles.graphDetailsCont}>
+                            <CText extraStyles={styles.graphDetails}>Ave. Score {'\n'+Math.ceil(totalScore/testResult.length)}</CText>
+                            <CText extraStyles={styles.graphDetails}>Tests Taken {'\n'+testResult.length}</CText>
+                          </View>
+                          <View style={styles.selectCourseButn}>
+                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> changeSelection(courseName, 'course')} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Take Test</Text></TouchableHighlight>
+                          </View>
+                        </View>
+                      )
+                    } else {
+                      let totalScore = 0
+                      return  (
+                        <View key={courseName} style={styles.graphContainer}>
+                          <View style={styles.headingWrapper}>
+                            <Heading extraStyles={styles.heading}>
+                              Performance In {courseName}
+                            </Heading>
+                          </View>
+                          <ScrollView contentContainerStyle={styles.graph} horizontal={true}>
+                            <View style={{flexDirection: 'column', maxHeight: '93%', minHeight: '10%'}}>
+                              <View style={styles.graphBars}>
+                              </View>
+                              <Text style={{color: colors.defaultText}}>{0}</Text>
+                            </View>
+                          </ScrollView>
+                          <View style={styles.graphDetailsCont}>
+                            <CText extraStyles={styles.graphDetails}>Ave. Score {'\n'+0}</CText>
+                            <CText extraStyles={styles.graphDetails}>Tests Taken {'\n'+0}</CText>
+                          </View>
+                          <View style={styles.selectCourseButn}>
+                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> changeSelection(courseName, 'course')} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Take Test</Text></TouchableHighlight>
+                          </View>
+                        </View>
+                      )
                     }
-                  })()}
+                  })}
                 </ScrollView>
               </View>
             )
