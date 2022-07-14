@@ -19,6 +19,7 @@ import NavigationContext from '../context/Nav.context';
 import ColorContext from '../context/Colors.context';
 import { Heading } from '../Reusable/CustomText.component';
 import { getSectionData } from '../../utils/news.util';
+import LoadingComponent from '../Reusable/Loading.component';
 
 const HomeScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -193,11 +194,12 @@ const HomeScreen = () => {
                 )
               })
               :
-                <View style={[styles.tabs, {width: wp('85%'), elevation: 0}]}>
-                  <Text style={{width: '100%', textAlign: 'center'}}>
+              <View style={[styles.tabs, {width: wp('85%'), elevation: 0}]}>
+                  <LoadingComponent/>
+                  {/* <Text style={{width: '100%', textAlign: 'center'}}>
                     No Information Here
                   </Text>
-                  <MaterialCommunityIcons name="information-off-outline" style={{alignSelf: 'center', marginVertical: hp('2%')}} size={40} color={colors.appWhite} />
+                  <MaterialCommunityIcons name="information-off-outline" style={{alignSelf: 'center', marginVertical: hp('2%')}} size={40} color={colors.appWhite} /> */}
                 </View>
             }
           </View>
