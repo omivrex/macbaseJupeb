@@ -64,6 +64,11 @@ const saveCourseData = (courseName) => {
     })
 }
 
+// courseStorage.remove({
+//     key: 'course-data',
+//     id: 'physics'
+// })
+
 export const loadCourseData = (courseName) => {
     return new Promise((resolve, reject) => {
         courseStorage.load({
@@ -189,8 +194,12 @@ const testResultStorage = new Storage({
     defaultExpires: null,
     enableCache: false,
     sync: {
-        update() {
-            return null // do not sync
+        update(courseName) {
+            testResultStorage.save({
+                id: courseName,
+                key: 'test-result',
+                data: [],
+            })
         }
     }
 })
@@ -208,6 +217,9 @@ export const loadResultData = courseName => {
         }).then(returnedData=> {
             resolve(returnedData)
         }).catch(err=> {
+            err.name==='NotFoundError'?
+                testResultStorage.sync.update(courseName)
+            :
             console.log(err)
             reject(err)
         })
