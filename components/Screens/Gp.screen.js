@@ -12,6 +12,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import ColorContext from '../context/Colors.context';
 import Container from '../Reusable/Container.component';
 import WriteupWrapper from '../Reusable/WriteupWrapper.component';
+import { Heading } from '../Reusable/CustomText.component';
 
   
 
@@ -193,12 +194,12 @@ const GpScreen = () => {
     },
   
     guideText: {
-      fontSize: hp('2%'),
+      // fontSize: hp('2%'),
       textAlign: 'left',
     },
   
     subject: {
-      fontSize: hp('2.4%'),
+      // fontSize: hp('2.4%'),
       position: 'absolute',
     },
   
@@ -206,7 +207,7 @@ const GpScreen = () => {
       width: '30%',
       position: 'absolute',
       left: '30%',
-      fontSize: hp('2.3'),
+      // fontSize: hp('2.3'),
       textAlign: 'center',
     },
   
@@ -214,7 +215,7 @@ const GpScreen = () => {
       width: '30%',
       position: 'absolute',
       left: '50%',
-      fontSize: hp('2.3%'),
+      // fontSize: hp('2.3%'),
       textAlign: 'center',
     },
   
@@ -222,7 +223,7 @@ const GpScreen = () => {
       width: '20%',
       position: 'absolute',
       left: '80%',
-      fontSize: hp('2.3%'),
+      // fontSize: hp('2.3%'),
       textAlign: 'center',
     },
 
@@ -231,13 +232,16 @@ const GpScreen = () => {
       flexDirection: 'column',
       justifyContent: 'space-around',
       // backgroundColor: 'red',
-      height: '20%'
+      height: '20%',
     },
-  
+    
     calcButn: {
-      backgroundColor: colors.appColor,
+      backgroundColor: colors.tabColor,
+      borderRadius: 20,
       justifyContent: 'center',
       alignItems: 'center',
+      width: '40%',
+      left: '30%'
     },
   
     calcText: {
@@ -252,10 +256,11 @@ const GpScreen = () => {
       alignItems: 'center',
       color: colors.appColor,
       textAlign: 'center',
+      // width: '45%',
       padding: '2.5%',
       fontSize: hp('2.3%'),
-      borderStyle: 'solid',
-      borderWidth: 2,
+      // borderStyle: 'solid',
+      // borderWidth: 2,
       borderColor: colors.appColor,
     },
   
@@ -278,8 +283,11 @@ const GpScreen = () => {
     },
   
     scoreDetails: {
-      fontSize: hp('2.3%'),
-      textAlign: 'left',
+      // fontSize: hp('2.3%'),
+      // backgroundColor: 'red',
+      textAlign: 'center',
+      // maxHeight: '25%',
+      flexWrap: 'wrap'
     },
   
     pointsDetails: {
@@ -298,15 +306,13 @@ const GpScreen = () => {
     <Container>
       <WriteupWrapper extraStyes={styles.wrapper}>
         <View style={styles.scoreGuiderCont}>
-          <Text style={styles.guideHeader}>
+          <Heading>
             Guide:
-          </Text>
-          <Text style={styles.scoreDetails}>A = 70 - 100 {'(5 points)'} 
-            {', '}B = 60 - 69  {'(4 points)'}
-            {', '}C = 50 - 59  {'(3 points)'}
-            {', '}D = 40 - 49  {'(2 points)'}
-            {', '}E = 30 - 39  {'(1 points)'}
-            {', '}F = 0 - 29  {'(0 points).'}
+          </Heading>
+          <Text style={styles.scoreDetails}>
+            A = 70 - 100 {'(5 points)'}{'   '}B = 60 - 69  {'(4 points)'}{'\n'} 
+            C = 50 - 59  {'(3 points)'}{'   '}D = 40 - 49  {'(2 points)'}{'\n'}
+            E = 30 - 39  {'(1 points)'}{'   '}F = 0 - 29  {'(0 points).'}{'\n'}
           </Text>
         </View>
         <View style={styles.row}>
@@ -334,6 +340,7 @@ const GpScreen = () => {
           <Text style={styles.grade}>{sub3GradeState}</Text>
         </View>
         <View style={[styles.row, styles.row4]}>
+          <Text style={styles.totalPoints}>{totalPntState}</Text>
           <TouchableHighlight style={styles.calcButn} onPress={() => {
             const pntArray = [parseInt(sub1PntsState), parseInt(sub2PntsState), parseInt(sub3PntsState)]
             let totalScore = 0
@@ -346,7 +353,6 @@ const GpScreen = () => {
           }}>
             <Text style={styles.calcText}>Calculate</Text>
           </TouchableHighlight>
-          <Text style={styles.totalPoints}>{totalPntState}</Text>
         </View>
       </WriteupWrapper>
     </Container>
