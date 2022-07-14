@@ -29,6 +29,7 @@ import {
   updateLocalUserData 
 } from '../../utils/register.util';
 import { updateCourseData, getOnlineCollections } from '../../utils/pastquestions.utils';
+import LoadingComponent from '../Reusable/Loading.component';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -227,7 +228,7 @@ const RegisterScreen = () => {
     courseListWrapper: {
       width: '90%',
       overflow: 'scroll',
-      left: '5%'
+      // left: '5%',
     },
 
     courseSelectionButn: {
@@ -290,21 +291,25 @@ const RegisterScreen = () => {
               case 'Choose Your Courses':
                 return (
                   <>
-                    <ScrollView style={styles.courseListWrapper}>
-                      {corusesInDb.current.map(({courseName}, index) => {
-                        return (
-                          <TouchableHighlight key={index} style={{width: '90%',}} onPress = {()=> changeSelection(courseName)}>
-                            <View style={styles.courseSelectionButn}>
-                              <CText style={styles.courseSelectionButnText}>{courseName}</CText>
-                              <CheckBox
-                                value={selectedCourses.filter(item=> item.courseName === courseName).length>0}
-                                onValueChange={()=> changeSelection(courseName)}
-                                tintColors={{true: colors.appColor}}
-                              />
-                            </View>
-                          </TouchableHighlight>
-                        )
-                      })}
+                      <ScrollView contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} style={styles.courseListWrapper}>
+                        {
+                          corusesInDb.current.length?
+                          corusesInDb.current.map(({courseName}, index) => {
+                            return (
+                              <TouchableHighlight key={index} style={{width: '90%'}} onPress = {()=> changeSelection(courseName)}>
+                                <View style={styles.courseSelectionButn}>
+                                  <CText style={styles.courseSelectionButnText}>{courseName}</CText>
+                                  <CheckBox
+                                    value={selectedCourses.filter(item=> item.courseName === courseName).length>0}
+                                    onValueChange={()=> changeSelection(courseName)}
+                                    tintColors={{true: colors.appColor}}
+                                  />
+                                </View>
+                              </TouchableHighlight>
+                            )
+                          })
+                          : <LoadingComponent/>
+                        }
                     </ScrollView>
 
                     <PayWithFlutterwave
