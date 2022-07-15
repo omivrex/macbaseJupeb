@@ -4,7 +4,8 @@ import {
   View,
   TouchableHighlight,
   TextInput,
-  Alert
+  Alert,
+  ToastAndroid
 } from 'react-native';
 import {useContext, useState, useRef, useEffect} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -42,6 +43,7 @@ const RegisterScreen = () => {
   const userExists = useRef(false)
   const userId = useRef('')
   const corusesInDb = useRef([])
+  const [loadingValue, set_loadingValue] = useState('')
 
   useEffect(() => {
     getUserDetails().then((userDetails)=> {
@@ -55,7 +57,7 @@ const RegisterScreen = () => {
         getCoursesFromDB()
         // userDetails.selectedCourses.map(course=> course.paid=true)
         set_selectedCourses([... selectedCourses]) 
-        Alert.alert('Congrats!!!', `You have Already Registered.\n Go Ahead and purchase more courses.`)
+        Alert.alert('Congrats!!!', `You have Already Registered.\n You can update already purchased onces or purchase more courses.`)
       } else {
         userExists.current = false
         set_currentPath('Sign In')
@@ -91,18 +93,29 @@ const RegisterScreen = () => {
   }
 
   const getCoursesFromDB = (path) => {
+    set_loadingValue('Getting Courses...')
     getOnlineCollections()
-    .then(returnedData=> returnedData?corusesInDb.current = [... returnedData]
-    :Alert.alert('Network Error!', `unable to list of courses right now.\n Check your internet connection`, [
-      {
-        title: 'Retry',
-        onPress: ()=>getCoursesFromDB(),
-      },
-      {
-        title: 'Ok',
-        onPress: ()=> null
+    .then(returnedData=> {
+      if (returnedData.length) {
+        corusesInDb.current = [... returnedData]
+        set_loadingValue('')
+      } else {
+        console.log('returnedData', returnedData, path)
+        handleErr(getCoursesFromDB, path)
       }
-      ])).then(()=> set_currentPath(path||'Choose Your Courses'))
+    })
+    .then(()=> set_currentPath(path||'Choose Your Courses'))
+    .catch(()=> handleErr(getCoursesFromDB, path))
+  }
+
+  const handleErr = (callback, arg) => {
+    Alert.alert('Network Error!', `Unable to list of courses right now.\nCheck your internet connection and clcik ok to retry`,
+    [
+      {
+        title: 'OK',
+        onPress: ()=>callback(arg),
+      }
+    ], {cancelable: false})
   }
 
   const previous = () => {  
@@ -123,35 +136,41 @@ const RegisterScreen = () => {
     if (!course) {
       set_selectedCourses([... new Set(selectedCourses.concat({courseName, paid: false}))])
     } else {
-      course.paid? Alert.alert('', `You Have Already Paid For This Course.`)
+      course.paid? ToastAndroid.showWithGravity(`You Have Already Paid For This Course.`, ToastAndroid.LONG, ToastAndroid.CENTER)
       :set_selectedCourses([... selectedCourses.filter(item=> item.courseName !== courseName)])
     }
   }
 
   const signInAndPay = (userExists, paymentCallBack) => {
-    console.log(userExists, paymentCallBack)
     if (selectedCourses.filter(course => course.paid=== false).length) {
+      set_loadingValue('Signing In...')
       signIn(userData.current, selectedCourses, userExists).then((userDetails) => {
         if (userDetails) {
           !userExists?saveUserDetails(userDetails):null
-          paymentCallBack()
+          set_loadingValue('')
+          setTimeout(() => {
+            paymentCallBack()
+          }, 1000);
         }
       }).catch(err=> {
-        console.log(err)
+        console.log('signInAndPay Error', typeof err, err)
+        ToastAndroid.show(err, ToastAndroid.SHORT)
       })
     } else {
-      Alert.alert('', `You haven't selected any course yet`)
+      ToastAndroid.showWithGravity(`You haven't selected any course yet`, ToastAndroid.LONG, ToastAndroid.CENTER)
     }
   }
 
   const paymentResponseHandler = () => {
+    set_loadingValue('Downloading Courses...')
     updateOnlineUserData(selectedCourses, userId.current).then(updatedSelectedCourses => {
       updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(updatedUserData => {
         updatedSelectedCourses.forEach(course => {
           updateCourseData(course.courseName)
         });
+        set_loadingValue('')
       })
-    }).catch(err=> console.log(err))
+    }).catch(err=> ToastAndroid.show(err, ToastAndroid.SHORT))
   }
 
   const styles = StyleSheet.create({
@@ -291,29 +310,28 @@ const RegisterScreen = () => {
               case 'Choose Your Courses':
                 return (
                   <>
-                      <ScrollView contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} style={styles.courseListWrapper}>
-                        {
-                          corusesInDb.current.length?
-                          corusesInDb.current.map(({courseName}, index) => {
-                            return (
-                              <TouchableHighlight key={index} style={{width: '90%'}} onPress = {()=> changeSelection(courseName)}>
-                                <View style={styles.courseSelectionButn}>
-                                  <CText style={styles.courseSelectionButnText}>{courseName}</CText>
-                                  <CheckBox
-                                    value={selectedCourses.filter(item=> item.courseName === courseName).length>0}
-                                    onValueChange={()=> changeSelection(courseName)}
-                                    tintColors={{true: colors.appColor}}
-                                  />
-                                </View>
-                              </TouchableHighlight>
-                            )
-                          })
-                          : <LoadingComponent/>
-                        }
+                    <LoadingComponent extraStyles={{display: loadingValue?'flex':'none', zIndex: 7}}>{loadingValue}</LoadingComponent>
+                    <ScrollView contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} style={styles.courseListWrapper}>
+                      {
+                        corusesInDb.current.map(({courseName}, index) => {
+                          return (
+                            <TouchableHighlight key={index} style={{width: '90%'}} onPress = {()=> changeSelection(courseName)}>
+                              <View style={styles.courseSelectionButn}>
+                                <CText style={styles.courseSelectionButnText}>{courseName}</CText>
+                                <CheckBox
+                                  value={selectedCourses.filter(item=> item.courseName === courseName).length>0}
+                                  onValueChange={()=> changeSelection(courseName)}
+                                  tintColors={{true: colors.appColor}}
+                                />
+                              </View>
+                            </TouchableHighlight>
+                          )
+                        })
+                      }
                     </ScrollView>
 
                     <PayWithFlutterwave
-                      onRedirect={transactionResult=> transactionResult.status === 'successful'?paymentResponseHandler():null}
+                      onRedirect={transactionResult=> transactionResult.status === 'successful'?paymentResponseHandler():ToastAndroid.show('Payment Failed', ToastAndroid.LONG)}
                       options={{
                         tx_ref: generateTransactionRef(10),
                         authorization: 'FLWPUBK_TEST-c192c6d83589da7000897046bdc51dd2-X',

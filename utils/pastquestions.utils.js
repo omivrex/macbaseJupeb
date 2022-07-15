@@ -92,7 +92,7 @@ export const loadCourseData = (courseName) => {
 
 // courseStorage.remove({
 //   key: 'course-data',
-//   id: 'maths'
+//   id: 'physics'
 // });
 
 

@@ -5,7 +5,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import ColorContext from "../context/Colors.context";
 
 
-const LoadingComponent = () => {
+const LoadingComponent = ({children, extraStyles}) => {
     const colors = useContext(ColorContext)
     const styles = StyleSheet.create({
         animation: {
@@ -35,14 +35,14 @@ const LoadingComponent = () => {
         }
     });
     return (
-      <View style={styles.componentWrapper}>
+      <View style={[styles.componentWrapper, extraStyles]}>
         <View style={styles.animationWrapper}>
           <LottieView
             source={require("../../assets/loading.json")}
             style={styles.animation}
             autoPlay
           />
-          {/* <Text style={styles.loadingText}>Loading</Text> */}
+          <Text style={styles.loadingText}>{children}</Text>
         </View>
       </View>
     );
