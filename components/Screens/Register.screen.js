@@ -132,7 +132,7 @@ const RegisterScreen = () => {
   
   const changeSelection = (courseName) => {
     const [course] = selectedCourses.filter(item=> item.courseName === courseName)
-    // set_selectedCourses([])
+    set_selectedCourses([])
     if (!course) {
       set_selectedCourses([... new Set(selectedCourses.concat({courseName, paid: false}))])
     } else {
@@ -142,15 +142,15 @@ const RegisterScreen = () => {
   }
 
   const signInAndPay = (userExists, paymentCallBack) => {
-    if (selectedCourses.filter(course => course.paid=== false).length) {
+    if (selectedCourses.filter(course => course.paid === false).length) { /** select only courses which are not paid for */
       set_loadingValue('Signing In...')
       signIn(userData.current, selectedCourses, userExists).then((userDetails) => {
         if (userDetails) {
           !userExists?saveUserDetails(userDetails):null
-          set_loadingValue('')
           setTimeout(() => {
-            paymentCallBack()
+            set_loadingValue('')
           }, 1000);
+          paymentCallBack()
         }
       }).catch(err=> {
         console.log('signInAndPay Error', typeof err, err)
@@ -162,13 +162,12 @@ const RegisterScreen = () => {
   }
 
   const paymentResponseHandler = () => {
-    set_loadingValue('Downloading Courses...')
     updateOnlineUserData(selectedCourses, userId.current).then(updatedSelectedCourses => {
-      updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(updatedUserData => {
-        updatedSelectedCourses.forEach(course => {
-          updateCourseData(course.courseName)
-        });
-        set_loadingValue('')
+      updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(async updatedUserData => {
+        for await (const course of updatedSelectedCourses) {
+          set_loadingValue('Downloading Courses...')
+          updateCourseData(course.courseName, ()=> set_loadingValue(''))
+        }
       })
     }).catch(err=> ToastAndroid.show(err, ToastAndroid.SHORT))
   }
@@ -346,7 +345,7 @@ const RegisterScreen = () => {
                         amount: price.current
                       }}
                       customButton= {props=> (
-                      <TouchableHighlight style={styles.submitButn} onPress= {()=> signInAndPay(userExists.current, props.onPress)}>
+                      <TouchableHighlight style={styles.submitButn} onPress= {()=> signInAndPay(userExists.current, ()=>props.onPress())}>
                         <Text style={styles.butnText}>Pay ₦{price.current}</Text>
                       </TouchableHighlight>
                       )}
