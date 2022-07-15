@@ -4,7 +4,6 @@ import {
     View,
     TouchableHighlight,
     ScrollView,
-    SafeAreaView
   } from 'react-native';
   import {useContext} from 'react';
   
@@ -12,6 +11,7 @@ import {
   import ColorContext from '../../context/Colors.context';
   import { AntDesign } from '@expo/vector-icons';  
   import NavigationContext from '../../context/Nav.context';
+import Container from '../../Reusable/Container.component';
 
 
   const HelpScreen = () => {
@@ -19,23 +19,6 @@ import {
     const navigation = useContext(NavigationContext);
 
     const styles = StyleSheet.create({
-      container: {
-        width: '100%',
-        height: '100%',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        backgroundColor: '#1c1c74',
-  
-      },
-      
-      curve: {
-        backgroundColor: colors.backgroundColor,
-        borderBottomRightRadius: 2500,
-        width: '100%',
-        height: '70%',
-        position: 'absolute',
-      },
-    
       contentList: {
         width: wp('100%'),
         height: '100%',
@@ -63,51 +46,47 @@ import {
     })
 
     return (
-      <SafeAreaView>
-        <View style={styles.container}>
-          <View style={styles.curve}>
-          </View>
-          <View style={styles.contentList}>
-            <ScrollView>
-              <TouchableHighlight onPress={()=> navigation.navigate('Hep1')} underlayColor={colors.underlayColor}>
-                <View style={styles.listItem}>
-                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                    What does this app contain?
-                  </Text>
-                  <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
-                </View>
-              </TouchableHighlight>
+      <Container>
+        <View style={styles.contentList}>
+          <ScrollView>
+            <TouchableHighlight onPress={()=> navigation.navigate('Hep1')} underlayColor={colors.underlayColor}>
+              <View style={styles.listItem}>
+                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                  What does this app contain?
+                </Text>
+                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+              </View>
+            </TouchableHighlight>
 
-              <TouchableHighlight onPress={()=> navigation.navigate('Hep2')} underlayColor={colors.underlayColor}>
-                <View style={styles.listItem}>
-                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                    How do I keep track of my Progress?
-                  </Text>
-                  <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
-                </View>
-              </TouchableHighlight>
+            <TouchableHighlight onPress={()=> navigation.navigate('Hep2')} underlayColor={colors.underlayColor}>
+              <View style={styles.listItem}>
+                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                  How do I keep track of my Progress?
+                </Text>
+                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+              </View>
+            </TouchableHighlight>
 
-              <TouchableHighlight onPress={()=> navigation.navigate('Hep3')} underlayColor={colors.underlayColor}>
-                <View style={styles.listItem}>
-                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                    Can I access this app on multiple devices?
-                  </Text>
-                  <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
-                </View>
-              </TouchableHighlight>
+            <TouchableHighlight onPress={()=> navigation.navigate('Hep3')} underlayColor={colors.underlayColor}>
+              <View style={styles.listItem}>
+                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                  Can I access this app on multiple devices?
+                </Text>
+                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+              </View>
+            </TouchableHighlight>
 
-              <TouchableHighlight onPress={()=> navigation.navigate('Hep4')} underlayColor={colors.underlayColor}>
-                <View style={styles.listItem}>
-                  <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
-                    Do I need Internet access to use the app?
-                  </Text>
-                  <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
-                </View>
-              </TouchableHighlight>
-            </ScrollView>
-          </View>
+            <TouchableHighlight onPress={()=> navigation.navigate('Hep4')} underlayColor={colors.underlayColor}>
+              <View style={styles.listItem}>
+                <Text style={{width: '85%', paddingLeft: '5%', fontWeight: 'bold'}}>
+                  Do I need Internet access to use the app?
+                </Text>
+                <AntDesign name="rightcircle" size={24} color={colors.iconColor} />
+              </View>
+            </TouchableHighlight>
+          </ScrollView>
         </View>
-      </SafeAreaView>
+      </Container>
     )
   }
   

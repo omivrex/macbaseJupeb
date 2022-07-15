@@ -1,9 +1,10 @@
+import { useContext } from 'react';
 import { 
     StyleSheet, 
     Text,
 } from 'react-native';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-
+import ColorContext from '../context/Colors.context';
 const styles = StyleSheet.create({
     text: {
         margin: '2.5%'
@@ -14,10 +15,12 @@ const styles = StyleSheet.create({
     },
 
     heading: {
-        fontWeight: 'bold',
-        fontSize: hp('2.5%'),
-        textDecorationLine: 'underline',
-        textAlign: 'center'
+        textAlign: 'center',
+        flex: 1,
+        // paddingVertical: '5%',
+        textDecorationLine: 'none',
+        fontSize: hp('3%'),
+        alignItems: 'center'
     },
 })
 
@@ -38,8 +41,10 @@ export const BoldedText = ({children, extraStyles}) => {
 }
 
 export const Heading = ({children, extraStyles}) => {
+    const colors = useContext(ColorContext)
+
     return (
-        <Text style={{...styles.heading, ...extraStyles}}>
+        <Text style={{...styles.heading, ...extraStyles, ...{color: colors.tabColor}}}>
             {children}
         </Text>
     )
