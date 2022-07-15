@@ -3,41 +3,154 @@ import {
   Text, 
   View,
   TouchableHighlight,
-  TextInput
+  TextInput,
+  Alert
 } from 'react-native';
-import {useContext, useState} from 'react';
+import {useContext, useState, useRef, useEffect} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { FontAwesome, Zocial, Entypo, FontAwesome5, Ionicons  } from '@expo/vector-icons';
 import CheckBox from 'expo-checkbox';
+import {PayWithFlutterwave} from 'flutterwave-react-native';
 
 import Container from '../Reusable/Container.component';
 import NavigationContext from '../context/Nav.context';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
 import { ScrollView } from 'react-native-gesture-handler';
+import { 
+  updateOnlineUserData,
+  generateTransactionRef,
+  getUserDetails,
+  saveUserDetails,
+  signIn,
+  validateEmail,
+  validatePhone,
+  validatePswd,
+  updateLocalUserData 
+} from '../../utils/register.util';
+import { updateCourseData, getOnlineCollections } from '../../utils/pastquestions.utils';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
   const colors = useContext(ColorContext);
-  const [currentPath, set_currentPath] = useState('signup')
+  const [currentPath, set_currentPath] = useState('Sign In')
   const [selectedCourses, set_selectedCourses] = useState([])
-  const next = (path) => {
-    set_currentPath(path)
-  }
+  const userData = useRef({})
+  const displayBackButn = useRef(true)
+  const price = useRef(0)
+  const userExists = useRef(false)
+  const userId = useRef('')
+  const corusesInDb = useRef([])
 
-  const previous = () => {
+  useEffect(() => {
+    getUserDetails().then((userDetails)=> {
+      if (userDetails !== null) {
+        console.log('userDetails', userDetails)
+        userExists.current = true
+        const {selectedCourses, uid, ...everythingElse} = userDetails
+        userId.current = uid
+        userData.current = {... everythingElse}
+        displayBackButn.current = false
+        getCoursesFromDB()
+        // userDetails.selectedCourses.map(course=> course.paid=true)
+        set_selectedCourses([... selectedCourses]) 
+        Alert.alert('Congrats!!!', `You have Already Registered.\n Go Ahead and purchase more courses.`)
+      } else {
+        userExists.current = false
+        set_currentPath('Sign In')
+      }
+    }).catch(err=> console.log(err))
+  }, [])
+
+  
+  const next = (path) => {
+    let inputsAreValid = false
     switch (currentPath) {
-      case 'chose courses':
-        set_currentPath('user details')    
+      case 'Enter Your Details':
+        const isValidPhone = validatePhone(userData.current.phone)
+        !isValidPhone && Alert.alert('', 'Your phone number must be 13 characters and in the format +23480xxxxxxxx')
+        const isValidName = userData.current.name?.length >= 3
+        !isValidName && Alert.alert('', 'Full name should be at least 3 characters')
+        const isValidSchool = userData.current.school?.length >= 3
+        !isValidSchool && Alert.alert('', 'School name should be at least 3 characters')
+        inputsAreValid = isValidPhone && isValidName && isValidSchool
         break;
       default:
-        set_currentPath('signup')
+        const isValidEmail = validateEmail(userData.current.email)
+        const isValidPswd = validatePswd(userData.current.pswd)
+        !isValidEmail && Alert.alert('', 'Invalid Email')
+        !isValidPswd && Alert.alert('', 'Password must be up to 8 Characters')
+        inputsAreValid = isValidEmail&&isValidPswd
+        break;
+    }
+    if (inputsAreValid) {
+      path === 'Choose Your Courses'? getCoursesFromDB(path)
+      :set_currentPath(path)
+    }
+  }
+
+  const getCoursesFromDB = (path) => {
+    getOnlineCollections()
+    .then(returnedData=> returnedData?corusesInDb.current = [... returnedData]
+    :Alert.alert('Network Error!', `unable to list of courses right now.\n Check your internet connection`, [
+      {
+        title: 'Retry',
+        onPress: ()=>getCoursesFromDB(),
+      },
+      {
+        title: 'Ok',
+        onPress: ()=> null
+      }
+      ])).then(()=> set_currentPath(path||'Choose Your Courses'))
+  }
+
+  const previous = () => {  
+    switch (currentPath) {
+      case 'Choose Your Courses':
+        set_currentPath('Enter Your Details')    
+        break;
+      default:
+        set_currentPath('Sign In')
         break;
     }
   }
 
-  const changeSelection = (value) => {
-    set_selectedCourses(!selectedCourses.includes(value)? [... new Set(selectedCourses.concat(value))]: [... selectedCourses.filter(item=> item !== value)])
+  
+  const changeSelection = (courseName) => {
+    const [course] = selectedCourses.filter(item=> item.courseName === courseName)
+    // set_selectedCourses([])
+    if (!course) {
+      set_selectedCourses([... new Set(selectedCourses.concat({courseName, paid: false}))])
+    } else {
+      course.paid? Alert.alert('', `You Have Already Paid For This Course.`)
+      :set_selectedCourses([... selectedCourses.filter(item=> item.courseName !== courseName)])
+    }
+  }
+
+  const signInAndPay = (userExists, paymentCallBack) => {
+    console.log(userExists, paymentCallBack)
+    if (selectedCourses.filter(course => course.paid=== false).length) {
+      signIn(userData.current, selectedCourses, userExists).then((userDetails) => {
+        if (userDetails) {
+          !userExists?saveUserDetails(userDetails):null
+          paymentCallBack()
+        }
+      }).catch(err=> {
+        console.log(err)
+      })
+    } else {
+      Alert.alert('', `You haven't selected any course yet`)
+    }
+  }
+
+  const paymentResponseHandler = () => {
+    updateOnlineUserData(selectedCourses, userId.current).then(updatedSelectedCourses => {
+      updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(updatedUserData => {
+        updatedSelectedCourses.forEach(course => {
+          updateCourseData(course.courseName)
+        });
+      })
+    }).catch(err=> console.log(err))
   }
 
   const styles = StyleSheet.create({
@@ -160,77 +273,64 @@ const RegisterScreen = () => {
   return (
     <Container>
       <View style={styles.wrapper}>
+        <View style={styles.headingWrapper}>
+          {
+            displayBackButn.current?
+            <TouchableHighlight onPress={previous}>
+              <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+            </TouchableHighlight>
+            :<></>
+          }
+          <Heading extraStyles={styles.cardHeading}>{currentPath}</Heading>
+        </View>
         {
           (() => {
+            price.current = selectedCourses.filter(course=> course.paid===false).length*500
             switch (currentPath) {
-              case 'chose courses':
+              case 'Choose Your Courses':
                 return (
                   <>
-                    <View style={styles.headingWrapper}>
-                      <TouchableHighlight onPress={previous}>
-                        <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-                      </TouchableHighlight>
-                      <Heading extraStyles={styles.cardHeading}>Choose Your Courses</Heading>
-                    </View>
                     <ScrollView style={styles.courseListWrapper}>
-                      <TouchableHighlight style={{width: '90%',}} onPress = {()=> changeSelection('maths')}>
-                        <View style={styles.courseSelectionButn}>
-                          <CText style={styles.courseSelectionButnText}>maths</CText>
-                          <CheckBox
-                            value={selectedCourses.includes('maths')}
-                            onValueChange={()=> changeSelection('maths')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
-
-                      <TouchableHighlight style={{width: '90%',}} onPress = {()=> changeSelection('physics')}>
-                        <View style={styles.courseSelectionButn}>
-                          <CText style={styles.courseSelectionButnText}>physics</CText>
-                          <CheckBox
-                            value={selectedCourses.includes('physics')}
-                            onValueChange={()=> changeSelection('physics')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
-                      
-                      <TouchableHighlight style={{width: '90%',}} onPress = {()=> changeSelection('chemistry')}>
-                        <View style={styles.courseSelectionButn}>
-                          <CText style={styles.courseSelectionButnText}>chemistry</CText>
-                          <CheckBox
-                            value={selectedCourses.includes('chemistry')}
-                            onValueChange={()=> changeSelection('chemistry')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
-                      
-                      <TouchableHighlight style={{width: '90%',}} onPress = {()=> changeSelection('biology')}>
-                        <View style={styles.courseSelectionButn}>
-                          <CText style={styles.courseSelectionButnText}>biology</CText>
-                          <CheckBox
-                            value={selectedCourses.includes('biology')}
-                            onValueChange={()=> changeSelection('biology')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
+                      {corusesInDb.current.map(({courseName}, index) => {
+                        return (
+                          <TouchableHighlight key={index} style={{width: '90%',}} onPress = {()=> changeSelection(courseName)}>
+                            <View style={styles.courseSelectionButn}>
+                              <CText style={styles.courseSelectionButnText}>{courseName}</CText>
+                              <CheckBox
+                                value={selectedCourses.filter(item=> item.courseName === courseName).length>0}
+                                onValueChange={()=> changeSelection(courseName)}
+                                tintColors={{true: colors.appColor}}
+                              />
+                            </View>
+                          </TouchableHighlight>
+                        )
+                      })}
                     </ScrollView>
-                    <TouchableHighlight onPress={()=> next('chose courses')} style={styles.submitButn}>
-                      <Text style={styles.butnText}>Pay ₦{selectedCourses.length*500}</Text>
-                    </TouchableHighlight>
+
+                    <PayWithFlutterwave
+                      onRedirect={transactionResult=> transactionResult.status === 'successful'?paymentResponseHandler():null}
+                      options={{
+                        tx_ref: generateTransactionRef(10),
+                        authorization: 'FLWPUBK_TEST-c192c6d83589da7000897046bdc51dd2-X',
+                        currency: 'NGN',
+                        integrity_harsh: 'FLWSECK_TEST5423d01f66cf',
+                        payment_options: 'card',
+                        handleOnRedirect: 'google.com',
+                        customer: {email: 'macbasejupeb@gmail.com', phonenumber: '+2348165541591', name: 'Macbase' },
+                        meta: {...userData},
+                        amount: price.current
+                      }}
+                      customButton= {props=> (
+                      <TouchableHighlight style={styles.submitButn} onPress= {()=> signInAndPay(userExists.current, props.onPress)}>
+                          <Text style={styles.butnText}>Pay ₦{price.current}</Text>
+                        </TouchableHighlight>
+                      )}
+                    />
                   </>
                 )
-              case 'user details':
+              case 'Enter Your Details':
                 return (
                   <>
-                    <View style={styles.headingWrapper}>
-                      <TouchableHighlight onPress={previous}>
-                        <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-                      </TouchableHighlight>
-                      <Heading extraStyles={styles.cardHeading}>Enter Your Details</Heading>
-                    </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
                         <FontAwesome name="user" style={styles.icons} size={24} color={colors.tabColor} />
@@ -238,7 +338,7 @@ const RegisterScreen = () => {
                           Full name 
                         </Text>
                       </View>
-                      <TextInput style={styles.textInput}></TextInput>
+                      <TextInput key={'name'} defaultValue={userData.current.name&&userData.current.name} onChangeText={value=> userData.current.name = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
@@ -247,18 +347,18 @@ const RegisterScreen = () => {
                           Phone 
                         </Text>
                       </View>
-                      <TextInput keyboardType='phone-pad' style={styles.textInput}></TextInput>
+                      <TextInput key={'phone'} defaultValue={userData.current.phone&&userData.current.phone} keyboardType='phone-pad' onChangeText={value=> userData.current.phone = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
                         <FontAwesome5 name="school" style={styles.icons} size={24} color={colors.tabColor} />
                         <Text style={styles.label}>
-                          School 
+                          School
                         </Text>
                       </View>
-                      <TextInput keyboardType='phone-pad' style={styles.textInput}></TextInput>
+                      <TextInput key={'school'} defaultValue={userData.current.school&&userData.current.school} onChangeText={value=> userData.current.school = value} style={styles.textInput}></TextInput>
                     </View>
-                    <TouchableHighlight onPress={()=> next('chose courses')} style={styles.submitButn}>
+                    <TouchableHighlight onPress={()=> next('Choose Your Courses')} style={styles.submitButn}>
                       <Text style={styles.butnText}>Next</Text>
                     </TouchableHighlight>
                   </>
@@ -266,9 +366,8 @@ const RegisterScreen = () => {
               default:
                 return (
                   <>
-                    <Heading extraStyles={styles.cardHeading}>Signup</Heading>
                     <CText extraStyles={styles.ads}>
-                      Sign up at a price of ₦500/course to enjoy all features of the app.
+                      Sign In to enjoy all features of the app.
                       This includes 5 years of compiled past questions with detailed answers,
                       Acess to CBT tests to aid you with exam preparations and lots more.
                     </CText>
@@ -279,7 +378,7 @@ const RegisterScreen = () => {
                           Email
                         </Text>
                       </View>
-                      <TextInput keyboardType='email-address' style={styles.textInput}></TextInput>
+                      <TextInput defaultValue={userData.current.email&&userData.current.email} key={'email'} keyboardType='email-address' onChangeText={value=> userData.current.email = value} style={styles.textInput}></TextInput>
                     </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
@@ -288,9 +387,9 @@ const RegisterScreen = () => {
                           Password
                         </Text>
                       </View>
-                      <TextInput secureTextEntry={true} keyboardType='name-phone-pad' style={styles.textInput}></TextInput>
+                      <TextInput defaultValue={userData.current.pswd&&userData.current.pswd} key={'pswd'} secureTextEntry={true} onChangeText={value=> userData.current.pswd = value} style={styles.textInput}></TextInput>
                     </View>
-                    <TouchableHighlight onPress={()=> next('user details')} style={styles.submitButn}>
+                    <TouchableHighlight onPress={()=> next('Enter Your Details')} style={styles.submitButn}>
                       <Text style={styles.butnText}>Next</Text>
                     </TouchableHighlight>
                   </>
@@ -303,5 +402,4 @@ const RegisterScreen = () => {
   )
 }
 
-  
 export default RegisterScreen

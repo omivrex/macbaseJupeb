@@ -1,5 +1,4 @@
 import firebase from "firebase/compat/app"
-import { getAnalytics } from "firebase/analytics";
 import 'firebase/compat/firestore'
 import 'firebase/compat/auth'
 import 'firebase/compat/database'
@@ -14,8 +13,6 @@ const app = firebase.initializeApp({
     appId: "1:271272994760:web:5ba6bdf9c329aa2dbcc2fd",
     measurementId: "G-YFE7Q5GGLW"
 });
-
-const analytics = getAnalytics(app);
 
 export const auth = firebase.auth()
 export const firestore = firebase.firestore()
