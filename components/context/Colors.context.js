@@ -5,7 +5,11 @@ const ColorContext = createContext({
     backgroundColor: '#fff',
     defaultText: '#eee',
     darkText: '#000',
-    iconColor: '#b4b42b',
+    tabColor: '#2AAE6C',
+    iconColor: '#959524',
+    backgroundMix: '#a62867',
+    appWhite: '#fff',
+    labelColor: '#576100',
     underlayColor: '#00000045'
 })
 

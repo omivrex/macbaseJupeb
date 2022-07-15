@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "271272994760",
-    "firebase_url": "https://jupebmacbase-default-rtdb.firebaseio.com",
-    "project_id": "jupebmacbase",
-    "storage_bucket": "jupebmacbase.appspot.com"
+    "project_number": "316815533405",
+    "firebase_url": "https://jupebstudyapp-default-rtdb.firebaseio.com",
+    "project_id": "jupebstudyapp",
+    "storage_bucket": "jupebstudyapp.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:271272994760:android:666196e3114ded1cbcc2fd",
+        "mobilesdk_app_id": "1:316815533405:android:5e35d5858fddc460f8b4b4",
         "android_client_info": {
-          "package_name": "com.macbase.jupebmacbase"
+          "package_name": "com.learnxtra.jupebstudyapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "271272994760-rpdnce62evh5p0t53ap6fkcp1h8s6id6.apps.googleusercontent.com",
+          "client_id": "316815533405-h86utfbua75allgplbs7h5vmf67jh8dl.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBY3THHg1Rh6YbBeG9qTMc2rZ6N7dD_3IY"
+          "current_key": "AIzaSyCSIU8gJSN0iqyjti9mWJwQ9Pc0ADULvlk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "271272994760-rpdnce62evh5p0t53ap6fkcp1h8s6id6.apps.googleusercontent.com",
+              "client_id": "316815533405-h86utfbua75allgplbs7h5vmf67jh8dl.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
