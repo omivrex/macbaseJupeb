@@ -13,10 +13,10 @@ export default function ({data, extraStyles}) {
     const styles = StyleSheet.create({
         answerCardWrapper: {
             position: 'absolute',
-            width: '95%',
-            height: '76%',
-            left: '2.5%',
-            top: '24%',
+            width: '100%',
+            height: '90%',
+            // left: '2.5%',
+            top: '10%',
             justifyContent: 'center',
             alignContent: 'center',
             alignItems: 'center',
@@ -33,7 +33,7 @@ export default function ({data, extraStyles}) {
             alignItems: 'center',
             justifyContent: 'center',
             height: '90%',
-            width: '90%',
+            width: '95%',
             backgroundColor: colors.bodyBackground,
         },
         
@@ -94,7 +94,7 @@ export default function ({data, extraStyles}) {
                                     margin: auto;
                                     min-height: 50rem;
                                 ">
-                                    ${data&&data.answer?data.answer.replace('max-width: 180px;', 'max-width: 90vw;'):'<h2 style="color: red;">Network Error!</h2>'}
+                                    ${data&&data.answer?data.answer.replace('max-width: 180px;', 'max-width: 90vw;'):`<h2 style="color: #777; text-align: center">Something Went Wrong!</h2>`}
                                 </div>
                                 <div style="height: 50%"></div>
                             </body>

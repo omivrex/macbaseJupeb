@@ -23,16 +23,16 @@ const DrawerNav = () => {
           header: ()=> <></>
       }}
       drawerLabelStyle = {{backgroundColor: '#1c1c74',  }}
-      >
-        <Drawer.Screen name="Home" component={HomeStack} />
-        <Drawer.Screen name="Register" component={Register} />
-        <Drawer.Screen name="Past questions" component={PQ} />
-        <Drawer.Screen name="CBT test" component={Cbt} />
-        <Drawer.Screen name="Learning tools" component={LTools} />
-        <Drawer.Screen name="GP Calculator" component={Gp} />
-        <Drawer.Screen name="FAQs" component={Faq} />
-        <Drawer.Screen name="Help" component={Help} />
-        <Drawer.Screen name="About" component={About} />
+    >
+      <Drawer.Screen name="Home" component={HomeStack} />
+      <Drawer.Screen name="Register" component={Register} />
+      <Drawer.Screen name="Past questions" component={PQ} />
+      <Drawer.Screen name="CBT test" component={Cbt} />
+      <Drawer.Screen name="Learning tools" component={LTools} />
+      <Drawer.Screen name="GP Calculator" component={Gp} />
+      <Drawer.Screen name="FAQs" component={Faq} />
+      <Drawer.Screen name="Help" component={Help} />
+      <Drawer.Screen name="About" component={About} />
     </Drawer.Navigator>
   )
 }

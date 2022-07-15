@@ -14,7 +14,6 @@ const courseStorage = new Storage({
     }
 })
 
-
 let courseData = []
 export const updateCourseData = (courseName) => {
     return new Promise((resolve, reject) => { 
@@ -37,7 +36,6 @@ export const updateCourseData = (courseName) => {
 const getSubCollections = (path, parentObj) => {
     getOnlineCollections(path).then((data) =>{
         parentObj.data = [...data]
-        // console.log('parentObj', parentObj)
         parentObj.data.forEach(item => {
             let [label] = Object.values(item)
             let [key] = Object.keys(item)
@@ -50,7 +48,6 @@ const getSubCollections = (path, parentObj) => {
 }
 
 const getQuestionData = (questionObj, path) => {
-    console.log('questionObj', questionObj)
     getOnlineCollections(path, true).then(([questionData]) => {
         questionObj.data = questionData
         const courseName = path.split('/')[1]
@@ -60,7 +57,6 @@ const getQuestionData = (questionObj, path) => {
 }
 
 const saveCourseData = (courseName) => {
-    console.log('called...')
     courseStorage.save({
         id: courseName,
         key: 'course-data',
@@ -127,13 +123,11 @@ export const loadAllSavedCourses = () => {
 
 export const getOfflineCollections = (pathObj, dataToSearch) => {
     const collectionData = []
-    console.log('test2', pathObj)
     try {
         if (pathObj) {
             const path = Object.values(pathObj).filter(Boolean) /** remove falsey values */
             path.forEach((item) => {
                 dataToSearch = [... dataToSearch[item.index].data]
-                console.log('item', item)
             })
             dataToSearch.forEach((item, index)=> {
                 const [key] = Object.keys(item)
@@ -148,16 +142,114 @@ export const getOfflineCollections = (pathObj, dataToSearch) => {
 }
 
 export const getSectionsLocalQuestions = (pathObj, questionNumber, dataToSearch) => {
-    console.log(dataToSearch.data)
     try {
         const questionData = dataToSearch[pathObj.year.index]
         .data[pathObj.subject.index]
         .data[pathObj.section.index]
         .data[questionNumber.index]
-        .data.Data.Data
+        .data.data
         return questionData
     } catch (error) {
         console.log(error)
     }
 
 }
+
+export const getAllQuestionsInCourse = (course) => {
+    let questions = []
+    return new Promise((resolve, reject) => {
+        loadCourseData(course)
+        .then(years => {
+            years.forEach(year => {
+                let subjects = year.data
+                subjects.forEach(subject => {
+                    const sections = subject.data
+                    const [objData] = sections.filter(({section})=> section === 'Objective')
+                    const sectionQuestion = objData?.data
+                    questions = questions.concat(sectionQuestion)
+                });
+            });
+        }).then(() => {
+            questions.length && resolve(questions.filter(Boolean))
+            console.log('questions',questions)
+        }).catch(err=>{
+            reject(err)
+            console.log('Error from getAllQuestionsInCourse', err)
+        });
+    })
+}
+
+export const shuffleAndCutQuestions = (questionsArray, lengthToCut) => {
+    const shuffledArray = questionsArray.sort(() => 0.5 - Math.random())
+    return shuffledArray.slice(0, lengthToCut)
+}
+
+const testResultStorage = new Storage({
+    storageBackend: AsyncStorage, // for web: window.localStorage
+    defaultExpires: null,
+    enableCache: false,
+    sync: {
+        update() {
+            return null // do not sync
+        }
+    }
+})
+
+// testResultStorage.remove({
+//     key: 'test-data',
+// });
+
+export const loadResultData = courseName => {
+    return new Promise((resolve, reject) => {
+        testResultStorage.load({
+            key: 'test-result',
+            id: courseName,
+            syncInBackground: true,
+        }).then(returnedData=> {
+            resolve(returnedData)
+        }).catch(err=> {
+            console.log(err)
+            reject(err)
+        })
+    })
+}
+
+// loadResultData('PHYSICS')
+export const loadAllTestData = () => {
+    return new Promise((resolve, reject) => {
+        const courseTests = {}
+        testResultStorage.getIdsForKey('test-result').then(courses=> {
+            courses.forEach((course, index) => {
+                loadResultData(course).then(testResults => {
+                    courseTests[course] = [...testResults]
+                    index===courses.length-1&&resolve(courseTests)
+                })
+            });
+        }).catch(reject)
+    })
+}
+
+export const storeTestResult = ({courseName, ...remainingData}) => {
+    return new Promise((resolve, reject) => {
+        loadResultData(courseName).then(testData => {
+            testResultStorage.save({
+                id: courseName,
+                key: 'test-result',
+                data: testData?testData.concat({time: new Date().getTime(), courseName, ...remainingData}):[remainingData],
+            })
+        }).finally(resolve).catch(reject)
+    })
+}
+
+export const resetTestData = (courseName) => {
+    return new Promise((resolve, reject) => {
+        loadResultData(courseName).then(testData => {
+            testResultStorage.save({
+                id: courseName,
+                key: 'test-result',
+                data: []
+            })
+        }).then(resolve).catch(reject)
+    })
+}
+

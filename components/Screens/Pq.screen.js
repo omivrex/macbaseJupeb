@@ -6,6 +6,7 @@ import {
   TouchableHighlight,
   Alert,
   BackHandler,
+  ToastAndroid,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import MathJax from 'react-native-mathjax';
@@ -18,20 +19,23 @@ import { CText, Heading } from '../Reusable/CustomText.component';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Ionicons } from '@expo/vector-icons';
 import AnswerComponent from '../Reusable/Answer.component';
+import NavigationContext from '../context/Nav.context';
+import QuestionComponent from '../Reusable/Question.component';
 
-const PqScreen = () => {
+const PqScreen = ({navigation}) => {
+  /** below is th the form {
+    course: {value: string, index: number},
+    ...
+  } */
   const path = useRef({
+    course: null, 
     year: null,
     subject: null,
     section: null
   })
-  /** content is th the format {
-    course: {index: 0},
-    year: {index: 0},
-    subject:{index: 0},
-    section: {index: 0}
-  } */
+  
   const colors = useContext(ColorContext)
+  // const navigation = useContext(NavigationContext)
   const [selected, set_selected] = useState(null)
   const [data, set_data] = useState([])
   const [ansData, set_ansData] = useState('')
@@ -102,6 +106,7 @@ const PqScreen = () => {
           break;
           case "Section":
             const listOfQuestions = getOfflineCollections(path.current, selectedCourseData.current)
+            path.current[label.current.toLowerCase()] = {value: selectedItem,index: selected}
             const tempArray = []
             listOfQuestions.forEach(question => {
               tempArray.push({data: getSectionsLocalQuestions(path.current, question, selectedCourseData.current)})
@@ -114,13 +119,11 @@ const PqScreen = () => {
             const {course, ...pathToUse} = path.current
             const returnedData = getOfflineCollections(pathToUse, selectedCourseData.current)
             renderCollectionData(returnedData)
-            console.log('Test',path.current)
-            console.log('returnedData', returnedData, 'label', label)
-          break;
+            break;
         }
       }
     } else {
-      Alert.alert('', `You Have Not Selected Any ${label.current} Yet`)
+      ToastAndroid.show(`You Have Not Selected Any ${label.current} Yet`, ToastAndroid.LONG);
     } 
     set_selected(null)
   }
@@ -134,29 +137,40 @@ const PqScreen = () => {
       if (renderQuestionData.current) {
         renderQuestionData.current = false
       }
-      if (Object.keys(path.current).length > 0) {
+      console.log('test previous', Object.values(path.current).filter(Boolean))
+      if (Object.values(path.current).filter(Boolean).length > 0) {
         const keys = Object.keys(path.current)
         let index = keys.length - 1
         while (path.current[keys[index]] === null && index>0) { /** start with the last property if its null move to the next untill you reach the final property where the index is 0*/
           index--
         }
         path.current[keys[index]] = null
+        console.log('previous test', Object.values(path.current))
         if (previousLabel === 'Year') {
           getListOfCourses() 
         } else {
           const collectionData = getOfflineCollections(path.current, selectedCourseData.current)
           renderCollectionData(collectionData)
         }
+        label.current === 'Questionnumber'?previous():null
         return true
+      } else {
+        getListOfCourses()
       }
       return false
     }
   }
 
-  BackHandler.addEventListener('hardwareBackPress', () => {
-    previous()
-    return Object.keys(path.current).length>0
-  });
+  // BackHandler.addEventListener('hardwareBackPress', () => {
+  //   try {
+  //     // console.log('Test alpha', Object.values(path.current).filter(Boolean).length && navigation.isFocused())
+  //     return previous() && navigation.isFocused()
+  //   }
+  //   catch (err) {
+  //     ToastAndroid.show(err, ToastAndroid.LONG);
+  //     return true;
+  //   }
+  // });
 
   const showAns = (data) => {
     set_ansData(data)
@@ -349,79 +363,27 @@ const PqScreen = () => {
               data={data}
               contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
               renderItem={({item}) => {
+                const {data} = item
                 return (
-                    <View style={styles.pqDataWrapper}>
-                        <MathJax
-                            html={
-                                `
-                                    <head>
-                                        <meta name="viewport"  content="width=device-width, initial-scale=1.0 maximum-scale=1.0">
-                                    </head>
-                                    <body>
-                                        <style>
-                                            * {
-                                              -webkit-user-select: none;
-                                              -moz-user-select: none;
-                                              -ms-user-select: none;
-                                              user-select: none;
-                                              overflow-x: show;
-                                              max-width: '100%'
-                                            }
-                                        </style>
-                                        <div style="font-size: 1em; font-family: Roboto, sans-serif, san Francisco;">
-                                            ${item&&item.Data?item.Data.question.replace('max-width: 180px;', 'max-width: 90vw;'):'<h2 style="color: red;">Network Error!</h2>'}
-                                        </div> 
-                                    </body>
-                                
-                                `
-                            }
-                            mathJaxOptions={{
-                                messageStyle: "none",
-                                extensions: ["tex2jax.js"],
-                                jax: ["input/TeX", "output/HTML-CSS"],
-                                showMathMenu: false,
-                                tex2jax: {
-                                    inlineMath: [
-                                        ["$", "$"],
-                                        ["\\(", "\\)"],
-                                    ],
-                                    displayMath: [
-                                        ["$$", "$$"],
-                                        ["\\[", "\\]"],
-                                    ],
-                                    processEscapes: true,
-                                },
-                                TeX: {
-                                    extensions: [
-                                        "AMSmath.js",
-                                        "AMSsymbols.js",
-                                        "noErrors.js",
-                                        "noUndefined.js",
-                                    ],
-                                },
-  
-                            }}
-                            style={{width: '100%'}}
-                        
-                        />
-                        <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
-                            item?.Data?.correctOption?
-                                Alert.alert(`Answer: ${item?.Data? item.Data.correctOption:''}`, '', [
-                                  {
-                                    text: 'Solution',
-                                    onPress: ()=> showAns(item?.Data? {answer: item.Data.answer, correctAnswer: item.Data.correctOption}:'')
-                                  },
+                  <QuestionComponent dataToRender={data}>
+                    <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
+                      item?.data?.correctOption?
+                          Alert.alert(`Answer: ${item?.data? item.data.correctOption:''}`, '', [
+                            {
+                              text: 'Solution',
+                              onPress: ()=> showAns(item?.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'')
+                            },
 
-                                  {
-                                    text: 'Cancel',
-                                    onPress: () => ''
-                                  }
-                                ], {cancelable: true})
-                            : showAns(item?.Data? {answer: item.Data.answer, correctAnswer: item.Data.correctOption}:'no answwer')
-                        }}>
-                            <Text style = {styles.ansButnText}>ANSWER</Text>
-                        </TouchableHighlight>
-                    </View>
+                            {
+                              text: 'Cancel',
+                              onPress: () => ''
+                            }
+                          ], {cancelable: true})
+                      : showAns(item?.data? {answer: item.data.answer, correctAnswer: item.data.correctOption}:'no answwer')
+                    }}>
+                      <Text style = {styles.ansButnText}>ANSWER</Text>
+                    </TouchableHighlight>
+                  </QuestionComponent>
                 )
               }}
               keyExtractor = {(item,index) => index.toString()}
