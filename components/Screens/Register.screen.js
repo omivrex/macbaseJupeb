@@ -57,7 +57,7 @@ const RegisterScreen = () => {
         getCoursesFromDB()
         // userDetails.selectedCourses.map(course=> course.paid=true)
         set_selectedCourses([... selectedCourses]) 
-        Alert.alert('Congrats!!!', `You have Already Registered.\n You can update already purchased onces or purchase more courses.`)
+        Alert.alert('Congrats!!!', `You have Already Registered.\nYou can update already purchased onces or purchase more courses.`)
       } else {
         userExists.current = false
         set_currentPath('Sign In')
@@ -109,7 +109,7 @@ const RegisterScreen = () => {
   }
 
   const handleErr = (callback, arg) => {
-    Alert.alert('Network Error!', `Unable to list of courses right now.\nCheck your internet connection and clcik ok to retry`,
+    Alert.alert('Network Error!', `Unable to get of courses right now.\nCheck your internet connection and click OK to retry`,
     [
       {
         title: 'OK',
@@ -310,7 +310,9 @@ const RegisterScreen = () => {
               case 'Choose Your Courses':
                 return (
                   <>
-                    <LoadingComponent extraStyles={{display: loadingValue?'flex':'none', zIndex: 7}}>{loadingValue}</LoadingComponent>
+                    <View style={{display: loadingValue?'flex':'none', zIndex: 7, height: '60%'}}>
+                      <LoadingComponent>{loadingValue}</LoadingComponent>
+                    </View>
                     <ScrollView contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} style={styles.courseListWrapper}>
                       {
                         corusesInDb.current.map(({courseName}, index) => {
@@ -345,8 +347,8 @@ const RegisterScreen = () => {
                       }}
                       customButton= {props=> (
                       <TouchableHighlight style={styles.submitButn} onPress= {()=> signInAndPay(userExists.current, props.onPress)}>
-                          <Text style={styles.butnText}>Pay ₦{price.current}</Text>
-                        </TouchableHighlight>
+                        <Text style={styles.butnText}>Pay ₦{price.current}</Text>
+                      </TouchableHighlight>
                       )}
                     />
                   </>
