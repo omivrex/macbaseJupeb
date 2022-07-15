@@ -615,7 +615,8 @@ const CbtScreen = () => {
                           <ScrollView ref={scrollViewRef} onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })} style={styles.graph} contentContainerStyle={{alignItems: 'flex-end', justifyContent: 'space-around'}} horizontal={true}>
                             {testResult.map((test, index)=> {
                               totalScore+= test.score
-                              let barHeight = (Math.round(test.score/test.noOfQuestionsAttempted)*100)
+                              let barHeight = Math.round((test.score/test.noOfQuestionsAttempted)*100)
+                              console.log('barHeight', barHeight)
                               barHeight = isNaN(barHeight)?0:barHeight
                               return (
                                 <View key={index} style={[styles.barBody, {height: `${barHeight}%`}]}>

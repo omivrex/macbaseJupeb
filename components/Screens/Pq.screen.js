@@ -80,6 +80,7 @@ const PqScreen = ({navigation}) => {
       loadCourseData(courseName).then(data => {
         selectedCourseData.current = [...data]
         subCollectionData.current = {data: [... extractSubCollections(data)]}
+        console.log('subCollectionData', subCollectionData)
         resolve(subCollectionData.current.data)
       }).catch(err=> reject(err))
     })
@@ -191,6 +192,7 @@ const PqScreen = ({navigation}) => {
       width: '85%',
       flex: 0.8,
       alignItems: 'center',
+      borderRadius: 25,
       backgroundColor: colors.backgroundColor,
     },
 

@@ -14,55 +14,61 @@ const courseStorage = new Storage({
     }
 })
 
-let courseData = []
-export const updateCourseData = (courseName) => {
+export const updateCourseData = (courseName, callback) => {
     return new Promise((resolve, reject) => { 
-        courseData = []
+        let courseData = []
         const rootPath = `pastquestions/${courseName}/${courseName}`
-        getOnlineCollections(rootPath).then(collectionData => {
+        getOnlineCollections(rootPath).then(async collectionData => {
             console.log(collectionData)
-            collectionData.forEach((data, index) => {
+            let index = 0
+            for await (const data of collectionData){
                 let [label] = Object.values(data)
                 data.data = []
                 courseData.push(data)
                 let currentPath = rootPath+`/${label}/${label}`
-                getSubCollections(currentPath, data)
+                getSubCollections(currentPath, data, courseData)
                 index === collectionData[collectionData.length-1]?resolve(courseData):null
-            });
+                index++
+            }
+            callback()
         }).catch(err=> reject(err))
      })
 }
 
-const getSubCollections = (path, parentObj) => {
-    getOnlineCollections(path).then((data) =>{
+const getSubCollections = (path, parentObj, courseData) => {
+    getOnlineCollections(path).then(async data =>{
         parentObj.data = [...data]
-        parentObj.data.forEach(item => {
+        for await (const item of parentObj.data) {
             let [label] = Object.values(item)
             let [key] = Object.keys(item)
             let itemDataPath = path + `/${label}/${label}`
-            console.log('called...', label)
-            key === 'questionNumber'?getQuestionData(item, itemDataPath)
-            : getSubCollections(itemDataPath, item)
-        });
+            key === 'questionNumber'?getQuestionData(item, itemDataPath, courseData)
+            : getSubCollections(itemDataPath, item, courseData)
+        }
     })
 }
 
-const getQuestionData = (questionObj, path) => {
+const getQuestionData = (questionObj, path, courseData) => {
     getOnlineCollections(path, true).then(([questionData]) => {
         questionObj.data = questionData
         const courseName = path.split('/')[1]
         // console.log('getQuestionData courseData', courseData)
-        saveCourseData(courseName)
+        saveCourseData(courseName, courseData)
     })
 }
 
-const saveCourseData = (courseName) => {
+const saveCourseData = (courseName, courseData) => {
     courseStorage.save({
         id: courseName,
         key: 'course-data',
         data: courseData,
     })
 }
+
+// courseStorage.remove({
+//     key: 'course-data',
+//     id: 'maths'
+// })
 
 export const loadCourseData = (courseName) => {
     return new Promise((resolve, reject) => {
@@ -87,7 +93,7 @@ export const loadCourseData = (courseName) => {
 
 // courseStorage.remove({
 //   key: 'course-data',
-//   id: 'maths'
+//   id: 'physics'
 // });
 
 
@@ -189,8 +195,12 @@ const testResultStorage = new Storage({
     defaultExpires: null,
     enableCache: false,
     sync: {
-        update() {
-            return null // do not sync
+        update(courseName) {
+            testResultStorage.save({
+                id: courseName,
+                key: 'test-result',
+                data: [],
+            })
         }
     }
 })
@@ -208,6 +218,9 @@ export const loadResultData = courseName => {
         }).then(returnedData=> {
             resolve(returnedData)
         }).catch(err=> {
+            err.name==='NotFoundError'?
+                testResultStorage.sync.update(courseName)
+            :
             console.log(err)
             reject(err)
         })
