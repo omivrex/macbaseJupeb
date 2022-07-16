@@ -99,15 +99,15 @@ const PqScreen = ({navigation}) => {
     if (selected !== null) {
       if (data[selected]) {
         const [selectedItem] = Object.values(data[selected])
+        path.current[label.current.toLowerCase()] = {value: selectedItem, index: selected}
         switch (label.current) {
           case "Course":
-            path.current[label.current.toLowerCase()] = {value: selectedItem, index: selected}
             getCourseData(selectedItem)
             .then(renderCollectionData)
           break;
           case "Section":
             const listOfQuestions = getOfflineCollections(path.current, selectedCourseData.current)
-            path.current[label.current.toLowerCase()] = {value: selectedItem,index: selected}
+            console.log('section test', listOfQuestions)
             const tempArray = []
             listOfQuestions.forEach(question => {
               tempArray.push({data: getSectionsLocalQuestions(path.current, question, selectedCourseData.current)})
@@ -116,7 +116,6 @@ const PqScreen = ({navigation}) => {
             tempArray.length?set_data([...tempArray]):null
           break;  
           default:
-            path.current[label.current.toLowerCase()] = {value: selectedItem,index: selected}
             const {course, ...pathToUse} = path.current
             const returnedData = getOfflineCollections(pathToUse, selectedCourseData.current)
             renderCollectionData(returnedData)

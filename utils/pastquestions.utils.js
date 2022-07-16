@@ -131,8 +131,10 @@ export const getOfflineCollections = (pathObj, dataToSearch) => {
     const collectionData = []
     try {
         if (pathObj) {
-            const path = Object.values(pathObj).filter(Boolean) /** remove falsey values */
+            const {course, ...usefulPath}= pathObj
+            const path = Object.values(usefulPath).filter(Boolean) /** remove falsey values */
             path.forEach((item) => {
+                console.log('item', item)
                 dataToSearch = [... dataToSearch[item.index].data]
             })
             dataToSearch.forEach((item, index)=> {
