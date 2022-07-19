@@ -60,7 +60,7 @@ const RegisterScreen = () => {
           getCoursesFromDB()
           // userDetails.selectedCourses.map(course=> course.paid=true)
           set_selectedCourses([... selectedCourses]) 
-          ToastAndroid.showWithGravity(`You have Already Registered.\nYou can update already purchased onces or purchase more courses.`, 3000, ToastAndroid.CENTER)
+          ToastAndroid.showWithGravity(`You have Already Registered.`, ToastAndroid.SHORT, ToastAndroid.CENTER)
         } else {
           userExists.current = false
           set_currentPath('Sign In')
@@ -114,7 +114,7 @@ const RegisterScreen = () => {
 
   const handleErr = (callback, arg) => {
     ToastAndroid.showWithGravity('Network Error!', ToastAndroid.SHORT, ToastAndroid.CENTER)
-    callback(arg)
+    navigation.isFocused()&& callback(arg)
   }
 
   const previous = () => {  
@@ -141,7 +141,7 @@ const RegisterScreen = () => {
   }
 
   const signInAndPay = (userExists, paymentCallBack) => {
-    if (selectedCourses.filter(course => course.paid === false).length) { /** select only courses which are not paid for */
+    if (selectedCourses.filter(course => course.paid === false).length) { /** select only courses which haven't been purchased */
       set_loadingValue('Signing In...')
       signIn(userData.current, selectedCourses, userExists).then((userDetails) => {
         if (userDetails) {
@@ -155,16 +155,18 @@ const RegisterScreen = () => {
         console.log('signInAndPay Error', typeof err, err)
         ToastAndroid.show(err, ToastAndroid.SHORT)
       })
+    } else if (selectedCourses.length) {
+      paymentResponseHandler(true)
     } else {
       ToastAndroid.showWithGravity(`You haven't selected any course yet`, ToastAndroid.LONG, ToastAndroid.CENTER)
     }
   }
 
-  const paymentResponseHandler = () => {
+  const paymentResponseHandler = (isUpdate) => {
     updateOnlineUserData(selectedCourses, userId.current).then(updatedSelectedCourses => {
       updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(async updatedUserData => {
         for await (const course of updatedSelectedCourses) {
-          set_loadingValue('Downloading Courses...')
+          set_loadingValue(isUpdate?'Updating Paid Courses':'Downloading Courses...')
           updateCourseData(course.courseName, ()=> set_loadingValue(''))
         }
       })
@@ -345,7 +347,7 @@ const RegisterScreen = () => {
                       }}
                       customButton= {props=> (
                       <TouchableHighlight style={styles.submitButn} onPress= {()=> signInAndPay(userExists.current, ()=>props.onPress())}>
-                        <Text style={styles.butnText}>Pay ₦{price.current}</Text>
+                        <Text style={styles.butnText}>{selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length?`Pay ₦${price.current}`:'Update Courses'}</Text>
                       </TouchableHighlight>
                       )}
                     />

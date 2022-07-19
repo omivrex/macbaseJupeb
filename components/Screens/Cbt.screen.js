@@ -601,7 +601,7 @@ const CbtScreen = () => {
             )
             
           default:
-            console.log('testResults', testResults)
+            // console.log('testResults', testResults)
             return(
               <View style={styles.graphWrapper}>
                 <ScrollView style={styles.graphScroll}>

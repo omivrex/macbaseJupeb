@@ -194,7 +194,8 @@ return (
                     10. Jamb is cheap financially but jupeb is relatively expensive.
                 </CText>
                 <CText>
-                    Disclaimer: We offer professional help to advise you on which to choice, except for those we can connect with. We advise seeking a close-by professional for any professional advice.
+                    <BoldedText>Disclaimer: </BoldedText>
+                    We offer professional help to advise you on which to choice, except for those we can connect with. We advise seeking a close-by professional for any professional advice.
                 </CText>
 
             </P>
