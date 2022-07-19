@@ -9,7 +9,7 @@ import {
   ToastAndroid,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
-import {useEffect, useRef, useContext, useState} from 'react';
+import {useEffect, useRef, useContext, useState, useCallback} from 'react';
 import Container from '../Reusable/Container.component';
 import { getAllQuestionsInCourse, loadAllSavedCourses, loadAllTestData, resetTestData, shuffleAndCutQuestions, storeTestResult } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -19,6 +19,7 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import { Ionicons } from '@expo/vector-icons';
 import AnswerComponent from '../Reusable/Answer.component';
 import QuestionComponent from '../Reusable/Question.component';
+import { useFocusEffect } from '@react-navigation/native';
 
 const CbtScreen = () => {
   const colors = useContext(ColorContext)
@@ -30,11 +31,14 @@ const CbtScreen = () => {
   const shouldRenderQuestions = useRef(false)
   const shouldRenderResult = useRef(false)
   const [questionData, set_questionData] = useState([])
-  const [testResults, set_testResults] = useState({}) 
-  useEffect(() => {
-    getAllTestResults()
-    getListOfCourses()
-  }, [])
+  const [testResults, set_testResults] = useState({})
+  useFocusEffect(
+    useCallback(() => {
+      getAllTestResults()
+      getListOfCourses()
+    }, [])
+  )
+  
 
   const getListOfCourses = () => {
     loadAllSavedCourses().then(savedCourses => {
@@ -692,6 +696,5 @@ const CbtScreen = () => {
     </Container>
   )
 }
-  
   
 export default CbtScreen

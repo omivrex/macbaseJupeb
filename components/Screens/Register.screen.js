@@ -7,7 +7,7 @@ import {
   Alert,
   ToastAndroid
 } from 'react-native';
-import {useContext, useState, useRef, useEffect} from 'react';
+import {useContext, useState, useRef, useEffect, useCallback} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { FontAwesome, Zocial, Entypo, FontAwesome5, Ionicons  } from '@expo/vector-icons';
 import CheckBox from 'expo-checkbox';
@@ -31,6 +31,7 @@ import {
 } from '../../utils/register.util';
 import { updateCourseData, getOnlineCollections } from '../../utils/pastquestions.utils';
 import LoadingComponent from '../Reusable/Loading.component';
+import { useFocusEffect } from '@react-navigation/native';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -45,44 +46,47 @@ const RegisterScreen = () => {
   const corusesInDb = useRef([])
   const [loadingValue, set_loadingValue] = useState('')
 
-  useEffect(() => {
-    getUserDetails().then((userDetails)=> {
-      if (userDetails !== null) {
-        console.log('userDetails', userDetails)
-        userExists.current = true
-        const {selectedCourses, uid, ...everythingElse} = userDetails
-        userId.current = uid
-        userData.current = {... everythingElse}
-        displayBackButn.current = false
-        getCoursesFromDB()
-        // userDetails.selectedCourses.map(course=> course.paid=true)
-        set_selectedCourses([... selectedCourses]) 
-        Alert.alert('Congrats!!!', `You have Already Registered.\nYou can update already purchased onces or purchase more courses.`)
-      } else {
-        userExists.current = false
-        set_currentPath('Sign In')
-      }
-    }).catch(err=> console.log(err))
-  }, [])
-
   
+  useFocusEffect(
+    useCallback(() => {
+      getUserDetails().then((userDetails)=> {
+        if (userDetails !== null) {
+          console.log('userDetails', userDetails)
+          userExists.current = true
+          const {selectedCourses, uid, ...everythingElse} = userDetails
+          userId.current = uid
+          userData.current = {... everythingElse}
+          displayBackButn.current = false
+          getCoursesFromDB()
+          // userDetails.selectedCourses.map(course=> course.paid=true)
+          set_selectedCourses([... selectedCourses]) 
+          ToastAndroid.showWithGravity(`You have Already Registered.\nYou can update already purchased onces or purchase more courses.`, 3000, ToastAndroid.CENTER)
+        } else {
+          userExists.current = false
+          set_currentPath('Sign In')
+        }
+      }).catch(err=> console.log(err))
+      return ()=> null
+    }, [])
+  );
+
   const next = (path) => {
     let inputsAreValid = false
     switch (currentPath) {
       case 'Enter Your Details':
         const isValidPhone = validatePhone(userData.current.phone)
-        !isValidPhone && Alert.alert('', 'Your phone number must be 13 characters and in the format +23480xxxxxxxx')
+        !isValidPhone && ToastAndroid.showWithGravity('Your phone number must be 13 characters and in the format +23480xxxxxxxx', 5000, ToastAndroid.CENTER)
         const isValidName = userData.current.name?.length >= 3
-        !isValidName && Alert.alert('', 'Full name should be at least 3 characters')
+        !isValidName && ToastAndroid.showWithGravity('Full name should be at least 3 characters', 5000, ToastAndroid.CENTER)
         const isValidSchool = userData.current.school?.length >= 3
-        !isValidSchool && Alert.alert('', 'School name should be at least 3 characters')
+        !isValidSchool && ToastAndroid.showWithGravity('School name should be at least 3 characters', 5000, ToastAndroid.CENTER)
         inputsAreValid = isValidPhone && isValidName && isValidSchool
         break;
       default:
         const isValidEmail = validateEmail(userData.current.email)
         const isValidPswd = validatePswd(userData.current.pswd)
-        !isValidEmail && Alert.alert('', 'Invalid Email')
-        !isValidPswd && Alert.alert('', 'Password must be up to 8 Characters')
+        !isValidEmail && ToastAndroid.showWithGravity('Invalid Email', 5000, ToastAndroid.CENTER)
+        !isValidPswd && ToastAndroid.showWithGravity('Password must be up to 8 Characters', 5000, ToastAndroid.CENTER)
         inputsAreValid = isValidEmail&&isValidPswd
         break;
     }
@@ -109,13 +113,8 @@ const RegisterScreen = () => {
   }
 
   const handleErr = (callback, arg) => {
-    Alert.alert('Network Error!', `Unable to get of courses right now.\nCheck your internet connection and click OK to retry`,
-    [
-      {
-        title: 'OK',
-        onPress: ()=>callback(arg),
-      }
-    ], {cancelable: false})
+    ToastAndroid.showWithGravity('Network Error!', ToastAndroid.SHORT, ToastAndroid.CENTER)
+    callback(arg)
   }
 
   const previous = () => {  

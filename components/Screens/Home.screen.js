@@ -1,10 +1,11 @@
-import {useContext, useState, useEffect} from 'react';
+import {useContext, useState, useEffect, useCallback, useRef} from 'react';
 import { 
   StyleSheet, 
   Text, 
   View,
   TouchableHighlight,
   ScrollView,
+  ToastAndroid,
 } from 'react-native';
 
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -20,6 +21,7 @@ import ColorContext from '../context/Colors.context';
 import { Heading } from '../Reusable/CustomText.component';
 import { getSectionData } from '../../utils/news.util';
 import LoadingComponent from '../Reusable/Loading.component';
+import { useFocusEffect } from '@react-navigation/native';
 
 const HomeScreen = () => {
   const navigation = useContext(NavigationContext);
@@ -44,17 +46,21 @@ const HomeScreen = () => {
         console.log(data)
         setnewsData([... data])
       }).catch(err=> {
-        alert('we are having trouble reaching our server. Are you offline?')
+        ToastAndroid.show('Network Error!. Are you offline?', 3000)
         console.error(err)
 
       })
     } 
   }
 
-  useEffect(() => {
-    renderGreeting()
-    getGenInfo()
-  }, []);
+  const isFocused = useRef(navigation.isFocused())
+  useFocusEffect(
+    useCallback(() => {
+      renderGreeting()
+      getGenInfo()
+      return ()=> isFocused.current = false
+    }, [])
+  );
 
   const styles = StyleSheet.create({
     greeting: {

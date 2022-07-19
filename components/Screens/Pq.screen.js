@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import MathJax from 'react-native-mathjax';
-import {useEffect, useRef, useContext, useState} from 'react';
+import {useEffect, useRef, useContext, useState, useCallback} from 'react';
 import Container from '../Reusable/Container.component';
 import { getOfflineCollections, getSectionsLocalQuestions, loadAllSavedCourses, loadCourseData } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -21,6 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AnswerComponent from '../Reusable/Answer.component';
 import NavigationContext from '../context/Nav.context';
 import QuestionComponent from '../Reusable/Question.component';
+import { useFocusEffect } from '@react-navigation/native';
 
 const PqScreen = ({navigation}) => {
   /** below is th the form {
@@ -43,10 +44,11 @@ const PqScreen = ({navigation}) => {
   const label = useRef('Course')
   const subCollectionData = useRef({})
   const selectedCourseData = useRef([])
-
-  useEffect(() => {
-    getListOfCourses()
-  }, [])
+  useFocusEffect(
+    useCallback(()=> {
+      getListOfCourses()
+    }, [])
+  )
 
   const getListOfCourses = () => {
     loadAllSavedCourses().then(savedCourses => {
