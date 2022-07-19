@@ -131,7 +131,7 @@ const RegisterScreen = () => {
   
   const changeSelection = (courseName) => {
     const [course] = selectedCourses.filter(item=> item.courseName === courseName)
-    set_selectedCourses([])
+    // set_selectedCourses([])
     if (!course) {
       set_selectedCourses([... new Set(selectedCourses.concat({courseName, paid: false}))])
     } else {
