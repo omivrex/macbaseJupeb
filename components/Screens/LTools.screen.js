@@ -1,9 +1,5 @@
 import { 
   StyleSheet, 
-  Text, 
-  View,
-  TouchableHighlight,
-  SafeAreaView
 } from 'react-native';
 import * as React from 'react';
 import PDFReader from 'rn-pdf-reader-js'
