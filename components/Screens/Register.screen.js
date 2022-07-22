@@ -285,7 +285,6 @@ const RegisterScreen = () => {
 
     butnText: {
       color: colors.appWhite,
-      fontSize: hp('2.5%'),
       textAlign: 'center',
     }
   })
