@@ -9,7 +9,6 @@ import {
   ToastAndroid,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
-import MathJax from 'react-native-mathjax';
 import {useEffect, useRef, useContext, useState, useCallback} from 'react';
 import Container from '../Reusable/Container.component';
 import { getOfflineCollections, getSectionsLocalQuestions, loadAllSavedCourses, loadCourseData } from '../../utils/pastquestions.utils';
@@ -44,11 +43,9 @@ const PqScreen = ({navigation}) => {
   const label = useRef('Course')
   const subCollectionData = useRef({})
   const selectedCourseData = useRef([])
-  useFocusEffect(
-    useCallback(()=> {
-      getListOfCourses()
-    }, [])
-  )
+  useEffect(()=> {
+    getListOfCourses()
+  }, [])
 
   const getListOfCourses = () => {
     loadAllSavedCourses().then(savedCourses => {
@@ -302,7 +299,7 @@ const PqScreen = ({navigation}) => {
 
     ansButnText: {
       color: colors.defaultText,
-      fontSize: hp('2.5%'),
+      // fontSize: hp('2.5%'),
       textAlign: 'center'
     },
   })
@@ -364,7 +361,7 @@ const PqScreen = ({navigation}) => {
             </View>
             <FlatList
               data={data}
-              contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
+              contentContainerStyle = {{width: '100%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
               renderItem={({item}) => {
                 const {data} = item
                 return (

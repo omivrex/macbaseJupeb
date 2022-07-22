@@ -143,6 +143,7 @@ const CbtScreen = () => {
         }
       }
     });
+    Alert.alert('', `You Scored ${score.current}\n and Attempted ${noOfQuestionsAttempted.current}`)
   }
 
   const renderResult = () => {
@@ -357,7 +358,7 @@ const CbtScreen = () => {
     },
 
     flatlistWrapper: {
-      height: '80%',
+      // height: '80%',
       width: '90%',
       left: '5%'
     },
@@ -370,7 +371,7 @@ const CbtScreen = () => {
       alignItems: 'center',
       justifyContent: 'space-around',
       backgroundColor: colors.appColor,
-      height: '5%',
+      height: hp('5%'),
     },
 
     questOptionsButn: {
@@ -400,19 +401,23 @@ const CbtScreen = () => {
 
     submitButn: {
       position: 'absolute',
-      width: '40%',
+      width: '100%',
       height: '8%',
-      borderRadius: 10,
       top: '92%',
-      alignSelf: 'center',
+      backgroundColor: colors.appWhite,
       flexDirection: 'column',
-      backgroundColor: colors.tabColor,
       justifyContent: 'center',
     },
     
     submitButnText: {
+      alignSelf: 'center',
+      borderRadius: 10,
+      height: '100%',
+      backgroundColor: colors.tabColor,
       color: colors.defaultText,
-      width: '100%',
+      // width: '100%',
+      paddingHorizontal: '10%',
+      textAlignVertical: 'center',
       fontSize: hp('2.3%'),
       textAlign: 'center',
     },
@@ -429,13 +434,13 @@ const CbtScreen = () => {
                   <TouchableHighlight onPress={backFunc}>
                     <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
                   </TouchableHighlight>
-                  <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
-                    {`You Scored ${score.current} and Attempted ${noOfQuestionsAttempted.current}`}
+                  <Heading extraStyles={{... styles.heading, color: colors.defaultText, flexDirection: 'row'}}>
+                    {`Score ${score.current}/${questionData.length}`}
                   </Heading>
                 </View>
                 <FlatList
                   data={questionData}
-                  contentContainerStyle = {{width: '90%', left: '5%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
+                  contentContainerStyle = {{width: '100%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
                   renderItem={({item}) => {
                     const dataToRender = item?.data?.data
                     if (dataToRender) {
@@ -487,41 +492,39 @@ const CbtScreen = () => {
                   <TouchableHighlight onPress={backFunc}>
                     <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
                   </TouchableHighlight>
-                  <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
+                  <Heading extraStyles={{... styles.heading, color: colors.darkText}}>
                     {currentTime.current/3600000|0}:{(currentTime.current/60000|0)%60}:{(currentTime.current/1000|0)%60}
                   </Heading>
                 </View>
-                <View style={styles.flatlistWrapper}>
-                  <FlatList
-                    data={questionData}
-                    style={{width: '100%', overflow: 'scroll', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
-                    contentContainerStyle = {{}}
-                    renderItem={({item}) => {
-                      const dataToRender = item?.data?.data
-                      if (dataToRender) {
-                        return (
-                          <QuestionComponent dataToRender={dataToRender}>
-                            <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
-                              <TouchableHighlight onPress={()=> dataToRender.userAns = 'A'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                  <Text style={styles.questOptionsText}>A</Text>
-                              </TouchableHighlight>
-                              <TouchableHighlight onPress={()=> dataToRender.userAns = 'B'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                  <Text style={styles.questOptionsText}>B</Text>
-                              </TouchableHighlight>
-                              <TouchableHighlight onPress={()=> dataToRender.userAns = 'C'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                  <Text style={styles.questOptionsText}>C</Text>
-                              </TouchableHighlight>
-                              <TouchableHighlight onPress={()=> dataToRender.userAns = 'D'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                  <Text style={styles.questOptionsText}>D</Text>
-                              </TouchableHighlight>
-                            </View>
-                          </QuestionComponent>
-                        )
-                      } else (<></>)
-                    }}
-                    keyExtractor = {(item,index) => index.toString()}
-                  />
-                </View>
+                <FlatList
+                  data={questionData}
+                  style={{width: '100%', overflow: 'scroll', marginBottom: '10%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
+                  contentContainerStyle = {{}}
+                  renderItem={({item}) => {
+                    const dataToRender = item?.data?.data
+                    if (dataToRender) {
+                      return (
+                        <QuestionComponent dataToRender={dataToRender}>
+                          <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
+                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'A'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>A</Text>
+                            </TouchableHighlight>
+                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'B'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>B</Text>
+                            </TouchableHighlight>
+                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'C'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>C</Text>
+                            </TouchableHighlight>
+                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'D'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                                <Text style={styles.questOptionsText}>D</Text>
+                            </TouchableHighlight>
+                          </View>
+                        </QuestionComponent>
+                      )
+                    } else (<></>)
+                  }}
+                  keyExtractor = {(item,index) => index}
+                />
                 <TouchableHighlight style={styles.submitButn} underlayColor='rgba(52, 52, 52, 0)' onPress={submit}>
                   <Text style={styles.submitButnText}>Submit</Text>
                 </TouchableHighlight>
