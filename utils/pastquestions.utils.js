@@ -134,7 +134,6 @@ export const getOfflineCollections = (pathObj, dataToSearch) => {
             const {course, ...usefulPath}= pathObj
             const path = Object.values(usefulPath).filter(Boolean) /** remove falsey values */
             path.forEach((item) => {
-                console.log('item', item)
                 dataToSearch = [... dataToSearch[item.index].data]
             })
             dataToSearch.forEach((item, index)=> {
@@ -152,7 +151,6 @@ export const getOfflineCollections = (pathObj, dataToSearch) => {
 export const getSectionsLocalQuestions = (pathObj, questionNumber, dataToSearch) => {
     try {
         const questionData = dataToSearch[pathObj.year.index]
-        .data[pathObj.subject.index]
         .data[pathObj.section.index]
         .data[questionNumber.index]
         .data.data
@@ -169,13 +167,10 @@ export const getAllQuestionsInCourse = (course) => {
         loadCourseData(course)
         .then(years => {
             years.forEach(year => {
-                let subjects = year.data
-                subjects.forEach(subject => {
-                    const sections = subject.data
-                    const [objData] = sections.filter(({section})=> section === 'Objective')
-                    const sectionQuestion = objData?.data
-                    questions = questions.concat(sectionQuestion)
-                });
+                const sections = year.data
+                const [objData] = sections.filter(({section})=> section === 'Objective')
+                const sectionQuestion = objData?.data
+                questions = questions.concat(sectionQuestion)
             });
         }).then(() => {
             questions.length && resolve(questions.filter(Boolean))

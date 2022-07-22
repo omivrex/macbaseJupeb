@@ -131,7 +131,7 @@ const RegisterScreen = () => {
   
   const changeSelection = (courseName) => {
     const [course] = selectedCourses.filter(item=> item.courseName === courseName)
-    // set_selectedCourses([])
+    set_selectedCourses([])
     if (!course) {
       set_selectedCourses([... new Set(selectedCourses.concat({courseName, paid: false}))])
     } else {
@@ -333,7 +333,7 @@ const RegisterScreen = () => {
                     </ScrollView>
 
                     <PayWithFlutterwave
-                      onRedirect={transactionResult=> transactionResult.status === 'successful'?paymentResponseHandler():ToastAndroid.show('Payment Failed', ToastAndroid.LONG)}
+                      onRedirect={transactionResult=> transactionResult.status === 'successful' && paymentResponseHandler()}
                       options={{
                         tx_ref: generateTransactionRef(10),
                         authorization: 'FLWPUBK_TEST-c192c6d83589da7000897046bdc51dd2-X',
@@ -345,11 +345,14 @@ const RegisterScreen = () => {
                         meta: {...userData},
                         amount: price.current
                       }}
-                      customButton= {props=> (
-                      <TouchableHighlight style={styles.submitButn} onPress= {()=> signInAndPay(userExists.current, ()=>props.onPress())}>
-                        <Text style={styles.butnText}>{selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length?`Pay ₦${price.current}`:'Update Courses'}</Text>
-                      </TouchableHighlight>
-                      )}
+                      customButton= {props=> {
+                        {/*change back to this b4 production props.onPress()*/}
+                        return (
+                          <TouchableHighlight style={styles.submitButn} onPress= {()=> signInAndPay(userExists.current, ()=>paymentResponseHandler())}>
+                            <Text style={styles.butnText}>{selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length?`Pay ₦${price.current}`:'Update Courses'}</Text>
+                          </TouchableHighlight>
+                        )
+                      }}
                     />
                   </>
                 )

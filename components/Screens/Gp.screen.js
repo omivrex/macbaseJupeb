@@ -190,6 +190,7 @@ const GpScreen = () => {
       borderStyle: 'solid',
       borderBottomWidth: 1,
       marginBottom: hp('2.5%'),
+      // backgroundColor: 'red',
       borderBottomColor: colors.appColor,
     },
   
@@ -230,9 +231,9 @@ const GpScreen = () => {
     row4: {
       borderBottomWidth: 0,
       flexDirection: 'column',
-      justifyContent: 'space-around',
+      justifyContent: 'space-evenly',
       // backgroundColor: 'red',
-      height: '20%',
+      // height: '20%',
     },
     
     calcButn: {
@@ -310,9 +311,12 @@ const GpScreen = () => {
             Guide:
           </Heading>
           <Text style={styles.scoreDetails}>
-            A = 70 - 100 {'(5 points)'}{'   '}B = 60 - 69  {'(4 points)'}{'\n'} 
-            C = 50 - 59  {'(3 points)'}{'   '}D = 40 - 49  {'(2 points)'}{'\n'}
-            E = 30 - 39  {'(1 points)'}{'   '}F = 0 - 29  {'(0 points).'}{'\n'}
+            A = 70 - 100 {'(5 points)'}{'\n'}
+            B = 60 - 69  {'(4 points)'}{'\n'}
+            C = 50 - 59  {'(3 points)'}{'\n'}
+            D = 40 - 49  {'(2 points)'}{'\n'}
+            E = 30 - 39  {'(1 points)'}{'\n'}
+            F = 0 - 29  {'(0 points).'}{'\n'}
           </Text>
         </View>
         <View style={styles.row}>
