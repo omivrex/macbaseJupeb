@@ -17,6 +17,7 @@ const LtoolsScreen = () => {
     <Container>
       <PDFReader
         withPinchZoom={true}
+        withScroll={true}
         source={{base64: learningTools}}
       />
     </Container>
