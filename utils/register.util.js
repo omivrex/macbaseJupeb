@@ -114,18 +114,3 @@ export const updateLocalUserData = (selectedCourses, uid, userData) => {
     }).catch(err=> reject(err))
   })
 }
-
-// updateLocalUserData([{
-//   "courseName": "maths",
-//   "paid": true,
-// }], "wpdII5dowDWBcoRl6HwYITkqDa73", {
-//   "email": "omivrex@gmail.com",
-//   "name": "3r4ftfb5b",
-//   "phone": "+2347084973294",
-//   "pswd": "efwefwefwfewfe",
-//   "regDate": 1657021074950,
-//   "school": "drfbvtrwvtf"})
-
-// userStorage.remove({
-//   key: 'userDetails'
-// });
