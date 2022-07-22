@@ -1,6 +1,7 @@
 import { 
   StyleSheet, 
   View,
+  KeyboardAvoidingView,
   SafeAreaView
 } from 'react-native';
 import {useContext} from 'react';
@@ -56,7 +57,7 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
   
     return (
       <SafeAreaView>
-        <View style={styles.container}>
+        <KeyboardAvoidingView style={styles.container}>
           <View style={styles.curveWrapper}>
             <View style={styles.fill}></View>
             <Svg style={styles.curve} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
@@ -67,7 +68,7 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
             </Svg>
           </View>
             {children}
-        </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     )
   }

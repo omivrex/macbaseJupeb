@@ -338,7 +338,7 @@ const PqScreen = ({navigation}) => {
                     })
                   : 
                     <View style={styles.loadingBox}>
-                      <CText extraStyles={styles.loadingText}>Loading...</CText>
+                      <CText extraStyles={{textAlign: 'center'}}>You Haven't Registered Yet!</CText>
                     </View>
                   }
               </ScrollView>

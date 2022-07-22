@@ -177,7 +177,7 @@ const RegisterScreen = () => {
     wrapper: {
       position: 'absolute',
       width: '90%',
-      height: '85%',
+      height: hp('75%'),
       left: '5%',
       // top: '24%',
       justifyContent: 'center',

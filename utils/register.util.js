@@ -15,6 +15,10 @@ const userStorage = new Storage({
   }
 });
  
+// userStorage.remove({
+//   key: 'userDetails'
+// })
+
 export const validateEmail = email => {
     if (email?.includes('.com') && email?.includes('@')) {
         const validChars = new RegExp(/[abcdefghijklmnopqrstuvwxyz1234567890]/)
@@ -114,3 +118,5 @@ export const updateLocalUserData = (selectedCourses, uid, userData) => {
     }).catch(err=> reject(err))
   })
 }
+
+
