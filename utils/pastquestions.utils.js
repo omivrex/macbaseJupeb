@@ -19,7 +19,6 @@ export const updateCourseData = (courseName, callback) => {
         let courseData = []
         const rootPath = `pastquestions/${courseName}/${courseName}`
         getOnlineCollections(rootPath).then(async collectionData => {
-            console.log(collectionData)
             let index = 0
             for await (const data of collectionData){
                 let [label] = Object.values(data)
@@ -52,7 +51,7 @@ const getQuestionData = (questionObj, path, courseData) => {
     getOnlineCollections(path, true).then(([questionData]) => {
         questionObj.data = questionData
         const courseName = path.split('/')[1]
-        // console.log('getQuestionData courseData', courseData)
+        console.log('getQuestionData courseData', courseData.data[0].data[0].data[0].data)
         saveCourseData(courseName, courseData)
     })
 }
@@ -65,10 +64,10 @@ const saveCourseData = (courseName, courseData) => {
     })
 }
 
-// courseStorage.remove({
-//     key: 'course-data',
-//     id: 'maths'
-// })
+courseStorage.remove({
+    key: 'course-data',
+    id: 'maths'
+})
 
 export const loadCourseData = (courseName) => {
     return new Promise((resolve, reject) => {
@@ -93,17 +92,16 @@ export const loadCourseData = (courseName) => {
 
 // courseStorage.remove({
 //   key: 'course-data',
-//   id: 'physics'
 // });
 
 
-export const getOnlineCollections = (collectionName, returnId) => {
+export const getOnlineCollections = (collectionName = 'pastquestions', returnId) => {
     const collectionData = []
     return new Promise((resolve, reject) => {
         let maxWaitTime = setTimeout(() => { /** add maximum time to prevent app from seemimg like it hanged */
             resolve(collectionData)
-        }, 5000);
-        firestore.collection(collectionName?collectionName:'pastquestions').get().then((snapShot)=> {
+        }, 10000);
+        firestore.collection(collectionName).get().then((snapShot)=> {
             snapShot.forEach(doc => {
                 returnId?collectionData.push({data:doc.data().Data, id:doc.id})
                 :collectionData.push(doc.data())
@@ -122,6 +120,7 @@ export const getOnlineCollections = (collectionName, returnId) => {
 export const loadAllSavedCourses = () => {
     return new Promise((resolve, reject) => {
         courseStorage.getIdsForKey('course-data').then(savedCourses=> {
+            console.log('savedCourses', savedCourses)
             resolve(savedCourses)
         }).catch(err=> reject(err))
     })
@@ -156,7 +155,7 @@ export const getSectionsLocalQuestions = (pathObj, questionNumber, dataToSearch)
         .data.data
         return questionData
     } catch (error) {
-        console.log(error)
+        console.log('getSectionsLocalQuestions error:', error)
     }
 
 }
