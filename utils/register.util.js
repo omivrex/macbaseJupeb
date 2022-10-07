@@ -15,9 +15,9 @@ const userStorage = new Storage({
   }
 });
  
-// userStorage.remove({
-//   key: 'userDetails'
-// })
+userStorage.remove({
+  key: 'userDetails'
+})
 
 export const validateEmail = email => {
     if (email?.includes('.com') && email?.includes('@')) {
@@ -40,7 +40,7 @@ export const validatePhone = phone => {
         const validPhoneChars = new RegExp(/[1234567890]/)
         if (validPrifixsInNigeria.filter(prefix=> queryStr.search(prefix) === 0).length) {
             if (queryStr.search(validPhoneChars) !== -1) {
-                return true
+              return true
             }  
         }
     }
@@ -50,16 +50,14 @@ export const validatePhone = phone => {
 export const signIn = (userData, selectedCourses, userExists) => {
     return new Promise((resolve, reject) => { 
         !userExists? auth.createUserWithEmailAndPassword(userData.email, userData.pswd).then(()=> {
-            auth.onAuthStateChanged(({uid}) => {
-                console.log('uid:', uid)
-              if (uid) {
-                const {pswd, ...uploadData} = {...userData, selectedCourses, regDate: new Date().getTime()}
-                console.log('uploadData:', uploadData)
-                usersCollection.child(uid).set(uploadData, () => {
-                  resolve({...uploadData, uid})
-                })
-              }
-            })
+          auth.onAuthStateChanged(({uid}) => {
+            if (uid) {
+              const {pswd, ...uploadData} = {...userData, selectedCourses, regDate: new Date().getTime()}
+              usersCollection.child(uid).set(uploadData, () => {
+                resolve({...uploadData, uid})
+              }).catch(err=> reject(err))
+            }
+          })
         }).catch(err=> reject(err))
         : (()=> {
           resolve({...userData})
@@ -73,8 +71,7 @@ export const saveUserDetails = (userDetails) => {
       userStorage.save({
         key: 'userDetails',
         data: userDetails,
-      })
-      resolve (userDetails)
+      }).then(()=> resolve (userDetails))
     } else {
       reject('User details is not present')
     }
