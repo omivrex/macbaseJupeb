@@ -15,9 +15,9 @@ const userStorage = new Storage({
   }
 });
  
-userStorage.remove({
-  key: 'userDetails'
-})
+// userStorage.remove({
+//   key: 'userDetails'
+// })
 
 export const validateEmail = email => {
     if (email?.includes('.com') && email?.includes('@')) {
