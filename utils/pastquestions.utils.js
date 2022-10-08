@@ -48,26 +48,43 @@ export const updateCourseData = (courseName) => {
         const rootPath = `pastquestions/${courseName}/${courseName}`
 
         getOnlineCollections(rootPath).then(collectionData => {
-            console.log(collectionData)
-            for (let i = 0, p = Promise.resolve(); i < collectionData.length; i++) {
-                const data = collectionData[i]
+            
+            const promiseArray = []
+            
+            collectionData.forEach((data, index) => {
                 let [label] = Object.values(data)
                 data.data = []
                 courseData.push(data)
                 let currentPath = rootPath+`/${label}/${label}`
-                p = p.then(() => getSubCollections(currentPath, data))
-                .then(courseContent=> {
-                    // console.log('courseContent: ', courseContent)
-                    console.log('courseData: ', courseData)
-                    (i === parentObj.data.length-1) && saveCourseData(courseName, courseData)
-                })
-            }
+                console.log(currentPath)
+
+                promiseArray.push(
+                    getSubCollections(currentPath, data)
+                    .then(()=> {
+                        console.log('currentPath: ', currentPath)
+                        (index === parentObj.data.length-1) && Promise.all(promiseArray).then(()=> saveCourseData(courseName, courseData)).then(resolve)
+                    })
+                )
+            })
+
+            // for (let i = 0, p = Promise.resolve(); i < collectionData.length; i++) {
+            //     const data = collectionData[i]
+            //     let [label] = Object.values(data)
+            //     data.data = []
+            //     courseData.push(data)
+            //     let currentPath = rootPath+`/${label}/${label}`
+            //     p = p.then(() => getSubCollections(currentPath, data))
+            //     .then(()=> {
+            //         console.log('currentPath: ', currentPath)
+            //         (i === parentObj.data.length-1) && saveCourseData(courseName, courseData) && resolve()
+            //     })
+            // }
             // let index = 0
             // for await (const data of collectionData){
                 // index === collectionData[collectionData.length-1]?resolve(courseData):null
                 // index++
-            // }
-            // callback()
+                // }
+            // resolve()
         }).catch(reject)
      })
 }
@@ -78,21 +95,31 @@ const getSubCollections = (path, parentObj) => {
             try {
                 parentObj.data = [...data]
                 const courseName = path.split('/')[1]
-                for (let i = 0, p = Promise.resolve(); i < parentObj.data.length; i++) {
-                    const collection = parentObj.data[i]
+                const questionPromises = []
+
+                parentObj.data.forEach((collection, index) => {
                     let [label] = Object.values(collection)
                     let [key] = Object.keys(collection)
                     let itemDataPath = path + `/${label}/${label}`
+                    questionPromises.push(
+                        key === 'questionNumber'?getQuestionData(collection, itemDataPath).then(() => {
+                            console.log('Downloading Data For:', itemDataPath, index, (index === parentObj.data.length-1));
+                            (index === parentObj.data.length-1) && Promise.all(questionPromises).then(resolve)
+                        }).catch(reject)
+                        : getSubCollections(itemDataPath, collection)
+                    )
+                });
+
+                // for (let i = 0, p = Promise.resolve(); i < parentObj.data.length; i++) {
+                //     const collection = parentObj.data[i]
                     
-                    p = key === 'questionNumber'?p.then(() => getQuestionData(collection, itemDataPath).then(questionData=> {
-                        console.log('Downloading Data For:', itemDataPath, i)
-                        (i === parentObj.data.length-1) && resolve(parentObj)
-                    })).catch(reject)
-                    : p.then(()=> getSubCollections(itemDataPath, collection)).then(()=> {
-                        console.log(path, parentObj)
-                        resolve()
-                    })
-                }
+                //     p = key === 'questionNumber'?p.then(() => getQuestionData(collection, itemDataPath).then(()=> {
+                //         console.log('Downloading Data For:', itemDataPath, i, (i === parentObj.data.length-1))
+                //         (i === parentObj.data.length-1) && Promise.all(p)
+                //     })).catch(reject)
+                //     : p.then(()=> getSubCollections(itemDataPath, collection))
+                // }
+                // resolve(parentObj)
             } catch (error) {
                 reject (error)
             }
@@ -115,6 +142,7 @@ const getQuestionData = (question, path) => {
 }
 
 const saveCourseData = (courseName, courseData) => {
+    console.log('courseData: ', courseData)
     courseStorage.save({
         id: courseName,
         key: 'course-data',
