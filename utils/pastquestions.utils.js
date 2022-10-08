@@ -42,13 +42,12 @@ export const getOnlineCollections = (collectionName = 'pastquestions', returnId)
     })
 }
 
-export const updateCourseData = (courseName, callback) => {
+export const updateCourseData = (courseName) => {
     return new Promise((resolve, reject) => { 
         let courseData = []
         const rootPath = `pastquestions/${courseName}/${courseName}`
-        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-        getOnlineCollections(rootPath).then(async collectionData => {
+        getOnlineCollections(rootPath).then(collectionData => {
             console.log(collectionData)
             for (let i = 0, p = Promise.resolve(); i < collectionData.length; i++) {
                 const data = collectionData[i]
@@ -56,30 +55,29 @@ export const updateCourseData = (courseName, callback) => {
                 data.data = []
                 courseData.push(data)
                 let currentPath = rootPath+`/${label}/${label}`
-                p = p.then(() => getSubCollections(currentPath, data, courseData))
+                p = p.then(() => getSubCollections(currentPath, data))
                 .then(courseContent=> {
-                    console.log('courseContent: ', courseContent)
+                    // console.log('courseContent: ', courseContent)
+                    console.log('courseData: ', courseData)
+                    (i === parentObj.data.length-1) && saveCourseData(courseName, courseData)
                 })
-                    
             }
             // let index = 0
             // for await (const data of collectionData){
                 // index === collectionData[collectionData.length-1]?resolve(courseData):null
                 // index++
             // }
-            console.log('courseData: ', courseData)
             // callback()
         }).catch(reject)
      })
 }
 
-const getSubCollections = (path, parentObj, courseData) => {
+const getSubCollections = (path, parentObj) => {
     return new Promise((resolve, reject) => { 
-        getOnlineCollections(path).then(async data =>{
+        getOnlineCollections(path).then(data =>{
             try {
                 parentObj.data = [...data]
                 const courseName = path.split('/')[1]
-                // console.log(courseName, path, parentObj) 
                 for (let i = 0, p = Promise.resolve(); i < parentObj.data.length; i++) {
                     const collection = parentObj.data[i]
                     let [label] = Object.values(collection)
@@ -87,11 +85,14 @@ const getSubCollections = (path, parentObj, courseData) => {
                     let itemDataPath = path + `/${label}/${label}`
                     
                     p = key === 'questionNumber'?p.then(() => getQuestionData(collection, itemDataPath).then(questionData=> {
-                        // console.log(path, parentObj)
+                        console.log('Downloading Data For:', itemDataPath, i)
+                        (i === parentObj.data.length-1) && resolve(parentObj)
                     })).catch(reject)
-                    : p.then(()=> getSubCollections(itemDataPath, collection, courseData))
+                    : p.then(()=> getSubCollections(itemDataPath, collection)).then(()=> {
+                        console.log(path, parentObj)
+                        resolve()
+                    })
                 }
-                resolve(parentObj)
             } catch (error) {
                 reject (error)
             }
