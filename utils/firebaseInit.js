@@ -8,6 +8,7 @@ const app = firebase.initializeApp({
     apiKey: "AIzaSyC2F7JanDLFe5bQ7kVNUhajVUbHBXiMpIE",
     authDomain: "jupebmacbase.firebaseapp.com",
     projectId: "jupebmacbase",
+    databaseURL: "https://jupebmacbase-default-rtdb.firebaseio.com",
     storageBucket: "jupebmacbase.appspot.com",
     messagingSenderId: "271272994760",
     appId: "1:271272994760:web:5ba6bdf9c329aa2dbcc2fd",
@@ -16,5 +17,6 @@ const app = firebase.initializeApp({
 
 export const auth = firebase.auth()
 export const firestore = firebase.firestore()
+firestore.settings({ experimentalForceLongPolling: true, merge:true });
 export const rtdb = firebase.database()
 // export const storage = firebase.storage()

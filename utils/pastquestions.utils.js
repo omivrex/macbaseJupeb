@@ -42,9 +42,12 @@ export const getOnlineCollections = (collectionName = 'pastquestions', returnId)
     })
 }
 
-export const updateCourseData = (courseName) => {
+let courseData = []
+let courseName = ''
+export const updateCourseData = (name) => {
+    courseData = []
+    courseName = name
     return new Promise((resolve, reject) => { 
-        let courseData = []
         const rootPath = `pastquestions/${courseName}/${courseName}`
 
         getOnlineCollections(rootPath).then(collectionData => {
@@ -57,34 +60,13 @@ export const updateCourseData = (courseName) => {
                 courseData.push(data)
                 let currentPath = rootPath+`/${label}/${label}`
                 console.log(currentPath)
-
-                promiseArray.push(
-                    getSubCollections(currentPath, data)
-                    .then(()=> {
-                        console.log('currentPath: ', currentPath)
-                        (index === parentObj.data.length-1) && Promise.all(promiseArray).then(()=> saveCourseData(courseName, courseData)).then(resolve)
-                    })
-                )
+                promiseArray.push(getSubCollections(currentPath, data)
+                .then(()=> {
+                    index === collectionData.length-1 && Promise.all(promiseArray)
+                    .then(values=> console.log('promise values:', values))
+                    .then(resolve).catch(err=> console.log(err))
+                }))
             })
-
-            // for (let i = 0, p = Promise.resolve(); i < collectionData.length; i++) {
-            //     const data = collectionData[i]
-            //     let [label] = Object.values(data)
-            //     data.data = []
-            //     courseData.push(data)
-            //     let currentPath = rootPath+`/${label}/${label}`
-            //     p = p.then(() => getSubCollections(currentPath, data))
-            //     .then(()=> {
-            //         console.log('currentPath: ', currentPath)
-            //         (i === parentObj.data.length-1) && saveCourseData(courseName, courseData) && resolve()
-            //     })
-            // }
-            // let index = 0
-            // for await (const data of collectionData){
-                // index === collectionData[collectionData.length-1]?resolve(courseData):null
-                // index++
-                // }
-            // resolve()
         }).catch(reject)
      })
 }
@@ -94,7 +76,6 @@ const getSubCollections = (path, parentObj) => {
         getOnlineCollections(path).then(data =>{
             try {
                 parentObj.data = [...data]
-                const courseName = path.split('/')[1]
                 const questionPromises = []
 
                 parentObj.data.forEach((collection, index) => {
@@ -104,11 +85,16 @@ const getSubCollections = (path, parentObj) => {
                     questionPromises.push(
                         key === 'questionNumber'?getQuestionData(collection, itemDataPath).then(() => {
                             console.log('Downloading Data For:', itemDataPath, index, (index === parentObj.data.length-1));
-                            (index === parentObj.data.length-1) && Promise.all(questionPromises).then(resolve)
+                            (index === parentObj.data.length-1) && Promise.all(questionPromises).then(()=> {
+                                // console.log(courseName, courseData)
+                                saveCourseData(courseName, courseData)
+                            }) 
                         }).catch(reject)
                         : getSubCollections(itemDataPath, collection)
                     )
                 });
+
+                resolve()
 
                 // for (let i = 0, p = Promise.resolve(); i < parentObj.data.length; i++) {
                 //     const collection = parentObj.data[i]
@@ -142,12 +128,12 @@ const getQuestionData = (question, path) => {
 }
 
 const saveCourseData = (courseName, courseData) => {
-    console.log('courseData: ', courseData)
+    // console.log('courseData: ', courseData)
     courseStorage.save({
         id: courseName,
         key: 'course-data',
         data: courseData,
-    })
+    }).catch(err=> console.log(err))
 }
 
 // courseStorage.remove({
@@ -176,10 +162,7 @@ export const loadCourseData = (courseName) => {
      })
 }
 
-// courseStorage.remove({
-//   key: 'course-data',
-//   id: 'physics'
-// });
+// courseStorage.clearMapForKey('course-data');
 
 export const loadAllSavedCourses = () => {
     return new Promise((resolve, reject) => {
