@@ -162,7 +162,7 @@ const RegisterScreen = () => {
       updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(async updatedUserData => {
         for await (const course of updatedSelectedCourses) {
           set_loadingValue(isUpdate?'Updating Paid Courses':'Downloading Courses...')
-          updateCourseData(course.courseName, ()=> set_loadingValue(''))
+          updateCourseData(course.courseName).finally(()=> set_loadingValue(''))
         }
       }).catch(handleErr)
     }).catch(handleErr)
