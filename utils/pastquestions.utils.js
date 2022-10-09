@@ -88,7 +88,7 @@ const getSubCollections = (path, parentObj) => {
                             (index === parentObj.data.length-1) && Promise.all(questionPromises).then(()=> {
                                 // console.log(courseName, courseData)
                                 saveCourseData(courseName, courseData)
-                            }) 
+                            }).catch(err=> console.log('saving questions error: ', err))
                         }).catch(reject)
                         : getSubCollections(itemDataPath, collection)
                     )
@@ -133,12 +133,11 @@ const saveCourseData = (courseName, courseData) => {
         id: courseName,
         key: 'course-data',
         data: courseData,
-    }).catch(err=> console.log(err))
+    }).catch(err=> console.log('error from saveCourseData: ', err))
 }
 
-// courseStorage.remove({
+// courseStorage.clearMapForKey({
 //     key: 'course-data',
-//     id: 'maths'
 // })
 
 export const loadCourseData = (courseName) => {
