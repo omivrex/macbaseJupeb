@@ -1,11 +1,13 @@
 import {firestore} from "./firebaseInit"
 import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Realm from "realm";
 
 const courseStorage = new Storage({
     storageBackend: AsyncStorage, // for web: window.localStorage
     defaultExpires: null,
     enableCache: false,
+    size: 1000000,
     sync: {
         callUpdateCourseData(...args) {
             updateCourseData(...args)
@@ -13,6 +15,14 @@ const courseStorage = new Storage({
         }
     }
 })
+
+const Courses = {
+    name: "Course",
+    properties: {
+      name: "string",
+      data: "string",
+    },
+};
 
 export const getOnlineCollections = (collectionName = 'pastquestions', returnId) => {
     const collectionData = []
@@ -84,7 +94,7 @@ const getSubCollections = (path, parentObj) => {
                     let itemDataPath = path + `/${label}/${label}`
                     questionPromises.push(
                         key === 'questionNumber'?getQuestionData(collection, itemDataPath).then(() => {
-                            console.log('Downloading Data For:', itemDataPath, index, (index === parentObj.data.length-1));
+                            // console.log('Downloading Data For:', itemDataPath);
                             (index === parentObj.data.length-1) && Promise.all(questionPromises).then(()=> {
                                 // console.log(courseName, courseData)
                                 saveCourseData(courseName, courseData)
@@ -128,12 +138,16 @@ const getQuestionData = (question, path) => {
 }
 
 const saveCourseData = (courseName, courseData) => {
-    // console.log('courseData: ', courseData)
-    courseStorage.save({
-        id: courseName,
-        key: 'course-data',
-        data: courseData,
-    }).catch(err=> console.log('error from saveCourseData: ', err))
+    console.log('courseData: ', courseData)
+    Realm.open({
+        schema: [Courses],
+    }).then(realm => {
+        const courses = realm.objects("courses");
+        const [course] = courses.filtered(`name == '${courseName}'`);
+        realm.write(() => {
+            course.data = JSON.stringify(courseData, function replacer(key, value) { return value});
+        })
+    })
 }
 
 // courseStorage.clearMapForKey({
