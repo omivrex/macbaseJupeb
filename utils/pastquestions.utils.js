@@ -1,10 +1,8 @@
 import { collection, getDocs } from "firebase/firestore"
 import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { documentDirectory, EncodingType, writeAsStringAsync } from "expo-file-system";
+import { documentDirectory, EncodingType, readAsStringAsync, readDirectoryAsync, writeAsStringAsync } from "expo-file-system";
 import { firestore } from "./firebaseInit";
-
-
 
 const courseStorage = new Storage({
     storageBackend: AsyncStorage, // for web: window.localStorage
@@ -108,7 +106,7 @@ const getQuestionData = (question, path) => {
 }
 
 const saveCourseData = (data, path) => {
-    const fileName = documentDirectory+path.split('/').join('-')
+    const fileName = documentDirectory+[... new Set(path.split('/'))].join('-')
     writeAsStringAsync(fileName, JSON.stringify(data, function replacer(key, value) { return value}), {encoding: EncodingType.UTF8}).then(()=> console.log('succesfully saved :', path)).catch(err=> console.log('error from saveCourseData: ', err))
 }
 
@@ -117,69 +115,30 @@ const saveCourseData = (data, path) => {
 //     key: 'course-data',
 // })
 
-export const loadCourseData = (courseName) => {
-    return new Promise((resolve, reject) => {
-        courseStorage.load({
-          key: 'course-data',
-          id: courseName,
-          syncInBackground: true,
-          syncParams: {
-            courseName
-          }
-        }).then(returnedData=> {
-            resolve(returnedData)
-        })
-        .catch(
-            err=> err.name==='NotFoundError'?
-                courseStorage.sync.callUpdateCourseData(courseName)
-            :
-                reject(err)
-        )
-     })
-}
-
 // courseStorage.clearMapForKey('course-data');
 
-export const loadAllSavedCourses = () => {
+export const getBranchData = (level) => {
+    const levelLabels = ['course', 'year', 'section']
     return new Promise((resolve, reject) => {
-        courseStorage.getIdsForKey('course-data').then(savedCourses=> {
-            resolve(savedCourses)
-        }).catch(err=> reject(err))
+        readDirectoryAsync(documentDirectory).then(dir=> {
+            let fileNames = dir.filter(fileName => fileName.includes('pastquestions'))
+            .map(name=> name = name.split('-')[level+1])
+            fileNames = ([... new Set(fileNames)])
+            .map(name=> name = {[levelLabels[level]]: name})
+            .sort((a,b)=> Object.values(a)[0]-Object.values(b)[0])
+            resolve(fileNames)
+        })
+        .catch(err=> reject(err))
     })
 }
 
-export const getOfflineCollections = (pathObj, dataToSearch) => {
-    const collectionData = []
-    try {
-        if (pathObj) {
-            const {course, ...usefulPath}= pathObj
-            const path = Object.values(usefulPath).filter(Boolean) /** remove falsey values */
-            path.forEach((item) => {
-                dataToSearch = [... dataToSearch[item.index].data]
-            })
-            dataToSearch.forEach((item, index)=> {
-                const [key] = Object.keys(item)
-                const [value] = Object.values(item)
-                collectionData.push({[key]: value, index})
-            })
-        }
-        return collectionData
-    } catch (error) {
-        console.log('error from getOfflineCollections:', error)
-    }
-}
-
-export const getSectionsLocalQuestions = (pathObj, questionNumber, dataToSearch) => {
-    try {
-        const questionData = dataToSearch[pathObj.year.index]
-        .data[pathObj.section.index]
-        .data[questionNumber.index]
-        .data.data
-        return questionData
-    } catch (error) {
-        console.log(error)
-    }
-
+export const getQuestionSelection = ({course, section, year}) => {
+    return new Promise((resolve, reject) => { 
+        const filePath = `pastquestions-${course.value}-${year.value}-${section.value}`
+        readAsStringAsync(documentDirectory+filePath, {encoding: EncodingType.UTF8})
+        .then(JSON.parse).then(resolve)
+        .catch(err=> console.log('error reaading question data: ', err))
+    })
 }
 
 export const getAllQuestionsInCourse = (course) => {
@@ -283,4 +242,8 @@ export const resetTestData = (courseName) => {
         }).then(resolve).catch(reject)
     })
 }
+
+export const capitalize1stLetter = ([first, ...rest]) =>{
+    return first.toUpperCase() + rest.join("").toLowerCase()
+}; 
 

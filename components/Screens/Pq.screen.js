@@ -11,7 +11,11 @@ import {
 import CheckBox from 'expo-checkbox';
 import {useEffect, useRef, useContext, useState, useCallback} from 'react';
 import Container from '../Reusable/Container.component';
-import { getOfflineCollections, getSectionsLocalQuestions, loadAllSavedCourses, loadCourseData } from '../../utils/pastquestions.utils';
+import { 
+  getBranchData,
+  capitalize1stLetter,
+  getQuestionSelection,
+} from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
@@ -23,21 +27,20 @@ import QuestionComponent from '../Reusable/Question.component';
 import { useFocusEffect } from '@react-navigation/native';
 
 const PqScreen = ({navigation}) => {
-  /** below is th the form {
+  /** below is taToRenderh the form {
     course: {value: string, index: number},
     ...
   } */
   const path = useRef({
     course: null, 
     year: null,
-    subject: null,
     section: null
   })
   
   const colors = useContext(ColorContext)
   // const navigation = useContext(NavigationContext)
-  const [selected, set_selected] = useState(null)
-  const [data, set_data] = useState([])
+  const [indexOfSelectedItem, set_indexOfSelectedItem] = useState(null)
+  const [dataToRender, set_dataToRender] = useState([])
   const [ansData, set_ansData] = useState('')
   const renderQuestionData = useRef(false)
   const label = useRef('Course')
@@ -48,83 +51,59 @@ const PqScreen = ({navigation}) => {
   }, [])
 
   const getListOfCourses = () => {
-    loadAllSavedCourses().then(savedCourses => {
-      const tempArr = [... savedCourses]
-      for (let index = 0; index < savedCourses.length; index++) {
-        const course = savedCourses[index];
-        tempArr[index] = {courseName: course}
-      }
-      renderCollectionData(tempArr)
+    getBranchData(0).then(savedCourses => {
+      renderCollectionData(savedCourses)
     }).catch((err) => {
       console.log(err)
     })
   }
 
-  const renderCollectionData = collectionData => {
+  const renderCollectionData = (collectionData) => {
     const [extractedLabel] = Object.keys(collectionData[0])
-    label.current = extractedLabel !== 'courseName' ? capitalize1stLetter(extractedLabel): 'Course'
-    set_data([... collectionData])
+    label.current = capitalize1stLetter(extractedLabel)
+    set_dataToRender([... collectionData])
   }
-
-  const capitalize1stLetter = ([first, ...rest]) =>{
-    return first.toUpperCase() + rest.join("").toLowerCase()
-  }; 
 
   const changeSelection = (key) => {
-    set_selected(key)
+    set_indexOfSelectedItem(key)
   }
 
-  const getCourseData = (courseName) => {
+  const getCourseData = (level) => {
     return new Promise((resolve, reject) => { 
-      loadCourseData(courseName).then(data => {
-        selectedCourseData.current = [...data]
-        subCollectionData.current = {data: [... extractSubCollections(data)]}
-        console.log('subCollectionData', subCollectionData)
-        resolve(subCollectionData.current.data)
+      getBranchData(level).then(dataToRender => {
+        subCollectionData.current = [... dataToRender]
+        resolve(subCollectionData.current)
       }).catch(err=> reject(err))
     })
   }
 
-  const extractSubCollections = (ItemData) => {
-    const subCollections = []
-    ItemData.forEach(subCollection => {
-      const {data, ...label} = subCollection
-      subCollections.push({...label})
-    });
-    return subCollections
-  }
-  
   const next = () => {
-    if (selected !== null) {
-      if (data[selected]) {
-        const [selectedItem] = Object.values(data[selected])
-        path.current[label.current.toLowerCase()] = {value: selectedItem, index: selected}
+    if (indexOfSelectedItem !== null) {
+      if (dataToRender[indexOfSelectedItem]) {
+        const [selectedItemValue] = Object.values(dataToRender[indexOfSelectedItem])
+        path.current[label.current.toLowerCase()] = {value: selectedItemValue, index: indexOfSelectedItem}
         switch (label.current) {
           case "Course":
-            getCourseData(selectedItem)
+            getCourseData(1)
             .then(renderCollectionData)
           break;
           case "Section":
-            const listOfQuestions = getOfflineCollections(path.current, selectedCourseData.current)
-            console.log('section test', listOfQuestions)
-            const tempArray = []
-            listOfQuestions.forEach(question => {
-              tempArray.push({data: getSectionsLocalQuestions(path.current, question, selectedCourseData.current)})
-            });
-            renderQuestionData.current = true
-            tempArray.length?set_data([...tempArray]):null
+            getQuestionSelection(path.current)
+            .then(questions=> {
+              renderQuestionData.current = true
+              questions.length?set_dataToRender([...questions]):null
+            })
           break;  
           default:
-            const {course, ...pathToUse} = path.current
-            const returnedData = getOfflineCollections(pathToUse, selectedCourseData.current)
-            renderCollectionData(returnedData)
+            getCourseData(2)
+            .then(renderCollectionData)
             break;
         }
       }
     } else {
       ToastAndroid.show(`You Have Not Selected Any ${label.current} Yet`, ToastAndroid.LONG);
     } 
-    set_selected(null)
+    set_indexOfSelectedItem(null)
   }
 
   const previous = () => {
@@ -144,17 +123,13 @@ const PqScreen = ({navigation}) => {
           index--
         }
         path.current[keys[index]] = null
-        console.log('previous test', Object.values(path.current))
-        if (previousLabel === 'Year') {
-          getListOfCourses() 
-        } else {
-          const collectionData = getOfflineCollections(path.current, selectedCourseData.current)
-          renderCollectionData(collectionData)
-        }
-        label.current === 'Questionnumber'?previous():null
+        console.log('previous test', previousLabel)
+        getCourseData(Object.values(path.current).filter(Boolean).length)
+        .then(renderCollectionData)
         return true
       } else {
-        getListOfCourses()
+        getCourseData(0)
+        .then(renderCollectionData)
       }
       return false
     }
@@ -171,8 +146,8 @@ const PqScreen = ({navigation}) => {
   //   }
   // });
 
-  const showAns = (data) => {
-    set_ansData(data)
+  const showAns = (dataToRender) => {
+    set_ansData(dataToRender)
     console.log('ansData', ansData)
   }
 
@@ -319,15 +294,15 @@ const PqScreen = ({navigation}) => {
                 </Heading>
               </View>
               <ScrollView style={styles.optionsScroll}>
-                  {data.length?
-                    data.map((item, index)=> {
+                  {dataToRender.length?
+                    dataToRender.map((item, index)=> {
                       return (
                         <View key={index}>
                           <TouchableHighlight underlayColor={colors.underlayColor} style={styles.options} key={index.toString()} onPress = {()=> changeSelection(index)}>
                             <>
                               <CText style={styles.optionsText}>{Object.values(item)[0].toUpperCase()}</CText>
                               <CheckBox
-                                value={selected === index? true:false}
+                                value={indexOfSelectedItem === index? true:false}
                                 onValueChange={()=> changeSelection(index)}
                                 tintColors={{true: colors.appColor}}
                               />
@@ -355,12 +330,9 @@ const PqScreen = ({navigation}) => {
               <TouchableHighlight onPress={previous}>
                 <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
               </TouchableHighlight>
-              {/* <Heading extraStyles={{... styles.heading, ...{color: colors.defaultText}}}>
-                {([... Object.values(path.current)]).filter(item=> item&&item.value !== undefined).join(' > ')}
-              </Heading> */}
             </View>
             <FlatList
-              data={data}
+              data={dataToRender}
               contentContainerStyle = {{width: '100%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
               renderItem={({item}) => {
                 const {data} = item
