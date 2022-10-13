@@ -1,10 +1,10 @@
-import firebase from "firebase/compat/app"
-import 'firebase/compat/firestore'
-import 'firebase/compat/auth'
-import 'firebase/compat/database'
+import {initializeApp} from "firebase/app"
+import {getAuth} from 'firebase/auth'
+import {getFirestore} from 'firebase/firestore'
+import {getDatabase} from 'firebase/database'
 // import {FIREBASE_PROJECT_KEY, MESSAGING_SENDER_ID} from '@env'
 
-const app = firebase.initializeApp({
+const app = initializeApp({
     apiKey: "AIzaSyC2F7JanDLFe5bQ7kVNUhajVUbHBXiMpIE",
     authDomain: "jupebmacbase.firebaseapp.com",
     projectId: "jupebmacbase",
@@ -15,8 +15,8 @@ const app = firebase.initializeApp({
     measurementId: "G-YFE7Q5GGLW"
 });
 
-export const auth = firebase.auth()
-export const firestore = firebase.firestore()
-firestore.settings({ experimentalForceLongPolling: true, merge:true });
-export const rtdb = firebase.database()
+export const auth = getAuth(app)
+export const firestore = getFirestore(app)
+// firestore.settings({ experimentalForceLongPolling: true, merge:true });
+export const rtdb = getDatabase(app)
 // export const storage = firebase.storage()

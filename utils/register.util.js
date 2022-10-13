@@ -1,7 +1,8 @@
 import { auth, rtdb } from './firebaseInit';
+import { ref, update } from 'firebase/database';
 import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const usersCollection =  rtdb.ref('users')
+const usersCollection =  ref(rtdb, 'users')
 
 const userStorage = new Storage({
   size: 1000,
@@ -102,7 +103,7 @@ export const updateOnlineUserData = (selectedCourses, uid) => {
     selectedCourses.forEach((course) => {
       course.paid = true
     });
-    usersCollection.child(uid).update({selectedCourses}, () => {
+    update(ref(rtdb, `users/${uid}`), {selectedCourses}).then(() => {
       resolve(selectedCourses)
     }).catch(err=> reject(err))
   })

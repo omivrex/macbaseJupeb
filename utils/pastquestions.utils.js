@@ -1,6 +1,10 @@
-import {firestore} from "./firebaseInit"
+import { collection, getDocs } from "firebase/firestore"
 import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { documentDirectory, EncodingType, writeAsStringAsync } from "expo-file-system";
+import { firestore } from "./firebaseInit";
+
+
 
 const courseStorage = new Storage({
     storageBackend: AsyncStorage, // for web: window.localStorage
@@ -15,25 +19,17 @@ const courseStorage = new Storage({
 })
 
 export const getOnlineCollections = (collectionName = 'pastquestions', returnId) => {
-    const collectionData = []
     return new Promise((resolve, reject) => {
-        // let maxWaitTime = setTimeout(() => { /** add maximum time to prevent app from seemimg like it hanged */
-        //     resolve(collectionData)
-        // }, 5000);
-        firestore.collection(collectionName).get().then((snapShot)=> {
+        const collectionData = []
+        getDocs(collection(firestore, collectionName)).then((snapShot)=> {
             snapShot.forEach(doc => {
                 if (returnId) {
                     const content = doc.data()
-                    // console.log('content:', content)
                     collectionData.push({data:content.Data, id:doc.id})
                 } else {
                     collectionData.push(doc.data())
                 }
             });
-
-            // if (collectionData.length>0) {
-            //     clearTimeout(maxWaitTime);
-            // }
             resolve(collectionData)
         }).catch (err => {
             console.log(err)
@@ -63,7 +59,6 @@ export const updateCourseData = (name) => {
                 promiseArray.push(getSubCollections(currentPath, data)
                 .then(()=> {
                     index === collectionData.length-1 && Promise.all(promiseArray)
-                    .then(values=> console.log('promise values:', values))
                     .then(resolve).catch(err=> console.log(err))
                 }))
             })
@@ -86,7 +81,7 @@ const getSubCollections = (path, parentObj) => {
                         key === 'questionNumber'?getQuestionData(collection, itemDataPath).then(() => {
                             console.log('Downloading Data For:', itemDataPath, index, (index === parentObj.data.length-1));
                             (index === parentObj.data.length-1) && Promise.all(questionPromises).then(()=> {
-                                // console.log(courseName, courseData)
+                                // console.log(itemDataPath)
                                 saveCourseData(courseName, courseData)
                             }).catch(err=> console.log('saving questions error: ', err))
                         }).catch(reject)
@@ -95,17 +90,6 @@ const getSubCollections = (path, parentObj) => {
                 });
 
                 resolve()
-
-                // for (let i = 0, p = Promise.resolve(); i < parentObj.data.length; i++) {
-                //     const collection = parentObj.data[i]
-                    
-                //     p = key === 'questionNumber'?p.then(() => getQuestionData(collection, itemDataPath).then(()=> {
-                //         console.log('Downloading Data For:', itemDataPath, i, (i === parentObj.data.length-1))
-                //         (i === parentObj.data.length-1) && Promise.all(p)
-                //     })).catch(reject)
-                //     : p.then(()=> getSubCollections(itemDataPath, collection))
-                // }
-                // resolve(parentObj)
             } catch (error) {
                 reject (error)
             }
@@ -117,23 +101,23 @@ const getQuestionData = (question, path) => {
     return new Promise((resolve, reject) => {
         getOnlineCollections(path, true).then(([returned]) => {
             const {data} = returned
-            // console.log(path, returned)
             question.data = data?{...data}:null
-            // const label = path.split('/')
-            // console.log('test for section', label)
-            // console.log('data: ', path, question)
             resolve(question)
         }).catch(reject)
     })
 }
 
 const saveCourseData = (courseName, courseData) => {
-    // console.log('courseData: ', courseData)
-    courseStorage.save({
-        id: courseName,
-        key: 'course-data',
-        data: courseData,
-    }).catch(err=> console.log('error from saveCourseData: ', err))
+    const fileName = documentDirectory+courseName
+    const data = JSON.stringify(courseData, function replacer(key, value) { return value})
+    console.log('data to save:', fileName)
+    // console.log('courseData: ', courseName)
+    writeAsStringAsync(fileName, data, {encoding: EncodingType.UTF8}).catch(err=> console.log('error from saveCourseData: ', err))
+    // courseStorage.save({
+    //     id: courseName,
+    //     key: 'course-data',
+    //     data: courseData,
+    // })
 }
 
 // courseStorage.clearMapForKey({
