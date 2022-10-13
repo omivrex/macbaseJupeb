@@ -1,7 +1,8 @@
 import { auth, rtdb } from './firebaseInit';
-import { ref, update } from 'firebase/database';
+import { ref, set, update } from 'firebase/database';
 import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 const usersCollection =  ref(rtdb, 'users')
 
 const userStorage = new Storage({
@@ -50,11 +51,11 @@ export const validatePhone = phone => {
 
 export const signIn = (userData, selectedCourses, userExists) => {
     return new Promise((resolve, reject) => { 
-        !userExists? auth.createUserWithEmailAndPassword(userData.email, userData.pswd).then(()=> {
+        !userExists?createUserWithEmailAndPassword(auth, userData.email, userData.pswd).then(()=> {
           auth.onAuthStateChanged(({uid}) => {
             if (uid) {
               const {pswd, ...uploadData} = {...userData, selectedCourses, regDate: new Date().getTime()}
-              usersCollection.child(uid).set(uploadData, () => {
+              set(ref(rtdb, `users/${uid}`), uploadData).then(() => {
                 resolve({...uploadData, uid})
               }).catch(err=> reject(err))
             }
