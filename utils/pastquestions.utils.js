@@ -79,10 +79,10 @@ const getSubCollections = (path, parentObj) => {
                     let itemDataPath = path + `/${label}/${label}`
                     questionPromises.push(
                         key === 'questionNumber'?getQuestionData(collection, itemDataPath).then(() => {
-                            console.log('Downloading Data For:', itemDataPath, index, (index === parentObj.data.length-1));
+                            // console.log('Downloading Data For:', itemDataPath, index, (index === parentObj.data.length-1));
                             (index === parentObj.data.length-1) && Promise.all(questionPromises).then(()=> {
                                 // console.log(itemDataPath)
-                                saveCourseData(courseName, courseData)
+                                saveCourseData(parentObj.data, path)
                             }).catch(err=> console.log('saving questions error: ', err))
                         }).catch(reject)
                         : getSubCollections(itemDataPath, collection)
@@ -107,18 +107,11 @@ const getQuestionData = (question, path) => {
     })
 }
 
-const saveCourseData = (courseName, courseData) => {
-    const fileName = documentDirectory+courseName
-    const data = JSON.stringify(courseData, function replacer(key, value) { return value})
-    console.log('data to save:', fileName)
-    // console.log('courseData: ', courseName)
-    writeAsStringAsync(fileName, data, {encoding: EncodingType.UTF8}).catch(err=> console.log('error from saveCourseData: ', err))
-    // courseStorage.save({
-    //     id: courseName,
-    //     key: 'course-data',
-    //     data: courseData,
-    // })
+const saveCourseData = (data, path) => {
+    const fileName = documentDirectory+path.split('/').join('-')
+    writeAsStringAsync(fileName, JSON.stringify(data, function replacer(key, value) { return value}), {encoding: EncodingType.UTF8}).then(()=> console.log('succesfully saved :', path)).catch(err=> console.log('error from saveCourseData: ', err))
 }
+
 
 // courseStorage.clearMapForKey({
 //     key: 'course-data',
