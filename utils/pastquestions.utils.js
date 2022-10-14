@@ -4,18 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { documentDirectory, EncodingType, readAsStringAsync, readDirectoryAsync, writeAsStringAsync } from "expo-file-system";
 import { firestore } from "./firebaseInit";
 
-const courseStorage = new Storage({
-    storageBackend: AsyncStorage, // for web: window.localStorage
-    defaultExpires: null,
-    enableCache: false,
-    sync: {
-        callUpdateCourseData(...args) {
-            updateCourseData(...args)
-            .then(()=>loadCourseData(courseName))
-        }
-    }
-})
-
 export const getOnlineCollections = (collectionName = 'pastquestions', returnId) => {
     return new Promise((resolve, reject) => {
         const collectionData = []
