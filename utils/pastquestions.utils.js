@@ -24,11 +24,8 @@ export const getOnlineCollections = (collectionName = 'pastquestions', returnId)
     })
 }
     
-let courseData = []
-let courseName = ''
-export const updateCourseData = (name) => {
-    courseData = []
-    courseName = name
+export const updateCourseData = (courseName, callback) => {
+    let courseData = []
     return new Promise((resolve, reject) => { 
         const rootPath = `pastquestions/${courseName}/${courseName}`
 
@@ -42,7 +39,7 @@ export const updateCourseData = (name) => {
                 courseData.push(data)
                 let currentPath = rootPath+`/${label}/${label}`
                 console.log(currentPath)
-                promiseArray.push(getSubCollections(currentPath, data)
+                promiseArray.push(getSubCollections(currentPath, data, callback)
                 .then(()=> {
                     index === collectionData.length-1 && Promise.all(promiseArray)
                     .then(resolve).catch(err=> console.log(err))
@@ -66,10 +63,8 @@ const getSubCollections = (path, parentObj) => {
                     questionPromises.push(
                         key === 'questionNumber'?getQuestionData(collection, itemDataPath).then(() => {
                             // console.log('Downloading Data For:', itemDataPath, index, (index === parentObj.data.length-1));
-                            (index === parentObj.data.length-1) && Promise.all(questionPromises).then(()=> {
-                                // console.log(itemDataPath)
-                                saveCourseData(parentObj.data, path)
-                            }).catch(err=> console.log('saving questions error: ', err))
+                            (index === parentObj.data.length-1) && Promise.all(questionPromises)
+                            .then(()=> saveCourseData(parentObj.data, path)).catch(err=> console.log('saving questions error: ', err))
                         }).catch(reject)
                         : getSubCollections(itemDataPath, collection)
                     )
