@@ -11,7 +11,7 @@ import {
 import CheckBox from 'expo-checkbox';
 import {useRef, useContext, useState, useCallback} from 'react';
 import Container from '../Reusable/Container.component';
-import { getAllQuestionsInCourse, getBranchData, loadAllTestData, resetTestData, shuffleAndCutQuestions, storeTestResult } from '../../utils/pastquestions.utils';
+import { capitalize1stLetter, getAllQuestionsInCourse, getBranchData, loadAllTestData, resetTestData, shuffleAndCutQuestions, storeTestResult } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
@@ -616,7 +616,7 @@ const CbtScreen = () => {
                         <View key={courseName} style={styles.graphContainer}>
                           <View style={styles.headingWrapper}>
                             <Heading extraStyles={styles.heading}>
-                              Your Performance In {courseName}
+                              Your Performance In {capitalize1stLetter(courseName)}
                             </Heading>
                           </View>
                           <ScrollView ref={scrollViewRef} onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })} style={styles.graph} contentContainerStyle={{alignItems: 'flex-end', justifyContent: 'space-around'}} horizontal={true}>
@@ -658,7 +658,7 @@ const CbtScreen = () => {
                         <View key={courseName} style={styles.graphContainer}>
                           <View style={styles.headingWrapper}>
                             <Heading extraStyles={styles.heading}>
-                              Your Performance In {courseName}
+                              Your Performance In {capitalize1stLetter(courseName)}
                             </Heading>
                           </View>
                           <ScrollView ref={scrollViewRef} onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })} style={styles.graph} contentContainerStyle={{alignItems: 'flex-end', justifyContent: 'space-around'}} horizontal={true}>
