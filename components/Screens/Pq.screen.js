@@ -38,7 +38,6 @@ const PqScreen = ({navigation}) => {
   })
   
   const colors = useContext(ColorContext)
-  // const navigation = useContext(NavigationContext)
   const [indexOfSelectedItem, set_indexOfSelectedItem] = useState(null)
   const [dataToRender, set_dataToRender] = useState([])
   const [ansData, set_ansData] = useState('')
