@@ -104,7 +104,6 @@ export const getBranchData = (level, courseName = '') => {
     const levelLabels = ['course', 'year', 'section']
     return new Promise((resolve, reject) => {
         readDirectoryAsync(documentDirectory).then(dir=> {
-            console.log('courseName: ', courseName)
             let fileNames = dir.filter(fileName => fileName.includes('pastquestions') && fileName.includes(courseName))
             .map(name=> name = name.split('-')[level+1])
             fileNames = ([... new Set(fileNames)])
@@ -126,29 +125,36 @@ export const getQuestionSelection = ({course, section, year}) => {
 }
 
 export const getAllQuestionsInCourse = (course) => {
+    console.log(course)
+    const promiseArray = []
     let questions = []
     return new Promise((resolve, reject) => {
-        loadCourseData(course)
-        .then(years => {
-            years.forEach(year => {
-                const sections = year.data
-                const [objData] = sections.filter(({section})=> section === 'Objective')
-                const sectionQuestion = objData?.data
-                questions = questions.concat(sectionQuestion)
-            });
-        }).then(() => {
-            questions.length && resolve(questions.filter(Boolean))
-            console.log('questions',questions)
-        }).catch(err=>{
-            reject(err)
+        getBranchData(1, course)
+        .then(data => {
+            console.log(data)
+            const years = Object.values(data)
+            years.forEach(({year})=> {
+                promiseArray.push(
+                    getQuestionSelection({
+                        course: {value: course},
+                        section: {value: 'Objective'}, 
+                        year: {value: year}
+                    })
+                    .then(data=> questions.push(...data))
+                )
+            })
+        }).then(() =>Promise.all(promiseArray))
+        .finally(()=> questions.length && resolve(questions.filter(Boolean)))
+        .catch(err=>{
             console.log('Error from getAllQuestionsInCourse', err)
+            reject(err)
         });
     })
 }
 
 export const shuffleAndCutQuestions = (questionsArray, lengthToCut) => {
-    const shuffledArray = questionsArray.sort(() => 0.5 - Math.random())
-    return shuffledArray.slice(0, lengthToCut)
+    const shuffledArray = questionsArray.sort(() => 0.5 - Math.random()).slice(0, lengthToCut)
+    return shuffledArray
 }
 
 const testResultStorage = new Storage({

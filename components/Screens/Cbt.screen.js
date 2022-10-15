@@ -9,9 +9,9 @@ import {
   ToastAndroid,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
-import {useEffect, useRef, useContext, useState, useCallback} from 'react';
+import {useRef, useContext, useState, useCallback} from 'react';
 import Container from '../Reusable/Container.component';
-import { getAllQuestionsInCourse, loadAllSavedCourses, loadAllTestData, resetTestData, shuffleAndCutQuestions, storeTestResult } from '../../utils/pastquestions.utils';
+import { getAllQuestionsInCourse, getBranchData, loadAllTestData, resetTestData, shuffleAndCutQuestions, storeTestResult } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
@@ -41,8 +41,8 @@ const CbtScreen = () => {
   
 
   const getListOfCourses = () => {
-    loadAllSavedCourses().then(savedCourses => {
-      renderCollectionData(savedCourses)
+    getBranchData(0).then(savedCourses => {
+      renderCollectionData(savedCourses.map(data=> data = data.course))
     }).catch((err) => {
       console.log(err)
     })
@@ -72,14 +72,13 @@ const CbtScreen = () => {
   }
 
 
-  const start = async () => {
+  const start = () => {
     if (selectedOptions.course && selectedOptions.time) {
       const {course} = selectedOptions
-      let questions = []
-      questions = [... await getAllQuestionsInCourse(course)]
-      const randomQuestions = shuffleAndCutQuestions([...questions.filter(Boolean)], 50)
-      displayQuestions(randomQuestions)
-      runCountDown()
+      getAllQuestionsInCourse(course)
+      .then(questions=> shuffleAndCutQuestions([...questions], 50))
+      .then(displayQuestions)
+      .then(runCountDown)
     } else {
       ToastAndroid.show(`You Have Not Selected Any time Yet`, ToastAndroid.SHORT);
     }
@@ -87,6 +86,7 @@ const CbtScreen = () => {
 
   const displayQuestions = (dataToDisplay = questionData) => {
     shouldRenderQuestions.current = true
+    // console.log(dataToDisplay)
     set_questionData([... dataToDisplay])
   }
 
@@ -133,7 +133,7 @@ const CbtScreen = () => {
   const markTest = () => {
     questionData.forEach((question) => {
       if (question.data) {
-        const {data} = question.data
+        const {data} = question
         if (data.correctOption === data.userAns || data.correctOption === '' && data.userAns != '') { // if user got the answer or if there is no correct option but th user attempted the question
           score.current++
         }
@@ -442,7 +442,7 @@ const CbtScreen = () => {
                   data={questionData}
                   contentContainerStyle = {{width: '100%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
                   renderItem={({item}) => {
-                    const dataToRender = item?.data?.data
+                    const dataToRender = item.data
                     if (dataToRender) {
                       return (
                         <QuestionComponent dataToRender={dataToRender}>
@@ -501,7 +501,7 @@ const CbtScreen = () => {
                   style={{width: '100%', overflow: 'scroll', marginBottom: '10%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
                   contentContainerStyle = {{}}
                   renderItem={({item}) => {
-                    const dataToRender = item?.data?.data
+                    const dataToRender = item.data
                     if (dataToRender) {
                       return (
                         <QuestionComponent dataToRender={dataToRender}>
