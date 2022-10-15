@@ -48,6 +48,7 @@ const PqScreen = ({navigation}) => {
   const selectedCourseData = useRef([])
   useEffect(()=> {
     getListOfCourses()
+    return BackHandler.removeEventListener('hardwareBackPress', ()=> console.log('backhandler removed'))
   }, [])
 
   const getListOfCourses = () => {
@@ -107,44 +108,40 @@ const PqScreen = ({navigation}) => {
   }
 
   const previous = () => {
-    const previousLabel = label.current
-    if (ansData !== '') {
-      set_ansData('')
-      return true
-    } else {
-      if (renderQuestionData.current) {
-        renderQuestionData.current = false
-      }
-      console.log('test previous', Object.values(path.current).filter(Boolean))
-      if (Object.values(path.current).filter(Boolean).length > 0) {
+    let level = Object.values(path.current).filter(Boolean).length
+    level = level === 0?-1:level
+    if (level>-1) {
+      if (ansData !== '') {
+        set_ansData('')
+        // return true
+      } else {
+        if (renderQuestionData.current) {
+          renderQuestionData.current = false
+        }
         const keys = Object.keys(path.current)
         let index = keys.length - 1
         while (path.current[keys[index]] === null && index>0) { /** start with the last property if its null move to the next untill you reach the final property where the index is 0*/
           index--
         }
         path.current[keys[index]] = null
-        console.log('previous test', previousLabel)
-        getCourseData(Object.values(path.current).filter(Boolean).length)
-        .then(renderCollectionData)
-        return true
-      } else {
-        getCourseData(0)
+        level = Object.values(path.current).filter(Boolean).length
+        getCourseData(level)
         .then(renderCollectionData)
       }
-      return false
     }
+    return level>-1
   }
+  console.log('Test alpha', Object.values(path.current).filter(Boolean).length, navigation.isFocused())
 
-  // BackHandler.addEventListener('hardwareBackPress', () => {
-  //   try {
-  //     // console.log('Test alpha', Object.values(path.current).filter(Boolean).length && navigation.isFocused())
-  //     return previous() && navigation.isFocused()
-  //   }
-  //   catch (err) {
-  //     ToastAndroid.show(err, ToastAndroid.LONG);
-  //     return true;
-  //   }
-  // });
+  BackHandler.addEventListener('hardwareBackPress', () => {
+    try {
+      return previous() && navigation.isFocused()
+    }
+    catch (err) {
+      ToastAndroid.show(err, ToastAndroid.LONG);
+      return false;
+    }
+  });
 
   const showAns = (dataToRender) => {
     set_ansData(dataToRender)
