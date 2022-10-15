@@ -27,7 +27,7 @@ import QuestionComponent from '../Reusable/Question.component';
 import { useFocusEffect } from '@react-navigation/native';
 
 const PqScreen = ({navigation}) => {
-  /** below is taToRenderh the form {
+  /** below is to be Rendered in the form {
     course: {value: string, index: number},
     ...
   } */
@@ -44,7 +44,8 @@ const PqScreen = ({navigation}) => {
   const renderQuestionData = useRef(false)
   const label = useRef('Course')
   const subCollectionData = useRef({})
-  const selectedCourseData = useRef([])
+const selectedCourse = useRef('')
+
   useEffect(()=> {
     getListOfCourses()
     return BackHandler.removeEventListener('hardwareBackPress', ()=> console.log('backhandler removed'))
@@ -65,12 +66,13 @@ const PqScreen = ({navigation}) => {
   }
 
   const changeSelection = (key) => {
+    selectedCourse.current =  label.current === 'Course'?dataToRender[key].course:selectedCourse.current
     set_indexOfSelectedItem(key)
   }
 
-  const getCourseData = (level) => {
+  const getCourseData = (level, courseName = selectedCourse.current) => {
     return new Promise((resolve, reject) => { 
-      getBranchData(level).then(dataToRender => {
+      getBranchData(level, courseName).then(dataToRender => {
         subCollectionData.current = [... dataToRender]
         resolve(subCollectionData.current)
       }).catch(err=> reject(err))
@@ -128,6 +130,7 @@ const PqScreen = ({navigation}) => {
         .then(renderCollectionData)
       }
     }
+    selectedCourse.current = level === 1? '':selectedCourse.current
     return level>-1
   }
   console.log('Test alpha', Object.values(path.current).filter(Boolean).length, navigation.isFocused())

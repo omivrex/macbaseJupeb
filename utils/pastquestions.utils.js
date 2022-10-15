@@ -100,11 +100,12 @@ const saveCourseData = (data, path) => {
 
 // courseStorage.clearMapForKey('course-data');
 
-export const getBranchData = (level) => {
+export const getBranchData = (level, courseName = '') => {
     const levelLabels = ['course', 'year', 'section']
     return new Promise((resolve, reject) => {
         readDirectoryAsync(documentDirectory).then(dir=> {
-            let fileNames = dir.filter(fileName => fileName.includes('pastquestions'))
+            console.log('courseName: ', courseName)
+            let fileNames = dir.filter(fileName => fileName.includes('pastquestions') && fileName.includes(courseName))
             .map(name=> name = name.split('-')[level+1])
             fileNames = ([... new Set(fileNames)])
             .map(name=> name = {[levelLabels[level]]: name})
