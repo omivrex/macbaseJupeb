@@ -1,10 +1,10 @@
-import {firestore} from "./firebaseInit"
-
+import { collection, getDocs } from "firebase/firestore"
+import { firestore } from "./firebaseInit"
 
 export const getSectionData = (section) => {
     let sectionArray = []
     return new Promise((resolve, reject) => { 
-        firestore.collection(section).get().then(snapShot=> {
+        getDocs(collection(firestore, section)).then(snapShot=> {
             snapShot.forEach(doc => {
                 sectionArray.push(doc.data())
             });

@@ -1,7 +1,9 @@
 import { auth, rtdb } from './firebaseInit';
+import { ref, set, update } from 'firebase/database';
 import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const usersCollection =  rtdb.ref('users')
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+const usersCollection =  ref(rtdb, 'users')
 
 const userStorage = new Storage({
   size: 1000,
@@ -40,7 +42,7 @@ export const validatePhone = phone => {
         const validPhoneChars = new RegExp(/[1234567890]/)
         if (validPrifixsInNigeria.filter(prefix=> queryStr.search(prefix) === 0).length) {
             if (queryStr.search(validPhoneChars) !== -1) {
-                return true
+              return true
             }  
         }
     }
@@ -49,17 +51,15 @@ export const validatePhone = phone => {
 
 export const signIn = (userData, selectedCourses, userExists) => {
     return new Promise((resolve, reject) => { 
-        !userExists? auth.createUserWithEmailAndPassword(userData.email, userData.pswd).then(()=> {
-            auth.onAuthStateChanged(({uid}) => {
-                console.log('uid:', uid)
-              if (uid) {
-                const {pswd, ...uploadData} = {...userData, selectedCourses, regDate: new Date().getTime()}
-                console.log('uploadData:', uploadData)
-                usersCollection.child(uid).set(uploadData, () => {
-                  resolve({...uploadData, uid})
-                })
-              }
-            })
+        !userExists?createUserWithEmailAndPassword(auth, userData.email, userData.pswd).then(()=> {
+          auth.onAuthStateChanged(({uid}) => {
+            if (uid) {
+              const {pswd, ...uploadData} = {...userData, selectedCourses, regDate: new Date().getTime()}
+              set(ref(rtdb, `users/${uid}`), uploadData).then(() => {
+                resolve({...uploadData, uid})
+              }).catch(err=> reject(err))
+            }
+          })
         }).catch(err=> reject(err))
         : (()=> {
           resolve({...userData})
@@ -73,8 +73,7 @@ export const saveUserDetails = (userDetails) => {
       userStorage.save({
         key: 'userDetails',
         data: userDetails,
-      })
-      resolve (userDetails)
+      }).then(()=> resolve (userDetails))
     } else {
       reject('User details is not present')
     }
@@ -105,7 +104,7 @@ export const updateOnlineUserData = (selectedCourses, uid) => {
     selectedCourses.forEach((course) => {
       course.paid = true
     });
-    usersCollection.child(uid).update({selectedCourses}, () => {
+    update(ref(rtdb, `users/${uid}`), {selectedCourses}).then(() => {
       resolve(selectedCourses)
     }).catch(err=> reject(err))
   })

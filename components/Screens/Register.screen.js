@@ -51,14 +51,12 @@ const RegisterScreen = () => {
     useCallback(() => {
       getUserDetails().then((userDetails)=> {
         if (userDetails !== null) {
-          console.log('userDetails', userDetails)
           userExists.current = true
           const {selectedCourses, uid, ...everythingElse} = userDetails
           userId.current = uid
           userData.current = {... everythingElse}
           displayBackButn.current = false
           getCoursesFromDB()
-          // userDetails.selectedCourses.map(course=> course.paid=true)
           set_selectedCourses([... selectedCourses]) 
           ToastAndroid.showWithGravity(`You have Already Registered.`, ToastAndroid.SHORT, ToastAndroid.CENTER)
         } else {
@@ -109,12 +107,12 @@ const RegisterScreen = () => {
       }
     })
     .then(()=> set_currentPath(path||'Choose Your Courses'))
-    .catch(()=> handleErr(getCoursesFromDB, path))
+    .catch(()=> handleErr('Network Error!', getCoursesFromDB, path))
   }
 
-  const handleErr = (callback, arg) => {
-    ToastAndroid.showWithGravity('Network Error!', ToastAndroid.SHORT, ToastAndroid.CENTER)
-    navigation.isFocused()&& callback(arg)
+  const handleErr = (err, callback, arg) => {
+    typeof err === 'string' && ToastAndroid.showWithGravity(err, ToastAndroid.SHORT)
+    callback && navigation.isFocused() && callback(arg)
   }
 
   const previous = () => {  
@@ -151,10 +149,7 @@ const RegisterScreen = () => {
           }, 1000);
           paymentCallBack()
         }
-      }).catch(err=> {
-        console.log('signInAndPay Error', typeof err, err)
-        ToastAndroid.show(err, ToastAndroid.SHORT)
-      })
+      }).catch(handleErr)
     } else if (selectedCourses.length) {
       paymentResponseHandler(true)
     } else {
@@ -167,10 +162,10 @@ const RegisterScreen = () => {
       updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(async updatedUserData => {
         for await (const course of updatedSelectedCourses) {
           set_loadingValue(isUpdate?'Updating Paid Courses':'Downloading Courses...')
-          updateCourseData(course.courseName, ()=> set_loadingValue(''))
+          updateCourseData(course.courseName).finally(()=> set_loadingValue(''))
         }
-      })
-    }).catch(err=> ToastAndroid.show(err, ToastAndroid.SHORT))
+      }).catch(handleErr)
+    }).catch(handleErr)
   }
 
   const styles = StyleSheet.create({
@@ -362,7 +357,7 @@ const RegisterScreen = () => {
                       <View style={styles.labelWrapper}>
                         <FontAwesome name="user" style={styles.icons} size={24} color={colors.tabColor} />
                         <Text style={styles.label}>
-                          Full name 
+                          Full name
                         </Text>
                       </View>
                       <TextInput key={'name'} defaultValue={userData.current.name&&userData.current.name} onChangeText={value=> userData.current.name = value} style={styles.textInput}></TextInput>

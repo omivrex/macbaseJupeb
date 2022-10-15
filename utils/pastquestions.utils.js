@@ -1,164 +1,127 @@
-import {firestore} from "./firebaseInit"
+import { collection, getDocs } from "firebase/firestore"
 import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { documentDirectory, EncodingType, readAsStringAsync, readDirectoryAsync, writeAsStringAsync } from "expo-file-system";
+import { firestore } from "./firebaseInit";
 
-const courseStorage = new Storage({
-    storageBackend: AsyncStorage, // for web: window.localStorage
-    defaultExpires: null,
-    enableCache: false,
-    sync: {
-        callUpdateCourseData(...args) {
-            updateCourseData(...args)
-            .then(()=>loadCourseData(courseName))
-        }
-    }
-})
-
-export const updateCourseData = (courseName, callback) => {
-    return new Promise((resolve, reject) => { 
-        let courseData = []
-        const rootPath = `pastquestions/${courseName}/${courseName}`
-        getOnlineCollections(rootPath).then(async collectionData => {
-            console.log(collectionData)
-            let index = 0
-            for await (const data of collectionData){
-                let [label] = Object.values(data)
-                data.data = []
-                courseData.push(data)
-                let currentPath = rootPath+`/${label}/${label}`
-                getSubCollections(currentPath, data, courseData)
-                index === collectionData[collectionData.length-1]?resolve(courseData):null
-                index++
-            }
-            callback()
-        }).catch(err=> reject(err))
-     })
-}
-
-const getSubCollections = (path, parentObj, courseData) => {
-    getOnlineCollections(path).then(async data =>{
-        parentObj.data = [...data]
-        for await (const item of parentObj.data) {
-            let [label] = Object.values(item)
-            let [key] = Object.keys(item)
-            let itemDataPath = path + `/${label}/${label}`
-            key === 'questionNumber'?getQuestionData(item, itemDataPath, courseData)
-            : getSubCollections(itemDataPath, item, courseData)
-        }
-    })
-}
-
-const getQuestionData = (questionObj, path, courseData) => {
-    getOnlineCollections(path, true).then(([questionData]) => {
-        questionObj.data = questionData
-        const courseName = path.split('/')[1]
-        // console.log('getQuestionData courseData', courseData)
-        saveCourseData(courseName, courseData)
-    })
-}
-
-const saveCourseData = (courseName, courseData) => {
-    courseStorage.save({
-        id: courseName,
-        key: 'course-data',
-        data: courseData,
-    })
-}
-
-// courseStorage.remove({
-//     key: 'course-data',
-//     id: 'maths'
-// })
-
-export const loadCourseData = (courseName) => {
+export const getOnlineCollections = (collectionName = 'pastquestions', returnId) => {
     return new Promise((resolve, reject) => {
-        courseStorage.load({
-          key: 'course-data',
-          id: courseName,
-          syncInBackground: true,
-          syncParams: {
-            courseName
-          }
-        }).then(returnedData=> {
-            resolve(returnedData)
-        })
-        .catch(
-            err=> err.name==='NotFoundError'?
-                courseStorage.sync.callUpdateCourseData(courseName)
-            :
-                reject(err)
-        )
-     })
-}
-
-// courseStorage.remove({
-//   key: 'course-data',
-//   id: 'physics'
-// });
-
-
-export const getOnlineCollections = (collectionName, returnId) => {
-    const collectionData = []
-    return new Promise((resolve, reject) => {
-        let maxWaitTime = setTimeout(() => { /** add maximum time to prevent app from seemimg like it hanged */
-            resolve(collectionData)
-        }, 5000);
-        firestore.collection(collectionName?collectionName:'pastquestions').get().then((snapShot)=> {
+        const collectionData = []
+        getDocs(collection(firestore, collectionName)).then((snapShot)=> {
             snapShot.forEach(doc => {
-                returnId?collectionData.push({data:doc.data().Data, id:doc.id})
-                :collectionData.push(doc.data())
+                if (returnId) {
+                    const content = doc.data()
+                    collectionData.push({data:content.Data, id:doc.id})
+                } else {
+                    collectionData.push(doc.data())
+                }
             });
-            if (collectionData.length>0) {
-                clearTimeout(maxWaitTime);
-                resolve(collectionData)
-            }
+            resolve(collectionData)
         }).catch (err => {
             console.log(err)
             reject(err)
         })
     })
 }
+    
+export const updateCourseData = (courseName, callback) => {
+    let courseData = []
+    return new Promise((resolve, reject) => { 
+        const rootPath = `pastquestions/${courseName}/${courseName}`
 
-export const loadAllSavedCourses = () => {
-    return new Promise((resolve, reject) => {
-        courseStorage.getIdsForKey('course-data').then(savedCourses=> {
-            resolve(savedCourses)
-        }).catch(err=> reject(err))
+        getOnlineCollections(rootPath).then(collectionData => {
+            
+            const promiseArray = []
+            
+            collectionData.forEach((data, index) => {
+                let [label] = Object.values(data)
+                data.data = []
+                courseData.push(data)
+                let currentPath = rootPath+`/${label}/${label}`
+                console.log(currentPath)
+                promiseArray.push(getSubCollections(currentPath, data, callback)
+                .then(()=> {
+                    index === collectionData.length-1 && Promise.all(promiseArray)
+                    .then(resolve).catch(err=> console.log(err))
+                }))
+            })
+        }).catch(reject)
+     })
+}
+
+const getSubCollections = (path, parentObj) => {
+    return new Promise((resolve, reject) => { 
+        getOnlineCollections(path).then(data =>{
+            try {
+                parentObj.data = [...data]
+                const questionPromises = []
+
+                parentObj.data.forEach((collection, index) => {
+                    let [label] = Object.values(collection)
+                    let [key] = Object.keys(collection)
+                    let itemDataPath = path + `/${label}/${label}`
+                    questionPromises.push(
+                        key === 'questionNumber'?getQuestionData(collection, itemDataPath).then(() => {
+                            // console.log('Downloading Data For:', itemDataPath, index, (index === parentObj.data.length-1));
+                            (index === parentObj.data.length-1) && Promise.all(questionPromises)
+                            .then(()=> saveCourseData(parentObj.data, path)).catch(err=> console.log('saving questions error: ', err))
+                        }).catch(reject)
+                        : getSubCollections(itemDataPath, collection)
+                    )
+                });
+
+                resolve()
+            } catch (error) {
+                reject (error)
+            }
+        })
     })
 }
 
-export const getOfflineCollections = (pathObj, dataToSearch) => {
-    const collectionData = []
-    try {
-        if (pathObj) {
-            const {course, ...usefulPath}= pathObj
-            const path = Object.values(usefulPath).filter(Boolean) /** remove falsey values */
-            path.forEach((item) => {
-                dataToSearch = [... dataToSearch[item.index].data]
-            })
-            dataToSearch.forEach((item, index)=> {
-                const [key] = Object.keys(item)
-                const [value] = Object.values(item)
-                collectionData.push({[key]: value, index})
-            })
-        }
-        return collectionData
-    } catch (error) {
-        console.log('error from getOfflineCollections:', error)
-    }
+const getQuestionData = (question, path) => {
+    return new Promise((resolve, reject) => {
+        getOnlineCollections(path, true).then(([returned]) => {
+            const {data} = returned
+            question.data = data?{...data}:null
+            resolve(question)
+        }).catch(reject)
+    })
 }
 
-export const getSectionsLocalQuestions = (pathObj, questionNumber, dataToSearch) => {
-    try {
-        const questionData = dataToSearch[pathObj.year.index]
-        .data[pathObj.section.index]
-        .data[questionNumber.index]
-        .data.data
-        return questionData
-    } catch (error) {
-        console.log(error)
-    }
+const saveCourseData = (data, path) => {
+    const fileName = documentDirectory+[... new Set(path.split('/'))].join('-')
+    writeAsStringAsync(fileName, JSON.stringify(data, function replacer(key, value) { return value}), {encoding: EncodingType.UTF8}).then(()=> console.log('succesfully saved :', path)).catch(err=> console.log('error from saveCourseData: ', err))
+}
 
+
+// courseStorage.clearMapForKey({
+//     key: 'course-data',
+// })
+
+// courseStorage.clearMapForKey('course-data');
+
+export const getBranchData = (level) => {
+    const levelLabels = ['course', 'year', 'section']
+    return new Promise((resolve, reject) => {
+        readDirectoryAsync(documentDirectory).then(dir=> {
+            let fileNames = dir.filter(fileName => fileName.includes('pastquestions'))
+            .map(name=> name = name.split('-')[level+1])
+            fileNames = ([... new Set(fileNames)])
+            .map(name=> name = {[levelLabels[level]]: name})
+            .sort((a,b)=> Object.values(a)[0]-Object.values(b)[0])
+            resolve(fileNames)
+        })
+        .catch(err=> reject(err))
+    })
+}
+
+export const getQuestionSelection = ({course, section, year}) => {
+    return new Promise((resolve, reject) => { 
+        const filePath = `pastquestions-${course.value}-${year.value}-${section.value}`
+        readAsStringAsync(documentDirectory+filePath, {encoding: EncodingType.UTF8})
+        .then(JSON.parse).then(resolve)
+        .catch(err=> console.log('error reaading question data: ', err))
+    })
 }
 
 export const getAllQuestionsInCourse = (course) => {
@@ -262,4 +225,8 @@ export const resetTestData = (courseName) => {
         }).then(resolve).catch(reject)
     })
 }
+
+export const capitalize1stLetter = ([first, ...rest]) =>{
+    return first.toUpperCase() + rest.join("").toLowerCase()
+}; 
 
