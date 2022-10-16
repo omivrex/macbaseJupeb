@@ -2,7 +2,8 @@ import {
   StyleSheet, 
   View,
   KeyboardAvoidingView,
-  SafeAreaView
+  SafeAreaView,
+  Platform
 } from 'react-native';
 import {useContext} from 'react';
 import Svg, { Path } from "react-native-svg"
@@ -56,8 +57,8 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
     })
   
     return (
-      <SafeAreaView>
-        <KeyboardAvoidingView style={styles.container}>
+      <KeyboardAvoidingView keyboardVerticalOffset={-50} behavior={Platform.OS === "ios" ? "padding" : "position"}>
+        <SafeAreaView style={styles.container}>
           <View style={styles.curveWrapper}>
             <View style={styles.fill}></View>
             <Svg style={styles.curve} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
@@ -68,8 +69,8 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
             </Svg>
           </View>
             {children}
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     )
   }
   
