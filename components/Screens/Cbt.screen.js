@@ -716,17 +716,29 @@ const OptionsComponent = ({styles, data, colors}) => {
 
   return (
     <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
-      <TouchableHighlight onPress={()=> setdisplayData({...data, userAns: 'A'})} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-          <Text style={styles.questOptionsText}>A</Text>
+      <TouchableHighlight onPress={()=> {
+        data.userAns = 'A'
+        setdisplayData({...data})
+      }} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+        <Text style={styles.questOptionsText}>A</Text>
       </TouchableHighlight>
-      <TouchableHighlight onPress={()=> setdisplayData({...data, userAns: 'B'})} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-          <Text style={styles.questOptionsText}>B</Text>
+      <TouchableHighlight onPress={()=> {
+        data.userAns = 'B'
+        setdisplayData({...data})
+      }} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+        <Text style={styles.questOptionsText}>B</Text>
       </TouchableHighlight>
-      <TouchableHighlight onPress={()=> setdisplayData({...data, userAns: 'C'})} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-          <Text style={styles.questOptionsText}>C</Text>
+      <TouchableHighlight onPress={()=> {
+        data.userAns = 'C'
+        setdisplayData({...data})
+      }} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+        <Text style={styles.questOptionsText}>C</Text>
       </TouchableHighlight>
-      <TouchableHighlight onPress={()=> setdisplayData({...data, userAns: 'D'})} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-          <Text style={styles.questOptionsText}>D</Text>
+      <TouchableHighlight onPress={()=> {
+        data.userAns = 'D'
+        setdisplayData({...data})
+      }} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+        <Text style={styles.questOptionsText}>D</Text>
       </TouchableHighlight>
     </View>
   )
