@@ -9,7 +9,7 @@ import {
   ToastAndroid,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
-import {useRef, useContext, useState, useCallback} from 'react';
+import {useRef, useContext, useState, useCallback, useEffect} from 'react';
 import Container from '../Reusable/Container.component';
 import { capitalize1stLetter, getAllQuestionsInCourse, getBranchData, loadAllTestData, resetTestData, shuffleAndCutQuestions, storeTestResult } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -78,7 +78,7 @@ const CbtScreen = () => {
       getAllQuestionsInCourse(course)
       .then(questions=> shuffleAndCutQuestions([...questions], 50))
       .then(displayQuestions)
-      .then(runCountDown)
+      // .then(runCountDown)
     } else {
       ToastAndroid.show(`You Have Not Selected Any time Yet`, ToastAndroid.SHORT);
     }
@@ -88,23 +88,6 @@ const CbtScreen = () => {
     shouldRenderQuestions.current = true
     // console.log(dataToDisplay)
     set_questionData([... dataToDisplay])
-  }
-
-  const timerInterval  = useRef(null)
-  const givingTime = useRef(0)
-  const currentTime = useRef(0)
-  const runCountDown = () => {
-    givingTime.current = selectedOptions.time
-    currentTime.current = givingTime.current
-    timerInterval.current = setInterval(() => {
-      if (currentTime.current === 0) {
-        submit()
-      } else {
-        currentTime.current = currentTime.current<givingTime.current?
-        (currentTime.current-1000):(givingTime.current-1000)
-        set_selectedOptions({... selectedOptions})
-      }
-    }, 1000);
   }
 
   const backFunc = () => {
@@ -493,9 +476,7 @@ const CbtScreen = () => {
               <TouchableHighlight onPress={backFunc}>
                 <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
               </TouchableHighlight>
-              <Heading extraStyles={{... styles.heading, color: colors.darkText}}>
-                {currentTime.current/3600000|0}:{(currentTime.current/60000|0)%60}:{(currentTime.current/1000|0)%60}
-              </Heading>
+              <TimerComponent selectedTime={selectedOptions.time} submitFunc={submit}/>
             </View>
             <FlatList
               data={questionData}
@@ -698,13 +679,49 @@ const CbtScreen = () => {
         </Container>
       )
     }
-  return (
-    <Container>
-      {(()=> {
-        })()
+}
+
+let timerInterval  = null
+const TimerComponent = ({selectedTime, submitFunc}) => {
+  const colors = useContext(ColorContext)
+  const givingTime = useRef(0)
+  const currentTime = useRef(0)
+  const [displayedTime, setdisplayedTime] = useState('')
+  const startCountDown = () => {
+    givingTime.current = selectedTime
+    currentTime.current = givingTime.current
+    timerInterval = setInterval(() => {
+      if (currentTime.current === 0) {
+        submitFunc()
+      } else {
+        currentTime.current = currentTime.current<givingTime.current?
+        (currentTime.current-1000):(givingTime.current-1000)
+        setdisplayedTime(`${currentTime.current/3600000|0}:${(currentTime.current/60000|0)%60}:${(currentTime.current/1000|0)%60}`)
       }
-    </Container>
+    }, 1000);
+  }
+
+  useEffect(() => {
+    startCountDown()
+    return () => {
+      clearInterval(timerInterval)
+    }
+  }, [])
+
+  const styles = StyleSheet.create({
+    heading: {
+      textDecorationLine: 'none',
+      alignSelf: 'auto',
+      width: '100%'
+    }
+  })
+  
+  return (
+    <Heading extraStyles={{... styles.heading, color: colors.darkText}}>
+      {displayedTime}
+    </Heading>
   )
+  
 }
   
 export default CbtScreen
