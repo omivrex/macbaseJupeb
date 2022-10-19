@@ -126,12 +126,11 @@ const CbtScreen = ({navigation}) => {
     questionData.forEach((question) => {
       if (question.data) {
         const {data} = question
-        if (data.correctOption === data.userAns || data.correctOption === '' && data.userAns != '') { // if user got the answer or if there is no correct option but th user attempted the question
-          score.current++
-        }
-        
         if (data.userAns) {
           noOfQuestionsAttempted.current++
+          if (data.correctOption === data.userAns) {
+            score.current++
+          }
         }
       }
     });
