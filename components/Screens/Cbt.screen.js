@@ -21,7 +21,7 @@ import AnswerComponent from '../Reusable/Answer.component';
 import QuestionComponent from '../Reusable/Question.component';
 import { useFocusEffect } from '@react-navigation/native';
 
-const CbtScreen = () => {
+const CbtScreen = ({navigation}) => {
   const colors = useContext(ColorContext)
   const [listOfCourses, set_listOfCourses] = useState([])
   const [selectedOptions, set_selectedOptions] = useState({
@@ -38,6 +38,12 @@ const CbtScreen = () => {
       getListOfCourses()
     }, [])
   )
+  
+  useEffect(() => {
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', ()=> null)
+    }
+  }, [])
   
 
   const getListOfCourses = () => {
@@ -91,6 +97,8 @@ const CbtScreen = () => {
   }
 
   const backFunc = () => {
+    console.log('back handler', shouldRenderQuestions.current, shouldRenderResult.current, shouldDisplayTimeSettings.current)
+    const shouldPreventDefaultBackAction = (shouldRenderQuestions.current || shouldRenderResult.current || shouldDisplayTimeSettings.current)
     if (ansData !== '') {
       set_ansData('')
     } else {
@@ -102,6 +110,7 @@ const CbtScreen = () => {
       noOfQuestionsAttempted.current = 0
       set_questionData([... questionData])
     }
+    return shouldPreventDefaultBackAction
   }
 
   const submit = () => {
@@ -137,6 +146,16 @@ const CbtScreen = () => {
   const showAns = (data) => {
     set_ansData(data)
   }
+
+  BackHandler.addEventListener('hardwareBackPress', () => {
+    try {
+      return backFunc() && navigation.isFocused()
+    }
+    catch (err) {
+      ToastAndroid.show(err, ToastAndroid.LONG);
+      return false;
+    }
+  });
 
   const scrollViewRef = useRef()
 
