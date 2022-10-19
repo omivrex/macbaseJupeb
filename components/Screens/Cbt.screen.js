@@ -422,280 +422,287 @@ const CbtScreen = () => {
       textAlign: 'center',
     },
   })
+  
+  switch (true) {
+    case (shouldRenderResult.current):
+      return (
+        <Container>
+          <View style={{width: '100%'}}>
+            <View style={{...styles.headingWrapper, ...{width: '100%'}}}>
+              <TouchableHighlight onPress={backFunc}>
+                <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+              </TouchableHighlight>
+              <Heading extraStyles={{... styles.heading, color: colors.defaultText, flexDirection: 'row'}}>
+                {`Score ${score.current}/${questionData.length}`}
+              </Heading>
+            </View>
+            <FlatList
+              data={questionData}
+              contentContainerStyle = {{width: '100%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
+              renderItem={({item}) => {
+                const dataToRender = item.data
+                if (dataToRender) {
+                  return (
+                    <QuestionComponent dataToRender={dataToRender}>
+                      <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
+                        dataToRender.correctOption?
+                            Alert.alert(`Answer: ${dataToRender? dataToRender.correctOption:''}`, '', [
+                              {
+                                text: 'Solution',
+                                onPress: ()=> showAns(dataToRender? {answer: dataToRender.answer, correctAnswer: dataToRender.correctOption}:'')
+                              },
 
+                              {
+                                text: 'Cancel',
+                                onPress: () => ''
+                              }
+                            ], {cancelable: true})
+                        : showAns(dataToRender? {answer: dataToRender.answer, correctAnswer: dataToRender.correctOption}:'no answwer')
+                      }}>
+                        <Text style = {styles.ansButnText}>ANSWER</Text>
+                      </TouchableHighlight>
+                      <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
+                        <View style={[styles.questOptionsButn, dataToRender.userAns === 'A'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>A</Text>
+                        </View>
+                        <View style={[styles.questOptionsButn, dataToRender.userAns === 'B'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>B</Text>
+                        </View>
+                        <View style={[styles.questOptionsButn, dataToRender.userAns === 'C'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>C</Text>
+                        </View>
+                        <View style={[styles.questOptionsButn, dataToRender.userAns === 'D'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>D</Text>
+                        </View>
+                      </View>
+                    </QuestionComponent>
+                  )
+                } else (<></>)
+              }}
+              keyExtractor = {(item,index) => index.toString()}
+            />
+          </View>
+          <AnswerComponent extraStyles={{display:ansData !== ''?'flex':'none'}} data={ansData} />
+        </Container>
+      )
+    case (shouldRenderQuestions.current):
+      return (
+        <Container>
+          <View style={{width: '100%'}}>
+            <View style={{...styles.headingWrapper, ...{width: '100%'}}}>
+              <TouchableHighlight onPress={backFunc}>
+                <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+              </TouchableHighlight>
+              <Heading extraStyles={{... styles.heading, color: colors.darkText}}>
+                {currentTime.current/3600000|0}:{(currentTime.current/60000|0)%60}:{(currentTime.current/1000|0)%60}
+              </Heading>
+            </View>
+            <FlatList
+              data={questionData}
+              style={{width: '100%', overflow: 'scroll', marginBottom: '10%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
+              contentContainerStyle = {{}}
+              renderItem={({item}) => {
+                const dataToRender = item.data
+                if (dataToRender) {
+                  return (
+                    <QuestionComponent dataToRender={dataToRender}>
+                      <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
+                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'A'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>A</Text>
+                        </TouchableHighlight>
+                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'B'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>B</Text>
+                        </TouchableHighlight>
+                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'C'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>C</Text>
+                        </TouchableHighlight>
+                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'D'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+                            <Text style={styles.questOptionsText}>D</Text>
+                        </TouchableHighlight>
+                      </View>
+                    </QuestionComponent>
+                  )
+                } else (<></>)
+              }}
+              keyExtractor = {(item,index) => index}
+            />
+            <TouchableHighlight style={styles.submitButn} underlayColor='rgba(52, 52, 52, 0)' onPress={submit}>
+              <Text style={styles.submitButnText}>Submit</Text>
+            </TouchableHighlight>
+          </View>
+        </Container>
+      )
+    case (shouldDisplayTimeSettings.current):
+      return  (
+        <Container>
+          <View style={styles.optionsWrapper}>
+            <View style={styles.optionsCont}>
+              <View style={styles.headingWrapper}>
+                <TouchableHighlight onPress={backFunc}>
+                  <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
+                </TouchableHighlight>
+                <Heading extraStyles={styles.heading}>
+                  Select Time
+                </Heading>
+              </View>
+              <ScrollView style={styles.optionsScroll}>
+                <View style={styles.optionsCartegory}>
+                  <TouchableHighlight onPress = {()=> changeSelection(1000*60*15, 'time')}>
+                    <View style={styles.options}>
+                      <CText style={styles.optionsText}>15mins</CText>
+                      <CheckBox
+                        value={selectedOptions.time === 1000*60*15}
+                        onValueChange={()=> changeSelection(1000*60*15, 'time')}
+                        tintColors={{true: colors.appColor}}
+                      />
+                    </View>
+                  </TouchableHighlight>
+                  <TouchableHighlight onPress = {()=> changeSelection(1000*60*30, 'time')}>
+                    <View style={styles.options}>
+                      <CText style={styles.optionsText}>30mins</CText>
+                      <CheckBox
+                        value={selectedOptions.time === 1000*60*30}
+                        onValueChange={()=> changeSelection(1000*60*30, 'time')}
+                        tintColors={{true: colors.appColor}}
+                      />
+                    </View>
+                  </TouchableHighlight>
+                  <TouchableHighlight onPress = {()=> changeSelection(1000*60*60, 'time')}>
+                    <View style={styles.options}>
+                      <CText style={styles.optionsText}>1hr</CText>
+                      <CheckBox
+                        value={selectedOptions.time === 1000*60*60}
+                        onValueChange={()=> changeSelection(1000*60*60, 'time')}
+                        tintColors={{true: colors.appColor}}
+                      />
+                    </View>
+                  </TouchableHighlight>
+                  <TouchableHighlight onPress = {()=> changeSelection(1000*60*90, 'time')}>
+                    <View style={styles.options}>
+                      <CText style={styles.optionsText}>1hr 30mins</CText>
+                      <CheckBox
+                        value={selectedOptions.time === 1000*60*90}
+                        onValueChange={()=> changeSelection(1000*60*90, 'time')}
+                        tintColors={{true: colors.appColor}}
+                      />
+                    </View>
+                  </TouchableHighlight><TouchableHighlight onPress = {()=> changeSelection(1000*60*60*2, 'time')}>
+                    <View style={styles.options}>
+                      <CText style={styles.optionsText}>2hrs</CText>
+                      <CheckBox
+                        value={selectedOptions.time === 1000*60*60*2}
+                        onValueChange={()=> changeSelection(1000*60*60*2, 'time')}
+                        tintColors={{true: colors.appColor}}
+                      />
+                    </View>
+                  </TouchableHighlight>
+                </View>
+              </ScrollView>
+                <View style={styles.startButnWrapper}>
+                <TouchableHighlight style={styles.startButnText} onPress={start} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Start</Text></TouchableHighlight>
+              </View>
+            </View>
+          </View>
+        </Container>
+      )
+      
+    default:
+      // console.log('testResults', testResults)
+      return(
+        <Container>
+          <View style={styles.graphWrapper}>
+            <ScrollView style={styles.graphScroll}>
+              {listOfCourses.map(courseName=> {
+                const testResult = testResults[courseName];
+                if (testResult) {
+                  let totalScore = 0
+                  return  (
+                    <View key={courseName} style={styles.graphContainer}>
+                      <View style={styles.headingWrapper}>
+                        <Heading extraStyles={styles.heading}>
+                          Your Performance In {capitalize1stLetter(courseName)}
+                        </Heading>
+                      </View>
+                      <ScrollView ref={scrollViewRef} onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })} style={styles.graph} contentContainerStyle={{alignItems: 'flex-end', justifyContent: 'space-around'}} horizontal={true}>
+                        {testResult.map((test, index)=> {
+                          totalScore+= test.score
+                          let barHeight = Math.round((test.score/test.noOfQuestionsAttempted)*100)
+                          console.log('barHeight', barHeight)
+                          barHeight = isNaN(barHeight)?0:barHeight
+                          return (
+                            <View key={index} style={[styles.barBody, {height: `${barHeight}%`}]}>
+                              <View style={styles.graphBars}>
+                              </View>
+                              <Text style={{color: colors.defaultText}}>{barHeight}%</Text>
+                            </View>
+                          )
+                        })}
+                      </ScrollView>
+                      <View style={styles.graphDetailsCont}>
+                        <CText extraStyles={styles.graphDetails}>Ave. Score {'\n'+(totalScore>0?Math.ceil(totalScore/testResult.length):0)}</CText>
+                        <CText extraStyles={styles.graphDetails}>Tests Taken {'\n'+testResult.length}</CText>
+                      </View>
+                      <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
+                        <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> changeSelection(courseName, 'course')} underlayColor={colors.underlayColor}>
+                          <Text style={{color: colors.defaultText, textAlign: 'center'}}>Take Test</Text>
+                        </TouchableHighlight>
+                        <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
+                          <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
+                        </TouchableHighlight>
+                      </View>
+                      <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
+                        <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
+                          <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
+                        </TouchableHighlight>
+                      </View>
+                    </View>
+                  )
+                } else {
+                  return  (
+                    <View key={courseName} style={styles.graphContainer}>
+                      <View style={styles.headingWrapper}>
+                        <Heading extraStyles={styles.heading}>
+                          Your Performance In {capitalize1stLetter(courseName)}
+                        </Heading>
+                      </View>
+                      <ScrollView ref={scrollViewRef} onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })} style={styles.graph} contentContainerStyle={{alignItems: 'flex-end', justifyContent: 'space-around'}} horizontal={true}>
+                        <View style={styles.barBody}>
+                          <View style={styles.graphBars}>
+                          </View>
+                          {/* <Text style={{color: colors.defaultText}}>0/0</Text> */}
+                        </View>
+                      </ScrollView>
+                      <View style={styles.graphDetailsCont}>
+                        <CText extraStyles={styles.graphDetails}>Ave. Score {'\n'+0}</CText>
+                        <CText extraStyles={styles.graphDetails}>Tests Taken {'\n'+0}</CText>
+                      </View>
+                      <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
+                        <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> changeSelection(courseName, 'course')} underlayColor={colors.underlayColor}>
+                          <Text style={{color: colors.defaultText, textAlign: 'center'}}>Take Test</Text>
+                        </TouchableHighlight>
+                        <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
+                          <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
+                        </TouchableHighlight>
+                      </View>
+                      <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
+                        <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
+                          <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
+                        </TouchableHighlight>
+                      </View>
+                    </View>
+                  )
+                }
+              })}
+            </ScrollView>
+          </View>
+        </Container>
+      )
+    }
   return (
     <Container>
       {(()=> {
-        switch (true) {
-          case (shouldRenderResult.current):
-            return (
-              <View style={{width: '100%'}}>
-                <View style={{...styles.headingWrapper, ...{width: '100%'}}}>
-                  <TouchableHighlight onPress={backFunc}>
-                    <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-                  </TouchableHighlight>
-                  <Heading extraStyles={{... styles.heading, color: colors.defaultText, flexDirection: 'row'}}>
-                    {`Score ${score.current}/${questionData.length}`}
-                  </Heading>
-                </View>
-                <FlatList
-                  data={questionData}
-                  contentContainerStyle = {{width: '100%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
-                  renderItem={({item}) => {
-                    const dataToRender = item.data
-                    if (dataToRender) {
-                      return (
-                        <QuestionComponent dataToRender={dataToRender}>
-                          <TouchableHighlight underlayColor={colors.underlayColor} style={styles.ansButn} onPress={()=> {
-                            dataToRender.correctOption?
-                                Alert.alert(`Answer: ${dataToRender? dataToRender.correctOption:''}`, '', [
-                                  {
-                                    text: 'Solution',
-                                    onPress: ()=> showAns(dataToRender? {answer: dataToRender.answer, correctAnswer: dataToRender.correctOption}:'')
-                                  },
-
-                                  {
-                                    text: 'Cancel',
-                                    onPress: () => ''
-                                  }
-                                ], {cancelable: true})
-                            : showAns(dataToRender? {answer: dataToRender.answer, correctAnswer: dataToRender.correctOption}:'no answwer')
-                          }}>
-                            <Text style = {styles.ansButnText}>ANSWER</Text>
-                          </TouchableHighlight>
-                          <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
-                            <View style={[styles.questOptionsButn, dataToRender.userAns === 'A'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>A</Text>
-                            </View>
-                            <View style={[styles.questOptionsButn, dataToRender.userAns === 'B'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>B</Text>
-                            </View>
-                            <View style={[styles.questOptionsButn, dataToRender.userAns === 'C'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>C</Text>
-                            </View>
-                            <View style={[styles.questOptionsButn, dataToRender.userAns === 'D'?dataToRender.userAns===dataToRender.correctOption?{backgroundColor: colors.tabColor}:{backgroundColor: 'red'}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>D</Text>
-                            </View>
-                          </View>
-                        </QuestionComponent>
-                      )
-                    } else (<></>)
-                  }}
-                  keyExtractor = {(item,index) => index.toString()}
-                />
-              </View>
-            )
-          case (shouldRenderQuestions.current):
-            return (
-              <View style={{width: '100%'}}>
-                <View style={{...styles.headingWrapper, ...{width: '100%'}}}>
-                  <TouchableHighlight onPress={backFunc}>
-                    <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-                  </TouchableHighlight>
-                  <Heading extraStyles={{... styles.heading, color: colors.darkText}}>
-                    {currentTime.current/3600000|0}:{(currentTime.current/60000|0)%60}:{(currentTime.current/1000|0)%60}
-                  </Heading>
-                </View>
-                <FlatList
-                  data={questionData}
-                  style={{width: '100%', overflow: 'scroll', marginBottom: '10%', alignContent: 'space-around', backgroundColor: colors.backgroundColor}}
-                  contentContainerStyle = {{}}
-                  renderItem={({item}) => {
-                    const dataToRender = item.data
-                    if (dataToRender) {
-                      return (
-                        <QuestionComponent dataToRender={dataToRender}>
-                          <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
-                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'A'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>A</Text>
-                            </TouchableHighlight>
-                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'B'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>B</Text>
-                            </TouchableHighlight>
-                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'C'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>C</Text>
-                            </TouchableHighlight>
-                            <TouchableHighlight onPress={()=> dataToRender.userAns = 'D'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                                <Text style={styles.questOptionsText}>D</Text>
-                            </TouchableHighlight>
-                          </View>
-                        </QuestionComponent>
-                      )
-                    } else (<></>)
-                  }}
-                  keyExtractor = {(item,index) => index}
-                />
-                <TouchableHighlight style={styles.submitButn} underlayColor='rgba(52, 52, 52, 0)' onPress={submit}>
-                  <Text style={styles.submitButnText}>Submit</Text>
-                </TouchableHighlight>
-              </View>
-            )
-          case (shouldDisplayTimeSettings.current):
-            return  (
-              <View style={styles.optionsWrapper}>
-                <View style={styles.optionsCont}>
-                  <View style={styles.headingWrapper}>
-                    <TouchableHighlight onPress={backFunc}>
-                      <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-                    </TouchableHighlight>
-                    <Heading extraStyles={styles.heading}>
-                      Select Time
-                    </Heading>
-                  </View>
-                  <ScrollView style={styles.optionsScroll}>
-                    <View style={styles.optionsCartegory}>
-                      <TouchableHighlight onPress = {()=> changeSelection(1000*60*15, 'time')}>
-                        <View style={styles.options}>
-                          <CText style={styles.optionsText}>15mins</CText>
-                          <CheckBox
-                            value={selectedOptions.time === 1000*60*15}
-                            onValueChange={()=> changeSelection(1000*60*15, 'time')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
-                      <TouchableHighlight onPress = {()=> changeSelection(1000*60*30, 'time')}>
-                        <View style={styles.options}>
-                          <CText style={styles.optionsText}>30mins</CText>
-                          <CheckBox
-                            value={selectedOptions.time === 1000*60*30}
-                            onValueChange={()=> changeSelection(1000*60*30, 'time')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
-                      <TouchableHighlight onPress = {()=> changeSelection(1000*60*60, 'time')}>
-                        <View style={styles.options}>
-                          <CText style={styles.optionsText}>1hr</CText>
-                          <CheckBox
-                            value={selectedOptions.time === 1000*60*60}
-                            onValueChange={()=> changeSelection(1000*60*60, 'time')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
-                      <TouchableHighlight onPress = {()=> changeSelection(1000*60*90, 'time')}>
-                        <View style={styles.options}>
-                          <CText style={styles.optionsText}>1hr 30mins</CText>
-                          <CheckBox
-                            value={selectedOptions.time === 1000*60*90}
-                            onValueChange={()=> changeSelection(1000*60*90, 'time')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight><TouchableHighlight onPress = {()=> changeSelection(1000*60*60*2, 'time')}>
-                        <View style={styles.options}>
-                          <CText style={styles.optionsText}>2hrs</CText>
-                          <CheckBox
-                            value={selectedOptions.time === 1000*60*60*2}
-                            onValueChange={()=> changeSelection(1000*60*60*2, 'time')}
-                            tintColors={{true: colors.appColor}}
-                          />
-                        </View>
-                      </TouchableHighlight>
-                    </View>
-                  </ScrollView>
-                    <View style={styles.startButnWrapper}>
-                    <TouchableHighlight style={styles.startButnText} onPress={start} underlayColor={colors.underlayColor}><Text style={{color: colors.defaultText, textAlign: 'center'}}>Start</Text></TouchableHighlight>
-                  </View>
-                </View>
-              </View>
-      
-            )
-            
-          default:
-            // console.log('testResults', testResults)
-            return(
-              <View style={styles.graphWrapper}>
-                <ScrollView style={styles.graphScroll}>
-                  {listOfCourses.map(courseName=> {
-                    const testResult = testResults[courseName];
-                    if (testResult) {
-                      let totalScore = 0
-                      return  (
-                        <View key={courseName} style={styles.graphContainer}>
-                          <View style={styles.headingWrapper}>
-                            <Heading extraStyles={styles.heading}>
-                              Your Performance In {capitalize1stLetter(courseName)}
-                            </Heading>
-                          </View>
-                          <ScrollView ref={scrollViewRef} onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })} style={styles.graph} contentContainerStyle={{alignItems: 'flex-end', justifyContent: 'space-around'}} horizontal={true}>
-                            {testResult.map((test, index)=> {
-                              totalScore+= test.score
-                              let barHeight = Math.round((test.score/test.noOfQuestionsAttempted)*100)
-                              console.log('barHeight', barHeight)
-                              barHeight = isNaN(barHeight)?0:barHeight
-                              return (
-                                <View key={index} style={[styles.barBody, {height: `${barHeight}%`}]}>
-                                  <View style={styles.graphBars}>
-                                  </View>
-                                  <Text style={{color: colors.defaultText}}>{barHeight}%</Text>
-                                </View>
-                              )
-                            })}
-                          </ScrollView>
-                          <View style={styles.graphDetailsCont}>
-                            <CText extraStyles={styles.graphDetails}>Ave. Score {'\n'+(totalScore>0?Math.ceil(totalScore/testResult.length):0)}</CText>
-                            <CText extraStyles={styles.graphDetails}>Tests Taken {'\n'+testResult.length}</CText>
-                          </View>
-                          <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
-                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> changeSelection(courseName, 'course')} underlayColor={colors.underlayColor}>
-                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Take Test</Text>
-                            </TouchableHighlight>
-                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
-                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
-                            </TouchableHighlight>
-                          </View>
-                          <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
-                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
-                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
-                            </TouchableHighlight>
-                          </View>
-                        </View>
-                      )
-                    } else {
-                      return  (
-                        <View key={courseName} style={styles.graphContainer}>
-                          <View style={styles.headingWrapper}>
-                            <Heading extraStyles={styles.heading}>
-                              Your Performance In {capitalize1stLetter(courseName)}
-                            </Heading>
-                          </View>
-                          <ScrollView ref={scrollViewRef} onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })} style={styles.graph} contentContainerStyle={{alignItems: 'flex-end', justifyContent: 'space-around'}} horizontal={true}>
-                            <View style={styles.barBody}>
-                              <View style={styles.graphBars}>
-                              </View>
-                              {/* <Text style={{color: colors.defaultText}}>0/0</Text> */}
-                            </View>
-                          </ScrollView>
-                          <View style={styles.graphDetailsCont}>
-                            <CText extraStyles={styles.graphDetails}>Ave. Score {'\n'+0}</CText>
-                            <CText extraStyles={styles.graphDetails}>Tests Taken {'\n'+0}</CText>
-                          </View>
-                          <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
-                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> changeSelection(courseName, 'course')} underlayColor={colors.underlayColor}>
-                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Take Test</Text>
-                            </TouchableHighlight>
-                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
-                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
-                            </TouchableHighlight>
-                          </View>
-                          <View style={[styles.selectCourseButn, {marginBottom: '5%', height: '10%'}]}>
-                            <TouchableHighlight style={[styles.startButnText, {width: '100%', paddingHorizontal: '5%'}]} onPress={()=> resetTestData(courseName).then(getAllTestResults)} underlayColor={colors.underlayColor}>
-                              <Text style={{color: colors.defaultText, textAlign: 'center'}}>Reset</Text>
-                            </TouchableHighlight>
-                          </View>
-                        </View>
-                      )
-                    }
-                  })}
-                </ScrollView>
-              </View>
-            )
-          }
         })()
       }
-      <AnswerComponent extraStyles={{display:ansData !== ''?'flex':'none'}} data={ansData} />
     </Container>
   )
 }
