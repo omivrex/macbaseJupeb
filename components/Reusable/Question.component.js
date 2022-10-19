@@ -21,9 +21,8 @@ const QuestionComponent = ({dataToRender, children}) => {
 
 
   useEffect(() => {
-    console.log('re rendering...')
     setdisplayData({...dataToRender})
-  }, [dataToRender.userAns])
+  }, [])
   
 
   return (

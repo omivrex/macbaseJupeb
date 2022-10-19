@@ -9,7 +9,7 @@ import {
   ToastAndroid,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
-import {useRef, useContext, useState, useCallback, useEffect} from 'react';
+import {useRef, useContext, useState, useCallback, useEffect, useLayoutEffect} from 'react';
 import Container from '../Reusable/Container.component';
 import { capitalize1stLetter, getAllQuestionsInCourse, getBranchData, loadAllTestData, resetTestData, shuffleAndCutQuestions, storeTestResult } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -97,7 +97,7 @@ const CbtScreen = () => {
       shouldRenderQuestions.current = false
       shouldRenderResult.current = false
       shouldDisplayTimeSettings.current = false
-      clearInterval(timerInterval.current)
+      clearInterval(timerInterval)
       score.current = 0
       noOfQuestionsAttempted.current = 0
       set_questionData([... questionData])
@@ -487,20 +487,7 @@ const CbtScreen = () => {
                 if (dataToRender) {
                   return (
                     <QuestionComponent dataToRender={dataToRender}>
-                      <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
-                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'A'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                            <Text style={styles.questOptionsText}>A</Text>
-                        </TouchableHighlight>
-                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'B'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                            <Text style={styles.questOptionsText}>B</Text>
-                        </TouchableHighlight>
-                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'C'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                            <Text style={styles.questOptionsText}>C</Text>
-                        </TouchableHighlight>
-                        <TouchableHighlight onPress={()=> dataToRender.userAns = 'D'} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, dataToRender.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
-                            <Text style={styles.questOptionsText}>D</Text>
-                        </TouchableHighlight>
-                      </View>
+                      <OptionsComponent data={dataToRender} colors={colors} styles={{questOptionsContainer: styles.questOptionsContainer, questOptionsButn: styles.questOptionsButn, questOptionsText: styles.questOptionsText}}/>
                     </QuestionComponent>
                   )
                 } else (<></>)
@@ -722,6 +709,27 @@ const TimerComponent = ({selectedTime, submitFunc}) => {
     </Heading>
   )
   
+}
+
+const OptionsComponent = ({styles, data, colors}) => {
+  const [displayData, setdisplayData] = useState({...data})
+
+  return (
+    <View style={[styles.questOptionsContainer, {borderTopLeftRadius: 0, borderTopRightRadius: 0}]}>
+      <TouchableHighlight onPress={()=> setdisplayData({...data, userAns: 'A'})} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='A'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+          <Text style={styles.questOptionsText}>A</Text>
+      </TouchableHighlight>
+      <TouchableHighlight onPress={()=> setdisplayData({...data, userAns: 'B'})} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='B'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+          <Text style={styles.questOptionsText}>B</Text>
+      </TouchableHighlight>
+      <TouchableHighlight onPress={()=> setdisplayData({...data, userAns: 'C'})} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='C'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+          <Text style={styles.questOptionsText}>C</Text>
+      </TouchableHighlight>
+      <TouchableHighlight onPress={()=> setdisplayData({...data, userAns: 'D'})} underlayColor={colors.underlayColor} style={[styles.questOptionsButn, displayData.userAns==='D'?{backgroundColor: colors.iconColor}:{backgroundColor: colors.appColor}]}>
+          <Text style={styles.questOptionsText}>D</Text>
+      </TouchableHighlight>
+    </View>
+  )
 }
   
 export default CbtScreen
