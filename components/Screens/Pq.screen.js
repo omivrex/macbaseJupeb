@@ -27,7 +27,7 @@ import QuestionComponent from '../Reusable/Question.component';
 import { useFocusEffect } from '@react-navigation/native';
 
 const PqScreen = ({navigation}) => {
-  /** below is taToRenderh the form {
+  /** below is to be Rendered in the form {
     course: {value: string, index: number},
     ...
   } */
@@ -38,16 +38,17 @@ const PqScreen = ({navigation}) => {
   })
   
   const colors = useContext(ColorContext)
-  // const navigation = useContext(NavigationContext)
   const [indexOfSelectedItem, set_indexOfSelectedItem] = useState(null)
   const [dataToRender, set_dataToRender] = useState([])
   const [ansData, set_ansData] = useState('')
   const renderQuestionData = useRef(false)
   const label = useRef('Course')
   const subCollectionData = useRef({})
-  const selectedCourseData = useRef([])
+const selectedCourse = useRef('')
+
   useEffect(()=> {
     getListOfCourses()
+    return BackHandler.removeEventListener('hardwareBackPress', ()=> console.log('backhandler removed'))
   }, [])
 
   const getListOfCourses = () => {
@@ -65,12 +66,13 @@ const PqScreen = ({navigation}) => {
   }
 
   const changeSelection = (key) => {
+    selectedCourse.current =  label.current === 'Course'?dataToRender[key].course:selectedCourse.current
     set_indexOfSelectedItem(key)
   }
 
-  const getCourseData = (level) => {
+  const getCourseData = (level, courseName = selectedCourse.current) => {
     return new Promise((resolve, reject) => { 
-      getBranchData(level).then(dataToRender => {
+      getBranchData(level, courseName).then(dataToRender => {
         subCollectionData.current = [... dataToRender]
         resolve(subCollectionData.current)
       }).catch(err=> reject(err))
@@ -107,44 +109,41 @@ const PqScreen = ({navigation}) => {
   }
 
   const previous = () => {
-    const previousLabel = label.current
-    if (ansData !== '') {
-      set_ansData('')
-      return true
-    } else {
-      if (renderQuestionData.current) {
-        renderQuestionData.current = false
-      }
-      console.log('test previous', Object.values(path.current).filter(Boolean))
-      if (Object.values(path.current).filter(Boolean).length > 0) {
+    let level = Object.values(path.current).filter(Boolean).length
+    level = level === 0?-1:level
+    if (level>-1) {
+      if (ansData !== '') {
+        set_ansData('')
+        // return true
+      } else {
+        if (renderQuestionData.current) {
+          renderQuestionData.current = false
+        }
         const keys = Object.keys(path.current)
         let index = keys.length - 1
         while (path.current[keys[index]] === null && index>0) { /** start with the last property if its null move to the next untill you reach the final property where the index is 0*/
           index--
         }
         path.current[keys[index]] = null
-        console.log('previous test', previousLabel)
-        getCourseData(Object.values(path.current).filter(Boolean).length)
-        .then(renderCollectionData)
-        return true
-      } else {
-        getCourseData(0)
+        level = Object.values(path.current).filter(Boolean).length
+        getCourseData(level)
         .then(renderCollectionData)
       }
-      return false
     }
+    selectedCourse.current = level === 1? '':selectedCourse.current
+    return level>-1
   }
+  console.log('Test alpha', Object.values(path.current).filter(Boolean).length, navigation.isFocused())
 
-  // BackHandler.addEventListener('hardwareBackPress', () => {
-  //   try {
-  //     // console.log('Test alpha', Object.values(path.current).filter(Boolean).length && navigation.isFocused())
-  //     return previous() && navigation.isFocused()
-  //   }
-  //   catch (err) {
-  //     ToastAndroid.show(err, ToastAndroid.LONG);
-  //     return true;
-  //   }
-  // });
+  BackHandler.addEventListener('hardwareBackPress', () => {
+    try {
+      return previous() && navigation.isFocused()
+    }
+    catch (err) {
+      ToastAndroid.show(err, ToastAndroid.LONG);
+      return false;
+    }
+  });
 
   const showAns = (dataToRender) => {
     set_ansData(dataToRender)

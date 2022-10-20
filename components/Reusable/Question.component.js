@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { StyleSheet, View } from "react-native"
 import MathJax from "react-native-mathjax"
 import { heightPercentageToDP as hp } from "react-native-responsive-screen"
@@ -6,6 +6,7 @@ import ColorContext from "../context/Colors.context"
 
 const QuestionComponent = ({dataToRender, children}) => {
   const colors = useContext(ColorContext)
+  const [displayData, setdisplayData] = useState(null)
   const styles = StyleSheet.create({
     pqDataWrapper: {
       borderColor: colors.appColor,
@@ -16,6 +17,13 @@ const QuestionComponent = ({dataToRender, children}) => {
       justifyContent: 'center'
     },
   })
+
+
+
+  useEffect(() => {
+    setdisplayData({...dataToRender})
+  }, [])
+  
 
   return (
     <View style={styles.pqDataWrapper}>
@@ -37,7 +45,7 @@ const QuestionComponent = ({dataToRender, children}) => {
                     }
                 </style>
                 <div style="font-size: 1em; font-family: Roboto, sans-serif, san Francisco;">
-                    ${dataToRender?dataToRender.question.replace('max-width: 180px;', 'max-width: 90vw;'):`<h2 style="color: #777; text-align: center">Something Went Wrong!</h2>`}
+                    ${displayData?displayData.question.replace('max-width: 180px;', 'max-width: 90vw;'):`<h2 style="color: #777; text-align: center">Something Went Wrong!</h2>`}
                 </div> 
             </body>
             `
