@@ -9,7 +9,7 @@ import {
   ToastAndroid,
 } from 'react-native';
 import CheckBox from 'expo-checkbox';
-import {useRef, useContext, useState, useCallback, useEffect, useLayoutEffect} from 'react';
+import {useRef, useContext, useState, useCallback, useEffect} from 'react';
 import Container from '../Reusable/Container.component';
 import { capitalize1stLetter, getAllQuestionsInCourse, getBranchData, loadAllTestData, resetTestData, shuffleAndCutQuestions, storeTestResult } from '../../utils/pastquestions.utils';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -84,7 +84,6 @@ const CbtScreen = ({navigation}) => {
       getAllQuestionsInCourse(course)
       .then(questions=> shuffleAndCutQuestions([...questions], 50))
       .then(displayQuestions)
-      // .then(runCountDown)
     } else {
       ToastAndroid.show(`You Have Not Selected Any time Yet`, ToastAndroid.SHORT);
     }
@@ -92,12 +91,10 @@ const CbtScreen = ({navigation}) => {
 
   const displayQuestions = (dataToDisplay = questionData) => {
     shouldRenderQuestions.current = true
-    // console.log(dataToDisplay)
     set_questionData([... dataToDisplay])
   }
 
   const backFunc = () => {
-    console.log('back handler', shouldRenderQuestions.current, shouldRenderResult.current, shouldDisplayTimeSettings.current)
     const shouldPreventDefaultBackAction = (shouldRenderQuestions.current || shouldRenderResult.current || shouldDisplayTimeSettings.current)
     if (ansData !== '') {
       set_ansData('')
