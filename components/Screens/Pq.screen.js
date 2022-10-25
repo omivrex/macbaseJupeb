@@ -44,12 +44,14 @@ const PqScreen = ({navigation}) => {
   const renderQuestionData = useRef(false)
   const label = useRef('Course')
   const subCollectionData = useRef({})
-const selectedCourse = useRef('')
+  const selectedCourse = useRef('')
 
-  useEffect(()=> {
-    getListOfCourses()
-    return BackHandler.removeEventListener('hardwareBackPress', ()=> console.log('backhandler removed'))
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      getListOfCourses()
+      return BackHandler.removeEventListener('hardwareBackPress', ()=> console.log('backhandler removed'))
+    }, [])
+  )
 
   const getListOfCourses = () => {
     getBranchData(0).then(savedCourses => {
