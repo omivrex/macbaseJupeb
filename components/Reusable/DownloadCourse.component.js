@@ -100,7 +100,7 @@ const DownloadCourseComponent = () => {
         width: '90%',
         height: hp('75%'),
         left: '5%',
-        // top: '24%',
+        top: hp('12.5%'),
         justifyContent: 'center',
         alignContent: 'flex-start',
         alignItems: 'center',
