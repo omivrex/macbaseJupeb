@@ -7,8 +7,8 @@ import DownloadCourseComponent from './components/Reusable/DownloadCourse.compon
 export default function App() {
   return (
     <NavigationContainer>
-      {/* <DownloadCourseComponent/> */}
-      <DrawerNav/>
+      <DownloadCourseComponent/>
+      {/* <DrawerNav/> */}
       <StatusBar style='light'/>
     </NavigationContainer>
   );
