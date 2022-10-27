@@ -4,7 +4,6 @@ import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
 import { Alert } from 'react-native';
-const usersCollection =  ref(rtdb, 'users')
 
 const userStorage = new Storage({
   size: 1000,
@@ -27,7 +26,7 @@ export const validateEmail = email => {
       return true
     }
   }
-  return false
+  throw 'Email is not valid'
 }
 
 export const validatePswd = pswd => pswd?.length >= 8
@@ -48,6 +47,7 @@ export const validatePhone = phone => {
 
 export const signIn = (userData) => { //user exists it throws an error then tries to log that user in
   return new Promise((resolve, reject) => { 
+    validateEmail(userData.email)
     createUserWithEmailAndPassword(auth, userData.email, userData.pswd).then(()=> {
       auth.onAuthStateChanged(({uid}) => {
         uid? resolve({userExists: false, uid}):reject('something went wrong!')
@@ -84,19 +84,21 @@ export const saveUserDataLocally = (uid) => {
       const userDetails = snapshot.val()
       userStorage.save({
         key: 'userDetails',
-        data: userDetails,
+        data: {uid, ...userDetails},
       }).then(()=> resolve(userDetails))
     }).catch(reject)
   })
 }
 
-export const uploadUserData = ({uid, ...userDetails}) => {
+export const uploadUserData = ({uid, pswd, ...userDetails}) => {
   return new Promise((resolve, reject) => { 
     set(ref(rtdb, `users/${uid}`), userDetails).then(() => {
       resolve({...userDetails, uid})
     }).catch(err=> reject(err))   
   })
 }
+
+// userStorage.remove({key: 'userDetails'})
 
 export const getUserDetails = () => {
   return userStorage.load({
@@ -117,13 +119,13 @@ export const generateTransactionRef = (length) => {
   return `flw_tx_ref_${result}`;
 };
 
-export const updateOnlineUserData = (selectedCourses, uid) => {
+export const updateOnlineUserData = (updateData, uid) => {
   return new Promise((resolve, reject) => { 
-    selectedCourses.forEach((course) => {
+    updateData.selectedCourses?.forEach((course) => {
       course.paid = true
     });
-    update(ref(rtdb, `users/${uid}`), {selectedCourses}).then(() => {
-      resolve(selectedCourses)
+    update(ref(rtdb, `users/${uid}`), {...updateData}).then(() => {
+      resolve(updateData)
     }).catch(err=> reject(err))
   })
 }

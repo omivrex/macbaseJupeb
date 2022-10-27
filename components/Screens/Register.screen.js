@@ -43,32 +43,34 @@ const RegisterScreen = () => {
   const userData = useRef({})
   const displayBackButn = useRef(true)
   const price = useRef(0)
-  const userExists = useRef(false)
+  const [userExists, setUserExists] = useState(false)
   const userId = useRef('')
   const corusesInDb = useRef([])
   const [loadingValue, set_loadingValue] = useState('')
 
-  
   useFocusEffect(
     useCallback(() => {
-      getUserDetails().then((userDetails)=> {
-        if (userDetails !== null) {
-          userExists.current = true
-          const {selectedCourses, uid, ...everythingElse} = userDetails
-          userId.current = uid
-          userData.current = {... everythingElse}
-          displayBackButn.current = false
-          getCoursesFromDB()
-          set_selectedCourses([... selectedCourses]) 
-          ToastAndroid.showWithGravity(`You have Already Registered.`, ToastAndroid.SHORT, ToastAndroid.CENTER)
-        } else {
-          userExists.current = false
-          set_currentPath('Sign In')
-        }
-      }).catch(err=> console.log(err))
+      loadUserDataFromLocalStorage()
       return ()=> null
     }, [])
   );
+
+  const loadUserDataFromLocalStorage = () => {
+    getUserDetails().then((userDetails)=> {
+      console.log('loadUserDataFromLocalStorage', userDetails)
+      if (userDetails !== null) {
+        const {uid, ...everythingElse} = userDetails
+        userId.current = uid
+        userData.current = {... everythingElse}
+        setUserExists(true)
+        set_currentPath('Enter Your Details')
+        ToastAndroid.showWithGravity(`You have Already Registered.`, ToastAndroid.LONG, ToastAndroid.CENTER)
+      } else {
+        setUserExists(false)
+        set_currentPath('Sign In')
+      }
+    }).catch(err=> console.log(err))
+  }
 
   const next = (path) => {
     let inputsAreValid = false
@@ -113,38 +115,16 @@ const RegisterScreen = () => {
   }
 
   const handleErr = (err, callback, arg) => {
-    typeof err === 'string' && ToastAndroid.showWithGravity(err, ToastAndroid.SHORT)
+    console.log(typeof err, err)
+    typeof err === 'string' && ToastAndroid.showWithGravity(err, ToastAndroid.LONG, ToastAndroid.CENTER)
     callback && navigation.isFocused() && callback(arg)
-  }
-
-  const previous = () => {  
-    switch (currentPath) {
-      case 'Choose Your Courses':
-        set_currentPath('Enter Your Details')    
-        break;
-      default:
-        set_currentPath('Sign In')
-        break;
-    }
-  }
-
-  
-  const changeSelection = (courseName) => {
-    const [course] = selectedCourses.filter(item=> item.courseName === courseName)
-    set_selectedCourses([])
-    if (!course) {
-      set_selectedCourses([... new Set(selectedCourses.concat({courseName, paid: false}))])
-    } else {
-      course.paid? ToastAndroid.showWithGravity(`You Have Already Paid For This Course.`, ToastAndroid.LONG, ToastAndroid.CENTER)
-      :set_selectedCourses([... selectedCourses.filter(item=> item.courseName !== courseName)])
-    }
   }
 
   const authenticateUser = () => {
     set_loadingValue('Signing In...')
     signIn(userData.current).then(({userExists, uid}) => {
       userData.current.uid = uid
-      !userExists?next('Enter Your Details'):saveUserDataLocally(uid)
+      !userExists?next('Enter Your Details'):saveUserDataLocally(uid).then(()=>  loadUserDataFromLocalStorage())
     })
     .finally(()=> set_loadingValue(''))
     .catch(handleErr)
@@ -153,6 +133,15 @@ const RegisterScreen = () => {
   const storeUserDataToDB = () => {
     set_loadingValue('Setting up your account...')
     uploadUserData(userData.current).then(({uid})=> saveUserDataLocally(uid))
+    .finally(()=> set_loadingValue(''))
+    .catch(handleErr)
+  }
+
+  const updateUserDetails = () => {
+    set_loadingValue('Updating your details...')
+    console.log(userId.current, userData.current)
+    updateOnlineUserData(userData.current, userId.current)
+    .then(({uid})=> saveUserDataLocally(uid))
     .finally(()=> set_loadingValue(''))
     .catch(handleErr)
   }
@@ -334,8 +323,8 @@ const RegisterScreen = () => {
                       </View>
                       <TextInput key={'school'} defaultValue={userData.current.school&&userData.current.school} onChangeText={value=> userData.current.school = value} style={styles.textInput}></TextInput>
                     </View>
-                    <TouchableHighlight onPress={storeUserDataToDB} style={styles.submitButn}>
-                      <Text style={styles.butnText}>Add</Text>
+                    <TouchableHighlight onPress={!userExists?storeUserDataToDB:updateUserDetails} style={styles.submitButn}>
+                      <Text style={styles.butnText}>{!userExists?'ADD':'Update'}</Text>
                     </TouchableHighlight>
                   </>
                 )
