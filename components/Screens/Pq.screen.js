@@ -314,7 +314,7 @@ const PqScreen = ({navigation}) => {
                     })
                   : 
                     <View style={styles.loadingBox}>
-                      <CText extraStyles={{textAlign: 'center'}}>You Haven't Registered Yet!</CText>
+                      <CText extraStyles={{textAlign: 'center'}}>You Haven't Downloaded Any Course Yet!</CText>
                     </View>
                   }
               </ScrollView>
