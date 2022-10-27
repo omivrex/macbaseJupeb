@@ -1,8 +1,9 @@
 import { auth, rtdb } from './firebaseInit';
-import { ref, set, update } from 'firebase/database';
+import { get, ref, set, update } from 'firebase/database';
 import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
+import { Alert } from 'react-native';
 const usersCollection =  ref(rtdb, 'users')
 
 const userStorage = new Storage({
@@ -17,66 +18,83 @@ const userStorage = new Storage({
   }
 });
  
-// userStorage.remove({
-//   key: 'userDetails'
-// })
-
 export const validateEmail = email => {
-    if (email?.includes('.com') && email?.includes('@')) {
-        const validChars = new RegExp(/[abcdefghijklmnopqrstuvwxyz1234567890]/)
-        const emailName = email.slice(0, email.indexOf('@'))
-        const emailProvider = email.slice(email.indexOf('@')+1, email.indexOf('.com'))
-        if (emailName.search(validChars) !== -1 && emailProvider.search(validChars) !== -1) {
-          return true
-        }
+  if (email?.includes('.com') && email?.includes('@')) {
+    const validChars = new RegExp(/[abcdefghijklmnopqrstuvwxyz1234567890]/)
+    const emailName = email.slice(0, email.indexOf('@'))
+    const emailProvider = email.slice(email.indexOf('@')+1, email.indexOf('.com'))
+    if (emailName.search(validChars) !== -1 && emailProvider.search(validChars) !== -1) {
+      return true
     }
-    return false
+  }
+  return false
 }
 
 export const validatePswd = pswd => pswd?.length >= 8
 
 export const validatePhone = phone => {
-    if (phone?.includes('+') && phone?.length === 14) { /** length of a nigerian number og format +23480XXX... is 14 including + sign */
-        const queryStr = phone.replace('+', '')
-        const validPrifixsInNigeria = [new RegExp(/\b23470/), new RegExp(/\b23480/), new RegExp(/\b23481/), new RegExp(/\b23490/), new RegExp(/\b23491/)]
-        const validPhoneChars = new RegExp(/[1234567890]/)
-        if (validPrifixsInNigeria.filter(prefix=> queryStr.search(prefix) === 0).length) {
-            if (queryStr.search(validPhoneChars) !== -1) {
-              return true
-            }  
-        }
+  if (phone?.includes('+') && phone?.length === 14) { /** length of a nigerian number og format +23480XXX... is 14 including + sign */
+    const queryStr = phone.replace('+', '')
+    const validPrifixsInNigeria = [new RegExp(/\b23470/), new RegExp(/\b23480/), new RegExp(/\b23481/), new RegExp(/\b23490/), new RegExp(/\b23491/)]
+    const validPhoneChars = new RegExp(/[1234567890]/)
+    if (validPrifixsInNigeria.filter(prefix=> queryStr.search(prefix) === 0).length) {
+      if (queryStr.search(validPhoneChars) !== -1) {
+        return true
+      }  
     }
-    return false
+  }
+  return false
 }
 
-export const signIn = (userData, selectedCourses, userExists) => {
-    return new Promise((resolve, reject) => { 
-        !userExists?createUserWithEmailAndPassword(auth, userData.email, userData.pswd).then(()=> {
-          auth.onAuthStateChanged(({uid}) => {
-            if (uid) {
-              const {pswd, ...uploadData} = {...userData, selectedCourses, regDate: new Date().getTime()}
-              set(ref(rtdb, `users/${uid}`), uploadData).then(() => {
-                resolve({...uploadData, uid})
-              }).catch(err=> reject(err))
-            }
-          })
-        }).catch(err=> reject(err))
-        : (()=> {
-          resolve({...userData})
-        })()
+export const signIn = (userData) => { //user exists it throws an error then tries to log that user in
+  return new Promise((resolve, reject) => { 
+    createUserWithEmailAndPassword(auth, userData.email, userData.pswd).then(()=> {
+      auth.onAuthStateChanged(({uid}) => {
+        uid? resolve({userExists: false, uid}):reject('something went wrong!')
+      })
+    }).catch(err=> {
+      const [errorMessage] = Object.values(err)
+      errorMessage === "auth/email-already-in-use"? signInWithEmailAndPassword(auth, userData.email, userData.pswd).then(userCredentials => {
+        const uid = userCredentials.user.uid
+        resolve({userExists: true, uid})
+      }).catch(err=> {
+        const [errorMessage] = Object.values(err)
+        errorMessage === "auth/wrong-password" ?
+        Alert.alert('Your password is incorrect!', 'Do You want to reset it', [
+          {
+            text: 'Reset',
+            onPress: ()=> sendPasswordResetEmail(auth, userData.email)
+            .then(Alert.alert('', `A Password Reset email has been sent to ${userData.email}`)).then(reject).catch(reject)
+          },
+          {
+            text: 'Try again',
+            onPress: ()=> reject()
+          }
+        ]) : reject(err)
+      })
+      : reject(err)
     })
+  })
 }
 
-export const saveUserDetails = (userDetails) => {
+
+export const saveUserDataLocally = (uid) => {
   return new Promise((resolve, reject) => {
-    if (userDetails) {
+    get(ref(rtdb, `users/${uid}`)).then(snapshot=> {
+      const userDetails = snapshot.val()
       userStorage.save({
         key: 'userDetails',
         data: userDetails,
-      }).then(()=> resolve (userDetails))
-    } else {
-      reject('User details is not present')
-    }
+      }).then(()=> resolve(userDetails))
+    }).catch(reject)
+  })
+}
+
+export const uploadUserData = ({uid, ...userDetails}) => {
+  return new Promise((resolve, reject) => { 
+    set(ref(rtdb, `users/${uid}`), userDetails).then(() => {
+      resolve({...userDetails, uid})
+    }).catch(err=> reject(err))   
   })
 }
 
