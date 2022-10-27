@@ -20,12 +20,7 @@ import {
   updateOnlineUserData,
   generateTransactionRef,
   getUserDetails,
-  saveUserDetails,
-  signIn,
-  validateEmail,
-  validatePhone,
-  validatePswd,
-  updateLocalUserData 
+  saveUserDataLocally
 } from '../../utils/register.util';
 import { updateCourseData, getOnlineCollections } from '../../utils/pastquestions.utils';
 import LoadingComponent from './Loading.component';
@@ -38,11 +33,9 @@ const DownloadCourseComponent = () => {
   const userData = useRef({})
   const userId = useRef('')
   const price = useRef(0)
-  const userExists = useRef(false)
   
   useEffect(() => {
     getUserDetails().then((userDetails)=> {
-      console.log('userDetails', userDetails)
       const {selectedCourses, uid, ...everythingElse} = userDetails
       userId.current = uid
       userData.current = {... everythingElse}
@@ -68,8 +61,8 @@ const DownloadCourseComponent = () => {
   }
 
   const handleErr = (err, callback, arg) => {
-      typeof err === 'string' && ToastAndroid.showWithGravity(err, ToastAndroid.SHORT)
-      callback && navigation.isFocused() && callback(arg)
+    typeof err === 'string' && ToastAndroid.showWithGravity(err, ToastAndroid.SHORT)
+    callback && navigation.isFocused() && callback(arg)
   }
 
   const changeSelection = (courseName) => {
@@ -90,9 +83,10 @@ const DownloadCourseComponent = () => {
   }
 
   const paymentResponseHandler = (isUpdate) => {
-    updateOnlineUserData(selectedCourses, userId.current).then(updatedSelectedCourses => {
-      updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(async updatedUserData => {
-        for await (const course of updatedSelectedCourses) {
+    updateOnlineUserData({selectedCourses, ...userData.current}, userId.current).then(() => {
+      saveUserDataLocally(userId.current)
+      .then(async ({selectedCourses}) => {
+        for await (const course of selectedCourses) {
           set_loadingValue(isUpdate?'Updating Paid Courses':'Downloading Courses...')
           updateCourseData(course.courseName).finally(()=> set_loadingValue(''))
         }
@@ -186,8 +180,8 @@ const DownloadCourseComponent = () => {
               <View style={styles.headingWrapper}>
                   <Heading extraStyles={styles.cardHeading}>Choose Your Courses</Heading>
               </View>
-              <View style={{display: loadingValue?'flex':'none', zIndex: 7, height: '60%'}}>
-                  <LoadingComponent>{loadingValue}</LoadingComponent>
+              <View style={{display: loadingValue?'flex':'none', zIndex: 7, height: '95%', width: '95%', position: 'absolute', backgroundColor: colors.appWhite}}>
+                <LoadingComponent>{loadingValue}</LoadingComponent>
               </View>
               <ScrollView contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} style={styles.courseListWrapper}>
                   {
@@ -209,27 +203,28 @@ const DownloadCourseComponent = () => {
               </ScrollView>
 
               <PayWithFlutterwave
-                  onRedirect={transactionResult=> transactionResult.status === 'successful' && paymentResponseHandler()}
-                  options={{
-                      tx_ref: generateTransactionRef(10),
-                      authorization: 'FLWPUBK_TEST-c192c6d83589da7000897046bdc51dd2-X',
-                      currency: 'NGN',
-                      integrity_harsh: 'FLWSECK_TEST5423d01f66cf',
-                      payment_options: 'card',
-                      handleOnRedirect: 'google.com',
-                      customer: {email: 'macbasejupeb@gmail.com', phonenumber: '+2348165541591', name: 'Macbase' },
-                      meta: {...userData},
-                      amount: price.current*500
-                  }}
-                  customButton= {props=> {
-                  {/*change back to this b4 production props.onPress()*/}
-                      return (
-                          <TouchableHighlight style={styles.submitButn} onPress= {()=> signInAndPay(userExists.current)}>
-                              <Text style={styles.butnText}>{selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length?`Pay ₦${price.current*500}`:'Update Courses'}</Text>
-                          </TouchableHighlight>
-                      )
-                  }}
+                onRedirect={transactionResult=> transactionResult.status === 'successful' && paymentResponseHandler()}
+                options={{
+                    tx_ref: generateTransactionRef(10),
+                    authorization: 'FLWPUBK_TEST-c192c6d83589da7000897046bdc51dd2-X',
+                    currency: 'NGN',
+                    integrity_harsh: 'FLWSECK_TEST5423d01f66cf',
+                    payment_options: 'card',
+                    handleOnRedirect: 'google.com',
+                    customer: {email: 'macbasejupeb@gmail.com', phonenumber: '+2348165541591', name: 'Macbase' },
+                    meta: {...userData},
+                    amount: price.current*500
+                }}
+                customButton= {props=> {
+                {/*change the onPress func for the custom butn back to this b4 production ()=> selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length? props.onPress():paymentResponseHandler()*/}
+                    return (
+                        <TouchableHighlight style={styles.submitButn} onPress= {()=> selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length? props.onPress():paymentResponseHandler()}>
+                            <Text style={styles.butnText}>{selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length?`Pay ₦${price.current*500}`:'Update Courses'}</Text>
+                        </TouchableHighlight>
+                    )
+                }}
               />
+
           </View>
       </Container>
   )

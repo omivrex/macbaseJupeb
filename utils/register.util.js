@@ -130,12 +130,12 @@ export const updateOnlineUserData = (updateData, uid) => {
   })
 }
 
-export const updateLocalUserData = (selectedCourses, uid, userData) => {
-  return new Promise((resolve, reject) => { 
-    saveUserDetails({selectedCourses, uid, ...userData}).then(userDetails => {
-      resolve(userDetails)
-    }).catch(err=> reject(err))
-  })
-}
+// export const updateLocalUserData = (selectedCourses, uid, userData) => {
+//   return new Promise((resolve, reject) => { 
+//     saveUserDetails({selectedCourses, uid, ...userData}).then(userDetails => {
+//       resolve(userDetails)
+//     }).catch(err=> reject(err))
+//   })
+// }
 
 
