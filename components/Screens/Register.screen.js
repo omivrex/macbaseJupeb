@@ -4,34 +4,27 @@ import {
   View,
   TouchableHighlight,
   TextInput,
-  Alert,
   ToastAndroid
 } from 'react-native';
-import {useContext, useState, useRef, useEffect, useCallback} from 'react';
+import {useContext, useState, useRef, useCallback} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { FontAwesome, Zocial, Entypo, FontAwesome5, Ionicons  } from '@expo/vector-icons';
-import CheckBox from 'expo-checkbox';
-import {PayWithFlutterwave} from 'flutterwave-react-native';
 
 import Container from '../Reusable/Container.component';
 import NavigationContext from '../context/Nav.context';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
-import { ScrollView } from 'react-native-gesture-handler';
 import { 
   updateOnlineUserData,
-  generateTransactionRef,
   getUserDetails,
-  saveUserDetails,
   signIn,
   validateEmail,
   validatePhone,
   validatePswd,
-  updateLocalUserData, 
   saveUserDataLocally,
   uploadUserData
 } from '../../utils/register.util';
-import { updateCourseData, getOnlineCollections } from '../../utils/pastquestions.utils';
+import { getOnlineCollections } from '../../utils/pastquestions.utils';
 import LoadingComponent from '../Reusable/Loading.component';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -39,10 +32,7 @@ const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
   const colors = useContext(ColorContext);
   const [currentPath, set_currentPath] = useState('Sign In')
-  const [selectedCourses, set_selectedCourses] = useState([])
   const userData = useRef({})
-  const displayBackButn = useRef(true)
-  const price = useRef(0)
   const [userExists, setUserExists] = useState(false)
   const userId = useRef('')
   const corusesInDb = useRef([])
@@ -144,17 +134,6 @@ const RegisterScreen = () => {
     .then(({uid})=> saveUserDataLocally(uid))
     .finally(()=> set_loadingValue(''))
     .catch(handleErr)
-  }
-
-  const paymentResponseHandler = (isUpdate) => {
-    updateOnlineUserData(selectedCourses, userId.current).then(updatedSelectedCourses => {
-      updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(async updatedUserData => {
-        for await (const course of updatedSelectedCourses) {
-          set_loadingValue(isUpdate?'Updating Paid Courses':'Downloading Courses...')
-          updateCourseData(course.courseName).finally(()=> set_loadingValue(''))
-        }
-      }).catch(handleErr)
-    }).catch(handleErr)
   }
 
   const styles = StyleSheet.create({
@@ -277,18 +256,10 @@ const RegisterScreen = () => {
     <Container>
       <View style={styles.wrapper}>
         <View style={styles.headingWrapper}>
-          {/* {
-            displayBackButn.current?
-            <TouchableHighlight onPress={previous}>
-              <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-            </TouchableHighlight>
-            :<></>
-          } */}
           <Heading extraStyles={styles.cardHeading}>{currentPath}</Heading>
         </View>
         {
           (() => {
-            price.current = selectedCourses.filter(course=> course.paid===false).length*500
             switch (currentPath) {
               case 'Enter Your Details':
                 return (
