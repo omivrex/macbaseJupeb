@@ -4,81 +4,87 @@ import {
   View,
   TouchableHighlight,
   TextInput,
-  Alert,
-  ToastAndroid
+  ToastAndroid,
+  Alert
 } from 'react-native';
-import {useContext, useState, useRef, useEffect, useCallback} from 'react';
+import {useContext, useState, useRef, useCallback} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { FontAwesome, Zocial, Entypo, FontAwesome5, Ionicons  } from '@expo/vector-icons';
-import CheckBox from 'expo-checkbox';
-import {PayWithFlutterwave} from 'flutterwave-react-native';
 
 import Container from '../Reusable/Container.component';
 import NavigationContext from '../context/Nav.context';
 import ColorContext from '../context/Colors.context';
 import { CText, Heading } from '../Reusable/CustomText.component';
-import { ScrollView } from 'react-native-gesture-handler';
 import { 
   updateOnlineUserData,
-  generateTransactionRef,
   getUserDetails,
-  saveUserDetails,
   signIn,
   validateEmail,
   validatePhone,
   validatePswd,
-  updateLocalUserData 
+  saveUserDataLocally,
+  uploadUserData
 } from '../../utils/register.util';
-import { updateCourseData, getOnlineCollections } from '../../utils/pastquestions.utils';
+import { getOnlineCollections } from '../../utils/pastquestions.utils';
 import LoadingComponent from '../Reusable/Loading.component';
 import { useFocusEffect } from '@react-navigation/native';
+import DownloadContext from '../context/Download.context';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
+  const toggleDownloadComponent = useContext(DownloadContext);
   const colors = useContext(ColorContext);
   const [currentPath, set_currentPath] = useState('Sign In')
-  const [selectedCourses, set_selectedCourses] = useState([])
   const userData = useRef({})
-  const displayBackButn = useRef(true)
-  const price = useRef(0)
-  const userExists = useRef(false)
+  const [userExists, setUserExists] = useState(false)
   const userId = useRef('')
   const corusesInDb = useRef([])
   const [loadingValue, set_loadingValue] = useState('')
 
-  
   useFocusEffect(
     useCallback(() => {
-      getUserDetails().then((userDetails)=> {
-        if (userDetails !== null) {
-          userExists.current = true
-          const {selectedCourses, uid, ...everythingElse} = userDetails
-          userId.current = uid
-          userData.current = {... everythingElse}
-          displayBackButn.current = false
-          getCoursesFromDB()
-          set_selectedCourses([... selectedCourses]) 
-          ToastAndroid.showWithGravity(`You have Already Registered.`, ToastAndroid.SHORT, ToastAndroid.CENTER)
-        } else {
-          userExists.current = false
-          set_currentPath('Sign In')
-        }
-      }).catch(err=> console.log(err))
+      loadUserDataFromLocalStorage()
       return ()=> null
     }, [])
   );
+
+  const loadUserDataFromLocalStorage = () => {
+    getUserDetails().then((userDetails)=> {
+      console.log('loadUserDataFromLocalStorage', userDetails)
+      if (userDetails !== null) {
+        const {uid, ...everythingElse} = userDetails
+        userId.current = uid
+        userData.current = {... everythingElse}
+        setUserExists(true)
+        set_currentPath('Enter Your Details')
+        Alert.alert(`You have Already Registered.`, 'Do You Want To Dowload Past Questions?', [
+          {
+            text: 'Yes',
+            onPress: toggleDownloadComponent
+          },
+
+          {
+            text: 'No',
+          }
+        ])
+      } else {
+        setUserExists(false)
+        set_currentPath('Sign In')
+      }
+    }).catch(err=> console.log(err))
+  }
 
   const next = (path) => {
     let inputsAreValid = false
     switch (currentPath) {
       case 'Enter Your Details':
-        const isValidPhone = validatePhone(userData.current.phone)
-        !isValidPhone && ToastAndroid.showWithGravity('Your phone number must be 13 characters and in the format +23480xxxxxxxx', 5000, ToastAndroid.CENTER)
+        // const isValidPhone = validatePhone(userData.current.phone)
+        ToastAndroid.showWithGravity('Your phone number must be 13 characters and in the format +23480xxxxxxxx', 5000, ToastAndroid.CENTER)
         const isValidName = userData.current.name?.length >= 3
         !isValidName && ToastAndroid.showWithGravity('Full name should be at least 3 characters', 5000, ToastAndroid.CENTER)
         const isValidSchool = userData.current.school?.length >= 3
         !isValidSchool && ToastAndroid.showWithGravity('School name should be at least 3 characters', 5000, ToastAndroid.CENTER)
-        inputsAreValid = isValidPhone && isValidName && isValidSchool
+        inputsAreValid = isValidName && isValidSchool
         break;
       default:
         const isValidEmail = validateEmail(userData.current.email)
@@ -111,61 +117,35 @@ const RegisterScreen = () => {
   }
 
   const handleErr = (err, callback, arg) => {
-    typeof err === 'string' && ToastAndroid.showWithGravity(err, ToastAndroid.SHORT)
+    console.log(typeof err, err)
+    typeof err === 'string' && ToastAndroid.showWithGravity(err, ToastAndroid.LONG, ToastAndroid.CENTER)
     callback && navigation.isFocused() && callback(arg)
   }
 
-  const previous = () => {  
-    switch (currentPath) {
-      case 'Choose Your Courses':
-        set_currentPath('Enter Your Details')    
-        break;
-      default:
-        set_currentPath('Sign In')
-        break;
-    }
+  const authenticateUser = () => {
+    set_loadingValue('Signing In...')
+    signIn(userData.current).then(({userExists, uid}) => {
+      userData.current.uid = uid
+      !userExists?next('Enter Your Details'):saveUserDataLocally(uid).then(()=>  loadUserDataFromLocalStorage())
+    })
+    .finally(()=> set_loadingValue(''))
+    .catch(handleErr)
   }
 
-  
-  const changeSelection = (courseName) => {
-    const [course] = selectedCourses.filter(item=> item.courseName === courseName)
-    set_selectedCourses([])
-    if (!course) {
-      set_selectedCourses([... new Set(selectedCourses.concat({courseName, paid: false}))])
-    } else {
-      course.paid? ToastAndroid.showWithGravity(`You Have Already Paid For This Course.`, ToastAndroid.LONG, ToastAndroid.CENTER)
-      :set_selectedCourses([... selectedCourses.filter(item=> item.courseName !== courseName)])
-    }
+  const storeUserDataToDB = () => {
+    set_loadingValue('Setting up your account...')
+    uploadUserData(userData.current).then(({uid})=> saveUserDataLocally(uid))
+    .finally(()=> set_loadingValue(''))
+    .catch(handleErr)
   }
 
-  const signInAndPay = (userExists, paymentCallBack) => {
-    if (selectedCourses.filter(course => course.paid === false).length) { /** select only courses which haven't been purchased */
-      set_loadingValue('Signing In...')
-      signIn(userData.current, selectedCourses, userExists).then((userDetails) => {
-        if (userDetails) {
-          !userExists?saveUserDetails(userDetails):null
-          setTimeout(() => {
-            set_loadingValue('')
-          }, 1000);
-          paymentCallBack()
-        }
-      }).catch(handleErr)
-    } else if (selectedCourses.length) {
-      paymentResponseHandler(true)
-    } else {
-      ToastAndroid.showWithGravity(`You haven't selected any course yet`, ToastAndroid.LONG, ToastAndroid.CENTER)
-    }
-  }
-
-  const paymentResponseHandler = (isUpdate) => {
-    updateOnlineUserData(selectedCourses, userId.current).then(updatedSelectedCourses => {
-      updateLocalUserData(updatedSelectedCourses, userId.current, userData.current).then(async updatedUserData => {
-        for await (const course of updatedSelectedCourses) {
-          set_loadingValue(isUpdate?'Updating Paid Courses':'Downloading Courses...')
-          updateCourseData(course.courseName).finally(()=> set_loadingValue(''))
-        }
-      }).catch(handleErr)
-    }).catch(handleErr)
+  const updateUserDetails = () => {
+    set_loadingValue('Updating your details...')
+    console.log(userId.current, userData.current)
+    updateOnlineUserData(userData.current, userId.current)
+    .then(({uid})=> saveUserDataLocally(uid))
+    .finally(()=> set_loadingValue(''))
+    .catch(handleErr)
   }
 
   const styles = StyleSheet.create({
@@ -288,71 +268,17 @@ const RegisterScreen = () => {
     <Container>
       <View style={styles.wrapper}>
         <View style={styles.headingWrapper}>
-          {
-            displayBackButn.current?
-            <TouchableHighlight onPress={previous}>
-              <Ionicons name="ios-arrow-back" size={40} color={colors.iconColor} />
-            </TouchableHighlight>
-            :<></>
-          }
           <Heading extraStyles={styles.cardHeading}>{currentPath}</Heading>
         </View>
         {
           (() => {
-            price.current = selectedCourses.filter(course=> course.paid===false).length*500
             switch (currentPath) {
-              case 'Choose Your Courses':
-                return (
-                  <>
-                    <View style={{display: loadingValue?'flex':'none', zIndex: 7, height: '60%'}}>
-                      <LoadingComponent>{loadingValue}</LoadingComponent>
-                    </View>
-                    <ScrollView contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} style={styles.courseListWrapper}>
-                      {
-                        corusesInDb.current.map(({courseName}, index) => {
-                          return (
-                            <TouchableHighlight key={index} style={{width: '90%'}} onPress = {()=> changeSelection(courseName)}>
-                              <View style={styles.courseSelectionButn}>
-                                <CText style={styles.courseSelectionButnText}>{courseName}</CText>
-                                <CheckBox
-                                  value={selectedCourses.filter(item=> item.courseName === courseName).length>0}
-                                  onValueChange={()=> changeSelection(courseName)}
-                                  tintColors={{true: colors.appColor}}
-                                />
-                              </View>
-                            </TouchableHighlight>
-                          )
-                        })
-                      }
-                    </ScrollView>
-
-                    <PayWithFlutterwave
-                      onRedirect={transactionResult=> transactionResult.status === 'successful' && paymentResponseHandler()}
-                      options={{
-                        tx_ref: generateTransactionRef(10),
-                        authorization: 'FLWPUBK_TEST-c192c6d83589da7000897046bdc51dd2-X',
-                        currency: 'NGN',
-                        integrity_harsh: 'FLWSECK_TEST5423d01f66cf',
-                        payment_options: 'card',
-                        handleOnRedirect: 'google.com',
-                        customer: {email: 'macbasejupeb@gmail.com', phonenumber: '+2348165541591', name: 'Macbase' },
-                        meta: {...userData},
-                        amount: price.current
-                      }}
-                      customButton= {props=> {
-                        {/*change back to this b4 production props.onPress()*/}
-                        return (
-                          <TouchableHighlight style={styles.submitButn} onPress= {()=> signInAndPay(userExists.current, ()=>paymentResponseHandler())}>
-                            <Text style={styles.butnText}>{selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length?`Pay ₦${price.current}`:'Update Courses'}</Text>
-                          </TouchableHighlight>
-                        )
-                      }}
-                    />
-                  </>
-                )
               case 'Enter Your Details':
                 return (
                   <>
+                    <View style={{display: loadingValue?'flex':'none', zIndex: 7, height: '95%', width: '95%', position: 'absolute', backgroundColor: colors.appWhite}}>
+                      <LoadingComponent>{loadingValue}</LoadingComponent>
+                    </View>
                     <View style={styles.inputField}>
                       <View style={styles.labelWrapper}>
                         <FontAwesome name="user" style={styles.icons} size={24} color={colors.tabColor} />
@@ -380,14 +306,17 @@ const RegisterScreen = () => {
                       </View>
                       <TextInput key={'school'} defaultValue={userData.current.school&&userData.current.school} onChangeText={value=> userData.current.school = value} style={styles.textInput}></TextInput>
                     </View>
-                    <TouchableHighlight onPress={()=> next('Choose Your Courses')} style={styles.submitButn}>
-                      <Text style={styles.butnText}>Next</Text>
+                    <TouchableHighlight onPress={!userExists?storeUserDataToDB:updateUserDetails} style={styles.submitButn}>
+                      <Text style={styles.butnText}>{!userExists?'ADD':'Update'}</Text>
                     </TouchableHighlight>
                   </>
                 )
               default:
                 return (
                   <>
+                    <View style={{display: loadingValue?'flex':'none', zIndex: 7, height: '95%', width: '95%', position: 'absolute', backgroundColor: colors.appWhite}}>
+                      <LoadingComponent>{loadingValue}</LoadingComponent>
+                    </View>
                     <CText extraStyles={styles.ads}>
                       Sign In to enjoy all features of the app.
                       This includes 5 years of compiled past questions with detailed answers,
@@ -411,8 +340,8 @@ const RegisterScreen = () => {
                       </View>
                       <TextInput defaultValue={userData.current.pswd&&userData.current.pswd} key={'pswd'} secureTextEntry={true} onChangeText={value=> userData.current.pswd = value} style={styles.textInput}></TextInput>
                     </View>
-                    <TouchableHighlight onPress={()=> next('Enter Your Details')} style={styles.submitButn}>
-                      <Text style={styles.butnText}>Next</Text>
+                    <TouchableHighlight onPress={()=> authenticateUser()} style={styles.submitButn}>
+                      <Text style={styles.butnText}>Sign In</Text>
                     </TouchableHighlight>
                   </>
                 )
