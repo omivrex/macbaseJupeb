@@ -3,7 +3,8 @@ import {
   Text, 
   View,
   TouchableHighlight,
-  ToastAndroid
+  ToastAndroid,
+  BackHandler
 } from 'react-native';
 import {useContext, useState, useRef, useEffect} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -24,6 +25,7 @@ import {
 } from '../../utils/register.util';
 import { updateCourseData, getOnlineCollections } from '../../utils/pastquestions.utils';
 import LoadingComponent from './Loading.component';
+import DownloadContext from '../context/Download.context';
 
 const DownloadCourseComponent = () => {
   const colors = useContext(ColorContext);
@@ -33,6 +35,8 @@ const DownloadCourseComponent = () => {
   const userData = useRef({})
   const userId = useRef('')
   const price = useRef(0)
+  const toggleDownloadComponent = useContext(DownloadContext)
+
   
   useEffect(() => {
     getUserDetails().then((userDetails)=> {
@@ -43,6 +47,7 @@ const DownloadCourseComponent = () => {
       selectedCourses && set_selectedCourses([... selectedCourses]) 
       ToastAndroid.showWithGravity(`You have Already Registered.`, ToastAndroid.SHORT, ToastAndroid.CENTER)
     }).catch(err=> console.log(err))
+    return BackHandler.removeEventListener('hardwareBackPress', () => null)
   }, [])
 
   const getCoursesFromDB = (path) => {
@@ -93,6 +98,16 @@ const DownloadCourseComponent = () => {
       }).catch(handleErr)
     }).catch(handleErr)
   }
+
+  BackHandler.addEventListener('hardwareBackPress', () => {
+    try {
+      return loadingValue === ''? toggleDownloadComponent():true
+    }
+    catch (err) {
+      ToastAndroid.show(err, ToastAndroid.LONG);
+      return false;
+    }
+  });
 
   const styles = StyleSheet.create({
       wrapper: {
