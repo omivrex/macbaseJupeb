@@ -9,6 +9,8 @@ import HomeStack from './stacks/Home.stack';
 import LTools from './stacks/LTools.stack';
 import PQ from './stacks/Pq.stack';
 import Register from './stacks/Register.stack';
+import DownloadContext from './context/Download.context';
+import { useContext, useEffect } from 'react';
 
 const Drawer = createDrawerNavigator();
 
@@ -28,12 +30,25 @@ const DrawerNav = () => {
       <Drawer.Screen name="Register" component={Register} />
       <Drawer.Screen name="Past questions" component={PQ} />
       <Drawer.Screen name="CBT test" component={Cbt} />
+      <Drawer.Screen name="Download Questions" component={DownloadMounter} />
       <Drawer.Screen name="Learning tools" component={LTools} />
       <Drawer.Screen name="GP Calculator" component={Gp} />
       <Drawer.Screen name="FAQs" component={Faq} />
       <Drawer.Screen name="Help" component={Help} />
       <Drawer.Screen name="About" component={About} />
     </Drawer.Navigator>
+  )
+}
+
+const DownloadMounter = () => {
+  const toggleDownloadComponent = useContext(DownloadContext)
+  useEffect(() => {
+    toggleDownloadComponent()
+    return toggleDownloadComponent()
+  }, [])
+  
+  return (
+    <></>
   )
 }
 
