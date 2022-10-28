@@ -56,6 +56,7 @@ const CbtScreen = ({navigation}) => {
   
   const getAllTestResults = () => {
     loadAllTestData().then(testsData=> {
+      console.log('testsData', testsData)
       set_testResults({...testsData})
     })
   }

@@ -205,6 +205,7 @@ export const loadAllTestData = () => {
 
 export const storeTestResult = ({courseName, ...remainingData}) => {
     return new Promise((resolve, reject) => {
+        console.log(courseName, remainingData)
         loadResultData(courseName).then(testData => {
             testResultStorage.save({
                 id: courseName,
