@@ -93,7 +93,10 @@ const DownloadCourseComponent = () => {
       .then(async ({selectedCourses}) => {
         for await (const course of selectedCourses) {
           set_loadingValue(isUpdate?'Updating Paid Courses':'Downloading Courses...')
-          updateCourseData(course.courseName).finally(()=> set_loadingValue(''))
+          updateCourseData(course.courseName).finally(()=> {
+            set_loadingValue('')
+            toggleDownloadComponent()
+          })
         }
       }).catch(handleErr)
     }).catch(handleErr)
