@@ -57,8 +57,7 @@ const RegisterScreen = () => {
         userData.current = {... everythingElse}
         setUserExists(true)
         set_currentPath('Enter Your Details')
-        ToastAndroid.showWithGravity(`You have Already Registered.`, ToastAndroid.LONG, ToastAndroid.CENTER)
-        Alert.alert('Do You Want To Dowload Past Questions?', '', [
+        Alert.alert(`You have Already Registered.`, 'Do You Want To Dowload Past Questions?', [
           {
             text: 'Yes',
             onPress: toggleDownloadComponent
