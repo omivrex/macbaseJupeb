@@ -94,6 +94,7 @@ const DownloadCourseComponent = () => {
         for await (const course of selectedCourses) {
           set_loadingValue(isUpdate?'Updating Paid Courses':'Downloading Courses...')
           updateCourseData(course.courseName).finally(()=> {
+            ToastAndroid.showWithGravity(`Download Complete!`, ToastAndroid.LONG, ToastAndroid.CENTER)
             set_loadingValue('')
             toggleDownloadComponent()
           })
