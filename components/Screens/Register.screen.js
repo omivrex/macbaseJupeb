@@ -4,7 +4,8 @@ import {
   View,
   TouchableHighlight,
   TextInput,
-  ToastAndroid
+  ToastAndroid,
+  Alert
 } from 'react-native';
 import {useContext, useState, useRef, useCallback} from 'react';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -27,9 +28,11 @@ import {
 import { getOnlineCollections } from '../../utils/pastquestions.utils';
 import LoadingComponent from '../Reusable/Loading.component';
 import { useFocusEffect } from '@react-navigation/native';
+import DownloadContext from '../context/Download.context';
 
 const RegisterScreen = () => {
   const navigation = useContext(NavigationContext);
+  const toggleDownloadComponent = useContext(DownloadContext);
   const colors = useContext(ColorContext);
   const [currentPath, set_currentPath] = useState('Sign In')
   const userData = useRef({})
@@ -55,6 +58,16 @@ const RegisterScreen = () => {
         setUserExists(true)
         set_currentPath('Enter Your Details')
         ToastAndroid.showWithGravity(`You have Already Registered.`, ToastAndroid.LONG, ToastAndroid.CENTER)
+        Alert.alert('Do You Want To Dowload Past Questions?', '', [
+          {
+            text: 'Yes',
+            onPress: toggleDownloadComponent
+          },
+
+          {
+            text: 'No',
+          }
+        ])
       } else {
         setUserExists(false)
         set_currentPath('Sign In')
