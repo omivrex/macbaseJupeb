@@ -237,7 +237,7 @@ const DownloadCourseComponent = () => {
                 customButton= {props=> {
                 {/*change the onPress func for the custom butn back to this b4 production ()=> selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length? props.onPress():paymentResponseHandler()*/}
                     return (
-                        <TouchableHighlight style={styles.submitButn} onPress= {()=> selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length? props.onPress():paymentResponseHandler()}>
+                        <TouchableHighlight style={styles.submitButn} onPress= {paymentResponseHandler}>
                             <Text style={styles.butnText}>{selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length?`Pay ₦${price.current*500}`:'Update Courses'}</Text>
                         </TouchableHighlight>
                     )
