@@ -68,6 +68,7 @@ const DownloadCourseComponent = () => {
   const handleErr = (err, callback, arg) => {
     typeof err === 'string' && ToastAndroid.showWithGravity(err, ToastAndroid.SHORT)
     callback && navigation.isFocused() && callback(arg)
+    set_loadingValue('')
   }
 
   const changeSelection = (courseName) => {
@@ -204,20 +205,20 @@ const DownloadCourseComponent = () => {
               </View>
               <ScrollView contentContainerStyle={{justifyContent: 'center', alignItems: 'center'}} style={styles.courseListWrapper}>
                   {
-                  corusesInDb.current.map(({courseName}, index) => {
-                      return (
-                      <TouchableHighlight key={index} style={{width: '90%'}} onPress = {()=> changeSelection(courseName)}>
-                          <View style={styles.courseSelectionButn}>
-                          <CText style={styles.courseSelectionButnText}>{courseName}</CText>
-                          <CheckBox
-                              value={selectedCourses.filter(item=> item.courseName === courseName).length>0}
-                              onValueChange={()=> changeSelection(courseName)}
-                              tintColors={{true: colors.appColor}}
-                          />
-                          </View>
-                      </TouchableHighlight>
-                      )
-                  })
+                    corusesInDb.current.map(({courseName}, index) => {
+                        return (
+                        <TouchableHighlight key={index} style={{width: '90%'}} onPress = {()=> changeSelection(courseName)}>
+                            <View style={styles.courseSelectionButn}>
+                            <CText style={styles.courseSelectionButnText}>{courseName}</CText>
+                            <CheckBox
+                                value={selectedCourses.filter(item=> item.courseName === courseName).length>0}
+                                onValueChange={()=> changeSelection(courseName)}
+                                tintColors={{true: colors.appColor}}
+                            />
+                            </View>
+                        </TouchableHighlight>
+                        )
+                    })
                   }
               </ScrollView>
 
@@ -237,7 +238,7 @@ const DownloadCourseComponent = () => {
                 customButton= {props=> {
                 {/*change the onPress func for the custom butn back to this b4 production ()=> selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length? props.onPress():paymentResponseHandler()*/}
                     return (
-                        <TouchableHighlight style={styles.submitButn} onPress= {paymentResponseHandler}>
+                        <TouchableHighlight style={styles.submitButn} onPress= { ()=> selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length? props.onPress():paymentResponseHandler()}>
                             <Text style={styles.butnText}>{selectedCourses.filter(course => course.paid === false).length || !selectedCourses.length?`Pay ₦${price.current*500}`:'Update Courses'}</Text>
                         </TouchableHighlight>
                     )
