@@ -45,7 +45,7 @@ const QuestionComponent = ({dataToRender, children}) => {
                     }
                 </style>
                 <div style="font-size: 1em; font-family: Roboto, sans-serif, san Francisco;">
-                    ${displayData?displayData.question.replace('max-width: 180px;', 'max-width: 90vw;'):`<h2 style="color: #777; text-align: center">Something Went Wrong!</h2>`}
+                    ${displayData?displayData?.question?.replace('max-width: 180px;', 'max-width: 90vw;'):`<h2 style="color: #777; text-align: center">Something Went Wrong!</h2>`}
                 </div> 
             </body>
             `
