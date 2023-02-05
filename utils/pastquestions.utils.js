@@ -25,66 +25,29 @@ export const getOnlineCollections = (collectionName = 'pastquestions', returnId)
 }
 
 let finishFunc = null    
-export const updateCourseData = (courseName, callback) => {
-    let courseData = []
-    return new Promise((resolve, reject) => { 
-        const rootPath = `pastquestions/${courseName}/${courseName}`
-        getOnlineCollections(rootPath).then(collectionData => {
-            
-            const promiseArray = []
-            
-            collectionData.forEach((data, index) => {
-                let [label] = Object.values(data)
-                data.data = []
-                courseData.push(data)
-                let currentPath = rootPath+`/${label}/${label}`
-                console.log(currentPath)
-                promiseArray.push(getSubCollections(currentPath, data, callback)
-                .then(()=> {
-                    index === collectionData.length-1 && Promise.allSettled(promiseArray) //the last item
-                    .then(resolve).catch(err=> console.log(err))
-                }))
-            })
-        }).catch(reject)
-     })
-}
-
-const getSubCollections = async (path, parentObj) => {
+export const updateCourseData = async (courseName) => {
     try {
-        const data = await getOnlineCollections(path)
-
-        parentObj.data = [...data]
-        const questionPromises = []
-
-        for (let index = 0; index < parentObj.data.length; index++) {
-            const collection = parentObj.data[index];
-            let [label] = Object.values(collection)
-            let [key] = Object.keys(collection)
-            let itemDataPath = path + `/${label}/${label}`
-            key === 'questionNumber'? await getQuestionData(collection, itemDataPath).then(() => {
-                (index === parentObj.data.length-1) && saveCourseData(parentObj.data, path)
-            }).catch(err => console.log(err))
-            : await getSubCollections(itemDataPath, collection)
-        }
-
+        console.log('sent request to update course...')
+        const res = await fetch(`https://jupeb-macbase-server.onrender.com/${courseName}`)
+        const data = await res.json()
+        console.log('updating course...', data.course)
+        await saveCourseData(data, courseName)
     } catch (error) {
         console.log(error)
     }
 }
 
-const getQuestionData = (question, path) => {
-    return new Promise((resolve, reject) => {
-        getOnlineCollections(path, true).then(([returned]) => {
-            const {data} = returned
-            question.data = data?{...data}:null
-            resolve(question)
-        }).catch(reject)
-    })
-}
+updateCourseData('physics')
 
-const saveCourseData = (data, path) => {
-    const fileName = documentDirectory+[... new Set(path.split('/'))].join('-')
-    writeAsStringAsync(fileName, JSON.stringify(data, function replacer(key, value) { return value}), {encoding: EncodingType.UTF8}).then(()=> console.log('succesfully saved :', path)).catch(err=> console.log('error from saveCourseData: ', err))
+
+const saveCourseData = async (data, path) => {
+    try {
+        const fileName = documentDirectory+path
+        await writeAsStringAsync(fileName, JSON.stringify(data, (key, value) => value), {encoding: EncodingType.UTF8})
+        console.log('succesfully saved :', path)
+    } catch (error) {
+        console.log('error from saveCourseData: ', error)
+    }
 }
 
 
@@ -119,7 +82,7 @@ export const getQuestionSelection = ({course, section, year}) => {
 }
 
 export const getAllQuestionsInCourse = (course) => {
-    console.log(course)
+    console.log(course) 
     const promiseArray = []
     let questions = []
     return new Promise((resolve, reject) => {
@@ -205,7 +168,6 @@ export const loadAllTestData = () => {
 
 export const storeTestResult = ({courseName, ...remainingData}) => {
     return new Promise((resolve, reject) => {
-        console.log(courseName, remainingData)
         loadResultData(courseName).then(testData => {
             testResultStorage.save({
                 id: courseName,
