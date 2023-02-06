@@ -37,14 +37,24 @@ export const updateCourseData = async (courseName) => {
     }
 }
 
-updateCourseData('physics')
+// updateCourseData('physics')
 
 
-const saveCourseData = async (data, path) => {
+const saveCourseData = async (courseContent, courseName) => {
     try {
-        const fileName = documentDirectory+path
-        await writeAsStringAsync(fileName, JSON.stringify(data, (key, value) => value), {encoding: EncodingType.UTF8})
-        console.log('succesfully saved :', path)
+        const fileName = documentDirectory+`pastquestions-${courseName}`
+        for (let index = 0; index < courseContent.data.length; index++) {
+            const year = courseContent.data[index];
+            for (let index = 0; index < year.data.length; index++) {
+                const section = year.data[index];
+                for (let index = 0; index < section.data.length; index++) {
+                    const questions = section.data[index];
+                    const filePath = documentDirectory+`pastquestions-${courseName}-${year.year}-${section.section}`
+                    await writeAsStringAsync(filePath, JSON.stringify(questions, (key, value) => value), {encoding: EncodingType.UTF8})
+                    console.log('succesfully saved :', filePath)
+                }
+            }
+        }
     } catch (error) {
         console.log('error from saveCourseData: ', error)
     }
