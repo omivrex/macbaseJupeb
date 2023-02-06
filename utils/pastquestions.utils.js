@@ -67,6 +67,21 @@ const saveCourseData = async (courseContent, courseName) => {
 
 // courseStorage.clearMapForKey('course-data');
 
+const clearStorage = async () => {
+    try {
+        const files = await readDirectoryAsync(documentDirectory)
+        for (const dir of files) {
+            console.log(dir)
+            files.includes('pastquestions') &&
+            await deleteAsync(dir);
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// clearStorage()
+
 export const getBranchData = (level, courseName = '') => {
     const levelLabels = ['course', 'year', 'section']
     return new Promise((resolve, reject) => {
