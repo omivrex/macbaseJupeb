@@ -92,13 +92,16 @@ const DownloadCourseComponent = () => {
     updateOnlineUserData({selectedCourses, ...userData.current}, userId.current).then(() => {
       saveUserDataLocally(userId.current)
       .then(async ({selectedCourses}) => {
-        for await (const course of selectedCourses) {
-          set_loadingValue(isUpdate?'Updating Paid Courses':'Downloading Courses...')
-          updateCourseData(course.courseName).then(()=> {
-            ToastAndroid.showWithGravity(`Download Complete!`, ToastAndroid.LONG, ToastAndroid.CENTER)
-            set_loadingValue('')
-            toggleDownloadComponent()
-          })
+        try {
+          for await (const course of selectedCourses) {
+            set_loadingValue(isUpdate?'Updating Paid Courses':'Downloading Courses...')
+            await updateCourseData(course.courseName)
+          }
+          ToastAndroid.showWithGravity(`Download Complete!`, ToastAndroid.LONG, ToastAndroid.CENTER)
+          set_loadingValue('')
+          toggleDownloadComponent()
+        } catch (error) {
+          throw error
         }
       }).catch(handleErr)
     }).catch(handleErr)
