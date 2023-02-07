@@ -135,7 +135,6 @@ const PqScreen = ({navigation}) => {
     selectedCourse.current = level === 1? '':selectedCourse.current
     return level>-1
   }
-  console.log('Test alpha', Object.values(path.current).filter(Boolean).length, navigation.isFocused())
 
   BackHandler.addEventListener('hardwareBackPress', () => {
     try {
@@ -149,7 +148,6 @@ const PqScreen = ({navigation}) => {
 
   const showAns = (dataToRender) => {
     set_ansData(dataToRender)
-    console.log('ansData', ansData)
   }
 
   const styles = StyleSheet.create({

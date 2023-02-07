@@ -27,10 +27,10 @@ export const getOnlineCollections = (collectionName = 'pastquestions', returnId)
 let finishFunc = null    
 export const updateCourseData = async (courseName) => {
     try {
-        console.log('sent request to update course...')
+        // console.log('sent request to update course...')
         const res = await fetch(`https://jupeb-macbase-server.onrender.com/${courseName}`)
         const data = await res.json()
-        console.log('updating course...', typeof data)
+        // console.log('updating course...', typeof data)
         await saveCourseData(data, courseName)
     } catch (error) {
         console.log(error)
@@ -49,7 +49,7 @@ const saveCourseData = async (courseContent, courseName) => {
                 const section = year.data[index];
                 const filePath = documentDirectory+`pastquestions-${courseName}-${year.year}-${section.section}`
                 await writeAsStringAsync(filePath, JSON.stringify(section, (key, value) => value), {encoding: EncodingType.UTF8})
-                console.log('succesfully saved :', filePath)
+                // console.log('succesfully saved :', filePath)
             }
         }
     } catch (error) {
@@ -68,7 +68,7 @@ const clearStorage = async () => {
     try {
         const files = await readDirectoryAsync(documentDirectory)
         for (const dir of files) {
-            console.log(dir)
+            // console.log(dir)
             files.includes('pastquestions') &&
             await deleteAsync(dir);
         }
@@ -99,7 +99,6 @@ export const getQuestionSelection = async ({course, section, year}) => {
     try {
         const filePath = `pastquestions-${course.value}-${year.value}-${section.value}`
         const contents = JSON.parse(await readAsStringAsync(documentDirectory+filePath, {encoding: EncodingType.UTF8}))
-        console.log(Object.keys(contents.data))
         return contents.data
     } catch (error) {
         console.log('error reaading question data: ', error)       
@@ -107,13 +106,11 @@ export const getQuestionSelection = async ({course, section, year}) => {
 }
 
 export const getAllQuestionsInCourse = (course) => {
-    console.log(course) 
     const promiseArray = []
     let questions = []
     return new Promise((resolve, reject) => {
         getBranchData(1, course)
         .then(data => {
-            console.log(data)
             const years = Object.values(data)
             years.forEach(({year})=> {
                 promiseArray.push(
