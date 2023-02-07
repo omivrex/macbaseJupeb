@@ -1,7 +1,7 @@
 import { collection, getDocs } from "firebase/firestore"
 import Storage from 'react-native-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { documentDirectory, EncodingType, readAsStringAsync, readDirectoryAsync, writeAsStringAsync } from "expo-file-system";
+import { deleteAsync, documentDirectory, EncodingType, readAsStringAsync, readDirectoryAsync, writeAsStringAsync } from "expo-file-system";
 import { firestore } from "./firebaseInit";
 
 export const getOnlineCollections = (collectionName = 'pastquestions', returnId) => {
@@ -30,7 +30,7 @@ export const updateCourseData = async (courseName) => {
         console.log('sent request to update course...')
         const res = await fetch(`https://jupeb-macbase-server.onrender.com/${courseName}`)
         const data = await res.json()
-        console.log('updating course...', data.course)
+        console.log('updating course...', typeof data)
         await saveCourseData(data, courseName)
     } catch (error) {
         console.log(error)
@@ -47,12 +47,9 @@ const saveCourseData = async (courseContent, courseName) => {
             const year = courseContent.data[index];
             for (let index = 0; index < year.data.length; index++) {
                 const section = year.data[index];
-                for (let index = 0; index < section.data.length; index++) {
-                    const questions = section.data[index];
-                    const filePath = documentDirectory+`pastquestions-${courseName}-${year.year}-${section.section}`
-                    await writeAsStringAsync(filePath, JSON.stringify(questions, (key, value) => value), {encoding: EncodingType.UTF8})
-                    console.log('succesfully saved :', filePath)
-                }
+                const filePath = documentDirectory+`pastquestions-${courseName}-${year.year}-${section.section}`
+                await writeAsStringAsync(filePath, JSON.stringify(section, (key, value) => value), {encoding: EncodingType.UTF8})
+                console.log('succesfully saved :', filePath)
             }
         }
     } catch (error) {
@@ -97,13 +94,16 @@ export const getBranchData = (level, courseName = '') => {
     })
 }
 
-export const getQuestionSelection = ({course, section, year}) => {
-    return new Promise((resolve, reject) => { 
+export const getQuestionSelection = async ({course, section, year}) => {
+
+    try {
         const filePath = `pastquestions-${course.value}-${year.value}-${section.value}`
-        readAsStringAsync(documentDirectory+filePath, {encoding: EncodingType.UTF8})
-        .then(JSON.parse).then(resolve)
-        .catch(err=> console.log('error reaading question data: ', err))
-    })
+        const contents = JSON.parse(await readAsStringAsync(documentDirectory+filePath, {encoding: EncodingType.UTF8}))
+        console.log(Object.keys(contents.data))
+        return contents.data
+    } catch (error) {
+        console.log('error reaading question data: ', error)       
+    }
 }
 
 export const getAllQuestionsInCourse = (course) => {

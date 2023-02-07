@@ -95,7 +95,7 @@ const PqScreen = ({navigation}) => {
             getQuestionSelection(path.current)
             .then(questions=> {
               renderQuestionData.current = true
-              questions.length?set_dataToRender([...questions]):null
+              questions?.length?set_dataToRender([...questions]):null
             })
           break;  
           default:
